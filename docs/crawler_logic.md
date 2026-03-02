@@ -4,7 +4,7 @@
 
 ## 🎯 수집 대상 (Target)
 - **대상 사이트:** 호서대학교 공지사항 게시판
-- **대상 URL:** `https://www.hoseo.ac.kr/Home/BBSList.mbz?action=MAPP_17082401398`
+- **대상 URL:** `https://www.hoseo.ac.kr/Home/BBSList.mbz?action=MAPP_1708240139`
 - **수집 범위:** 게시글 제목, 작성일, 본문 내용, 첨부파일(PDF) 링크 및 다운로드
 
 ## 🛠️ 사용 기술 및 라이브러리 (Dependencies)
