@@ -1,0 +1,13 @@
+# 가상환경 (용량이 크고 공유할 필요 없음)
+venv/
+.venv/
+__pycache__/
+
+# 데이터 및 데이터베이스 (보안 및 용량 문제)
+data/
+database/
+
+# 파이썬 설정 및 기타
+*.pyc
+.env
+.vscode/

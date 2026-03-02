@@ -1,0 +1,5 @@
+# ai_engine/loader.py 의존성
+langchain-community>=0.3.0
+langchain-core>=0.3.0
+langchain-text-splitters>=0.3.0
+pymupdf>=1.24.0
