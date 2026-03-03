@@ -1,29 +1,37 @@
 # 📄 API Specification (v2.0) - Advanced RAG Backend
+# 📄 Internal API Specification - AI Engine (FastAPI)
 
-본 문서는 호서대학교 스마트 캠퍼스 도우미 챗봇의 프론트엔드(React)와 백엔드(FastAPI) 간의 통신 규격을 정의합니다. 
-라이브 시연의 체감 속도를 극대화하기 위해 메인 질의응답은 **SSE(Server-Sent Events) 기반의 스트리밍 방식**을 채택했습니다.
+본 문서는 호서대학교 스마트 캠퍼스 도우미의 **메인 백엔드(Spring Boot, VM1)**와 **AI 엔진 서버(FastAPI, VM2)** 간의 내부 서버 통신(Server-to-Server) 규격을 정의합니다.
 
 ## 1. 기본 설정 (Global Settings)
-- **Base URL:** `http://localhost:8000/api/v1`
-- **CORS Policy:** React 개발 서버(`http://localhost:3000` 등)에서의 접근을 허용하도록 FastAPI 미들웨어 설정 필수.
+- **Base URL:** `http://<VM2_Internal_IP>:8000/api/v1` (내부망 IP 사용)
+- **Content-Type:** `application/json`
+- **보안 (Authentication):** 외부의 직접 접근을 막기 위해 모든 요청 헤더에 내부 통신용 Secret Key를 포함해야 합니다.
+  - `X-API-Key: {SHARED_SECRET_KEY}`
 
 ---
 
 ## 2. 챗봇 질의응답 (Streaming API)
-사용자의 질문을 받아 RAG 파이프라인을 거친 후, LLM의 생성 결과를 한 글자씩 실시간으로 전송합니다.
+Spring Boot가 사용자의 질문을 전달하면, FastAPI가 RAG 파이프라인을 거쳐 생성된 답변을 스트리밍(SSE) 방식으로 반환합니다. 
+*(주의: Spring Boot는 이 SSE 응답을 WebFlux 등을 활용해 React로 릴레이(Relay)해야 합니다.)*
 
 - **Endpoint:** `POST /chat/stream`
-- **Content-Type:** `application/json` (Request) / `text/event-stream` (Response)
-
-### Request Body
-멀티턴(Multi-turn) 대화를 위해 반드시 `session_id`를 포함해야 합니다.
+- **Headers:** - `X-API-Key: string`
+- **Request Body:**
 ```json
 {
-  "user_id": "student_01",
-  "session_id": "session_9982",
+  "user_id": "student_123",
+  "session_id": "session_abc998",
   "question": "이번 2026학년도 장학금 신청 기한이 언제야?"
 }
 
+
+data: {"chunk": "2026학년도 "}
+data: {"chunk": "1학기 "}
+data: {"chunk": "장학금 신청 기한은 "}
+data: {"chunk": "3월 15일까지입니다. "}
+data: {"chunk": "", "sources": [{"doc_id": "notice_123", "title": "2026 장학금 안내", "file_url": "https://<VM1_Domain>/docs/123/안내문.pdf"}]}
+data: [DONE]
 
 
 {
