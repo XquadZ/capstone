@@ -1,14 +1,16 @@
-version: '8'
+version: '3.8'
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.10.1
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
-      - xpack.security.enabled=false  # 로컬 개발용이므로 보안 해제
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"  # 메모리 제한 (필요시 조절)
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"  # 연구실 서버 사양에 맞춰 1GB로 증설
     ports:
-      - 9200:9200
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data  # 데이터 영구 저장 설정
     networks:
       - elastic
 
@@ -18,7 +20,7 @@ services:
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     ports:
-      - 5601:5601
+      - "5601:5601"
     networks:
       - elastic
     depends_on:
@@ -27,3 +29,7 @@ services:
 networks:
   elastic:
     driver: bridge
+
+volumes:
+  es_data:  # 볼륨 정의
+    driver: local

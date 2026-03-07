@@ -1,156 +1,101 @@
-"""
-PDF 문서 로더 및 텍스트 분할 모듈
+import os
+import json
+import torch
+import argparse
+from tqdm import tqdm
+from vllm import LLM, SamplingParams
+from PIL import Image
+from colpali_engine.models import ColQwen2_5 # ColPali 최신 엔진
+from colpali_engine.utils.processing_utils import process_images
+from colpali_engine.utils.torch_utils import get_torch_device
 
-system_arch.md 설계에 따라:
-- PyMuPDFLoader로 data/ 폴더의 PDF 로드
-- RecursiveCharacterTextSplitter로 800자 청크, 100자 오버랩
-- RTX 4090 환경 대량 문서 처리 최적화 (병렬 I/O, 메모리 효율)
-"""
+class HoseoLoader:
+    def __init__(self, raw_path="data/raw", processed_path="data/processed"):
+        self.raw_path = raw_path
+        self.processed_path = processed_path
+        self.text_save_path = os.path.join(processed_path, "text")
+        self.image_save_path = os.path.join(processed_path, "image")
+        
+        os.makedirs(self.text_save_path, exist_ok=True)
+        os.makedirs(self.image_save_path, exist_ok=True)
+        self.device = get_torch_device()
 
-from __future__ import annotations
+    def load_raw_data(self):
+        """Raw 데이터를 수집합니다"""
+        data_list = []
+        folders = [f for f in os.listdir(self.raw_path) if os.path.isdir(os.path.join(self.raw_path, f))]
+        for n_id in folders:
+            json_path = os.path.join(self.raw_path, n_id, "info.json")
+            if os.path.exists(json_path):
+                with open(json_path, "r", encoding="utf-8") as f:
+                    data_list.append(json.load(f))
+        return data_list
 
-import logging
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from pathlib import Path
-from typing import Iterator
+    def run_text_summary(self):
+        """[Mode 1] sLM 요약 (vLLM 활용)"""
+        print("\n🚀 [Text Mode] sLM(Llama-3.3-8B) 가동...")
+        model_name = "Llama-3.3-8B-Korean-Instruct" 
+        llm = LLM(model=model_name, gpu_memory_utilization=0.7) # 4090 VRAM 70% 점유
+        sampling_params = SamplingParams(temperature=0.2, max_tokens=600)
 
-from langchain_community.document_loaders import PyMuPDFLoader
-from langchain_core.documents import Document
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+        raw_data = self.load_raw_data()
+        prompts, target_ids = [], []
 
-# 기본 경로 (프로젝트 루트 기준)
-DATA_DIR = Path(__file__).resolve().parent.parent / "data"
-CHUNK_SIZE = 800
-CHUNK_OVERLAP = 100
+        for item in raw_data:
+            if os.path.exists(os.path.join(self.text_save_path, f"{item['notice_id']}.json")): continue
+            prompt = f"<|im_start|>system\n공지사항 요약 전문가야. [대상, 일시, 장소, 방법] 위주로 요약해.<|im_end|>\n<|im_start|>user\n제목: {item['title']}\n본문: {item['content'][:1500]}\n요약해줘:<|im_end|>\n<|im_start|>assistant"
+            prompts.append(prompt)
+            target_ids.append(item['notice_id'])
 
-# RTX 4090 환경: I/O 병렬화를 위한 워커 수 (CPU 코어 활용, 과도한 동시 I/O 방지)
-MAX_WORKERS = 8
+        if prompts:
+            outputs = llm.generate(prompts, sampling_params)
+            for n_id, output in zip(target_ids, outputs):
+                with open(os.path.join(self.text_save_path, f"{n_id}.json"), "w", encoding="utf-8") as f:
+                    json.dump({"notice_id": n_id, "summary": output.outputs[0].text}, f, ensure_ascii=False, indent=4)
+        print("✨ 텍스트 요약 완료.")
 
-logger = logging.getLogger(__name__)
+    def run_vision_embedding(self):
+        """[Mode 2] 이미지 벡터화 (ColPali 활용)"""
+        print("\n🖼️ [Vision Mode] ColPali(ColQwen2.5) 가동...")
+        
+        # 모델 로드 (비전 모드 실행 시 VRAM을 최대로 쓰기 위해 텍스트 모델은 종료되어야 함)
+        model = ColQwen2_5.from_pretrained("vidore/colqwen2-v1.0", torch_dtype=torch.bfloat16).to(self.device)
+        processor = model.get_processor()
 
+        folders = [f for f in os.listdir(self.raw_path) if os.path.isdir(os.path.join(self.raw_path, f))]
+        
+        for n_id in tqdm(folders, desc="이미지 벡터화 중"):
+            img_dir = os.path.join(self.raw_path, n_id, "images")
+            if not os.path.exists(img_dir): continue
+            
+            images = []
+            img_files = [f for f in os.listdir(img_dir) if f.lower().endswith(('.jpg', '.png'))]
+            
+            for img_file in img_files:
+                img_path = os.path.join(img_dir, img_file)
+                images.append(Image.open(img_path).convert("RGB"))
 
-def _get_pdf_paths(data_dir: Path | None = None) -> list[Path]:
-    """data/ 폴더 내 모든 PDF 파일 경로를 재귀적으로 수집"""
-    base = data_dir or DATA_DIR
-    if not base.exists():
-        logger.warning("데이터 폴더가 존재하지 않습니다: %s", base)
-        return []
-    return sorted(base.rglob("*.pdf"))
-
-
-def _load_single_pdf(pdf_path: Path) -> list[Document]:
-    """단일 PDF 파일 로드 (페이지 단위)"""
-    loader = PyMuPDFLoader(str(pdf_path), extract_images=False)
-    return loader.load()
-
-
-def load_pdfs(
-    data_dir: Path | None = None,
-    max_workers: int = MAX_WORKERS,
-) -> list[Document]:
-    """
-    data/ 폴더의 모든 PDF를 병렬로 로드.
-
-    RTX 4090 환경에서 대량 문서 처리 시:
-    - ThreadPoolExecutor로 I/O 병렬화 (디스크 읽기 병렬)
-    - extract_images=False로 메모리 절약
-    """
-    paths = _get_pdf_paths(data_dir)
-    if not paths:
-        return []
-
-    all_docs: list[Document] = []
-    workers = min(max_workers, len(paths))
-
-    with ThreadPoolExecutor(max_workers=workers) as executor:
-        future_to_path = {executor.submit(_load_single_pdf, p): p for p in paths}
-        for future in as_completed(future_to_path):
-            path = future_to_path[future]
-            try:
-                docs = future.result()
-                all_docs.extend(docs)
-                logger.debug("로드 완료: %s (%d 페이지)", path.name, len(docs))
-            except Exception as e:
-                logger.exception("PDF 로드 실패: %s - %s", path, e)
-
-    return all_docs
-
-
-def get_text_splitter(
-    chunk_size: int = CHUNK_SIZE,
-    chunk_overlap: int = CHUNK_OVERLAP,
-) -> RecursiveCharacterTextSplitter:
-    """설계도 규격의 RecursiveCharacterTextSplitter 반환"""
-    return RecursiveCharacterTextSplitter(
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap,
-        length_function=len,
-    )
-
-
-def split_documents(
-    documents: list[Document],
-    chunk_size: int = CHUNK_SIZE,
-    chunk_overlap: int = CHUNK_OVERLAP,
-) -> list[Document]:
-    """
-    문서 리스트를 청크로 분할.
-
-    - chunk_size: 800자
-    - chunk_overlap: 100자 (문맥 유지)
-    """
-    splitter = get_text_splitter(chunk_size, chunk_overlap)
-    return splitter.split_documents(documents)
-
-
-def load_and_split(
-    data_dir: Path | None = None,
-    chunk_size: int = CHUNK_SIZE,
-    chunk_overlap: int = CHUNK_OVERLAP,
-    max_workers: int = MAX_WORKERS,
-) -> list[Document]:
-    """
-    data/ 폴더의 PDF를 로드하고 청크로 분할하는 원스텝 함수.
-
-    RTX 4090 대량 문서 처리 최적화:
-    1. 병렬 PDF 로드 (I/O)
-    2. RecursiveCharacterTextSplitter로 800자/100자 오버랩 분할
-    """
-    docs = load_pdfs(data_dir, max_workers)
-    if not docs:
-        return []
-    return split_documents(docs, chunk_size, chunk_overlap)
-
-
-def load_and_split_stream(
-    data_dir: Path | None = None,
-    chunk_size: int = CHUNK_SIZE,
-    chunk_overlap: int = CHUNK_OVERLAP,
-    max_workers: int = MAX_WORKERS,
-) -> Iterator[Document]:
-    """
-    메모리 효율 스트리밍: PDF별로 로드 → 분할 → yield.
-
-    대용량 문서 처리 시 전체를 메모리에 올리지 않고 청크 단위로 스트리밍.
-    """
-    splitter = get_text_splitter(chunk_size, chunk_overlap)
-    paths = _get_pdf_paths(data_dir)
-    workers = min(max_workers, len(paths))
-
-    with ThreadPoolExecutor(max_workers=workers) as executor:
-        future_to_path = {executor.submit(_load_single_pdf, p): p for p in paths}
-        for future in as_completed(future_to_path):
-            try:
-                docs = future.result()
-                for chunk in splitter.split_documents(docs):
-                    yield chunk
-            except Exception as e:
-                logger.exception("PDF 처리 실패: %s", e)
-
+            if images:
+                # ColPali 임베딩 생성 (이미지 패치를 직접 벡터화)
+                batch_images = process_images(processor, images).to(self.device)
+                with torch.no_grad():
+                    image_embeddings = model.get_image_embeddings(batch_images)
+                
+                # 벡터 데이터 저장 (추후 Elasticsearch로 전송될 원천 데이터)
+                save_data = {
+                    "notice_id": n_id,
+                    "embeddings": image_embeddings.cpu().tolist() # 리스트로 변환하여 저장
+                }
+                with open(os.path.join(self.image_save_path, f"{n_id}_vision.json"), "w") as f:
+                    json.dump(save_data, f)
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    chunks = load_and_split()
-    print(f"총 {len(chunks)}개 청크 생성")
-    if chunks:
-        print("첫 청크 미리보기:", chunks[0].page_content[:200], "...")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--mode", choices=["text", "vision"], required=True)
+    args = parser.parse_args()
+
+    loader = HoseoLoader()
+    if args.mode == "text":
+        loader.run_text_summary()
+    elif args.mode == "vision":
+        loader.run_vision_embedding()
