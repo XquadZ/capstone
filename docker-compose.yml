@@ -1,35 +1,52 @@
-version: '3.8'
+version: '3.5'
+
 services:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.1
-    container_name: elasticsearch
+  etcd:
+    container_name: milvus-etcd
+    image: quay.io/coreos/etcd:v3.5.5
     environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"  # 연구실 서버 사양에 맞춰 1GB로 증설
-    ports:
-      - "9200:9200"
+      - ETCD_AUTO_COMPACTION_RETENTION_RENDER_BY_HOUR=1
+      - ETCD_LOG_LEVEL=error
     volumes:
-      - es_data:/usr/share/elasticsearch/data  # 데이터 영구 저장 설정
-    networks:
-      - elastic
+      - ./volumes/etcd:/etcd
+    command: etcd -advertise-client-urls http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.10.1
-    container_name: kibana
+  minio:
+    container_name: milvus-minio
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+    volumes:
+      - ./volumes/minio:/data
+    command: minio server /data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  standalone:
+    container_name: milvus-standalone
+    image: milvusdb/milvus:v2.3.0
+    command: ["milvus", "run", "standalone"]
+    environment:
+      - ETCD_ENDPOINTS=etcd:2379
+      - MINIO_ADDRESS=minio:9000
+    volumes:
+      - ./volumes/milvus:/var/lib/milvus
     ports:
-      - "5601:5601"
-    networks:
-      - elastic
+      - "19530:19530"  # Milvus API 포트
     depends_on:
-      - elasticsearch
+      - "etcd"
+      - "minio"
 
-networks:
-  elastic:
-    driver: bridge
-
-volumes:
-  es_data:  # 볼륨 정의
-    driver: local
+  attu:
+    container_name: milvus-attu
+    image: zilliz/attu:v2.3.0
+    ports:
+      - "8000:3000"  # GUI 포트
+    environment:
+      - MILVUS_URL=standalone:19530
+    depends_on:
+      - "standalone"
