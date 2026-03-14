@@ -1,0 +1,2102 @@
+[
+    {
+        "doc_id": "83999",
+        "image_file": "83999_img_2.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "대학 시절 정보보호학에 관한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "공고에서 다루는 주요 주제는 무엇인가요?",
+                "answer": "사이버 공격과 악성코드에 대한 관심입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "문의처 번호는 구체적으로 제시되어 있지 않습니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "85555",
+        "image_file": "85555_img_7.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "장학금 신청 안내"
+            },
+            {
+                "difficulty": "medium",
+                "question": "신청 기간은 언제인가요?",
+                "answer": "9월 1일부터 9월 15일까지"
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의 전화번호는 무엇인가요?",
+                "answer": "123-456-7890"
+            }
+        ]
+    },
+    {
+        "doc_id": "88516",
+        "image_file": "88516_img_1.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지의 주제는 무엇인가요?",
+                "answer": "제출 서류 안내"
+            },
+            {
+                "difficulty": "medium",
+                "question": "서류 접수 기간은 언제인가요?",
+                "answer": "2025년 5월 26일부터 2025년 5월 31일까지"
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "041-540-5043"
+            }
+        ]
+    },
+    {
+        "doc_id": "86825",
+        "image_file": "86825_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "2025-1학기 한국장학재단 중소기업 취업연계 장학금(희망사다리 I 유형) 신규장학생 모집"
+            },
+            {
+                "difficulty": "medium",
+                "question": "학생 신청 기간은 언제인가요?",
+                "answer": "25.3.5.(수) 09시 ~ 31.(일) 18시까지"
+            },
+            {
+                "difficulty": "hard",
+                "question": "신청방법에 어떤 웹사이트가 명시되어 있나요?",
+                "answer": "https://www.kosaf.go.kr"
+            }
+        ]
+    },
+    {
+        "doc_id": "95169",
+        "image_file": "95169_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지의 주제는 무엇인가요?",
+                "answer": "창업 부스트 프로그램"
+            },
+            {
+                "difficulty": "medium",
+                "question": "신청 기간은 언제인가요?",
+                "answer": "2026년 1월 27일(화)까지"
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "010-4355-4224"
+            }
+        ]
+    },
+    {
+        "doc_id": "95775",
+        "image_file": "95775_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지의 주제는 무엇인가요?",
+                "answer": "통학버스 탑승지 위치 변경 안내입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "통학버스 탑승지가 어디로 변경되나요?",
+                "answer": "송내남부역 1번 출구 명륜진사갈비 앞입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처나 추가 정보는 어디서 확인할 수 있나요?",
+                "answer": "자세한 운행 시간은 홈페이지 공지사항에 게시된 시간표를 참고할 수 있습니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "82994",
+        "image_file": "82994_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "2024-2학기 또래 상담 멘토멘티 모집에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "멘토멘티 모집 기간은 언제인가요?",
+                "answer": "모집 기간은 2024년 8월 26일부터 2024년 9월 8일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "문의처 전화번호는 041-560-8486입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "85478",
+        "image_file": "85478_img_5.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지의 주제는 무엇인가요?",
+                "answer": "집중이수제 개설 교과목"
+            },
+            {
+                "difficulty": "medium",
+                "question": "전공교과목의 수업 수는 몇 개인가요?",
+                "answer": "8일 수업"
+            },
+            {
+                "difficulty": "hard",
+                "question": "교과목명 '기초일본어회화'는 어떤 학습번호를 가지고 있나요?",
+                "answer": "OARG1060"
+            }
+        ]
+    },
+    {
+        "doc_id": "86416",
+        "image_file": "86416_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "일반 물리 실험 실습 조교 모집"
+            },
+            {
+                "difficulty": "medium",
+                "question": "지원 자격은 무엇인가요?",
+                "answer": "일반물리, 일반물리실험을 B+ 이상으로 이수한 2학년 이상의 학부생, 대학원생"
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "010-9461-6694"
+            }
+        ]
+    },
+    {
+        "doc_id": "94659",
+        "image_file": "94659_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 관한 것인가요?",
+                "answer": "학습지원 프로그램 수요 조사에 관한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "참여 대상은 누구인가요?",
+                "answer": "호서대학교 재학생입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "041-540-9886입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "87258",
+        "image_file": "87258_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "스피치 파워-업 프로그램입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 기간은 언제인가요?",
+                "answer": "2025.3.27. ~ 4.28.입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "041) 540-5462, 240238@hoseo.edu입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "92562",
+        "image_file": "92562_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "ROTC 모집 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 기간은 언제인가요?",
+                "answer": "2025년 9월 1일부터 2025년 10월 14일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "041-540-5402입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "83840",
+        "image_file": "83840_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "일본 자매대학교 파견 교환학생 선발"
+            },
+            {
+                "difficulty": "medium",
+                "question": "지원 기간은 언제인가요?",
+                "answer": "2024년 9월 25일부터 10월 18일 15:00까지"
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "국제업무팀: 041-540-9522"
+            }
+        ]
+    },
+    {
+        "doc_id": "85322",
+        "image_file": "85322_2025 반도체특성화대학지원사업 (반도체패키지설계 연계전공).jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 것인가요?",
+                "answer": "반도체 패키지 설계 연계 전공"
+            },
+            {
+                "difficulty": "medium",
+                "question": "참여학과는 어떤 과가 포함되나요?",
+                "answer": "반도체공학과, 전자공학과, 전자융합공학부, 기계자동차공학부"
+            },
+            {
+                "difficulty": "hard",
+                "question": "신청자격의 세부사항은 무엇인가요?",
+                "answer": "아래 1~4 영역별 1가목 씩 2개 영역의 선수과목을 이수한 학생"
+            }
+        ]
+    },
+    {
+        "doc_id": "92107",
+        "image_file": "92107_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 포스터는 무엇에 대한 공지인가요?",
+                "answer": "충남 경제정책 아이디어 경연 대회에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "참여 대상은 누구인가요?",
+                "answer": "충남 소재 대학의 재학생입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "신청 방법은 무엇인가요?",
+                "answer": "이메일 접수(job@hoseo.edu)로 신청하며, 선정 기준 및 발표 주제를 제시해야 합니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "86268",
+        "image_file": "86268_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "초과학기생 등록금 납부 안내입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "등록금 납부 기간은 언제인가요?",
+                "answer": "2025년 3월 10일부터 2025년 3월 14일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "4학년의 경우 어떻게 등록금을 납부해야 하나요?",
+                "answer": "4학년은 해당 학기 수업료의 3분의 1 해당액을 납부해야 합니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "95108",
+        "image_file": "95108_img_1.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "입학 전형 및 심사 기준에 관한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 기간은 언제인가요?",
+                "answer": "2026년 1월 15일부터 2026년 1월 20일 16:00까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처는 어디인가요?",
+                "answer": "전화번호는 041-540-5043 또는 041-540-5048입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "92359",
+        "image_file": "92359_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 어떤 프로그램에 대한 건가요?",
+                "answer": "직무부트캠프 참가자 모집 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 기간은 언제인가요?",
+                "answer": "모집 기간은 2025년 9월 3일 까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "문의처 이메일은 soobeen.kim@coment.com입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "92208",
+        "image_file": "92208_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "2025-2학기 학습도우미 모집에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 기간은 언제부터 언제까지인가요?",
+                "answer": "2025년 08월 01일부터 2025년 08월 23일 오후 2시까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "041)540-9881입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "91533",
+        "image_file": "91533_img_2.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "선발 일정에 관한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 기간은 언제인가요?",
+                "answer": "2025년 7월 07일(월)부터 7월 16일(수)까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "호서대학교 국제업무팀의 전화번호는 041-540-9523입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "88954",
+        "image_file": "88954_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지의 주제는 무엇인가요?",
+                "answer": "미래의 디스플레이 아이디어 경진대회"
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집대상은 누구인가요?",
+                "answer": "공과대학교 또는 AI융합대학 소속 학부생이 포함된 팀 또는 개인"
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "041-540-9751"
+            }
+        ]
+    },
+    {
+        "doc_id": "84382",
+        "image_file": "84382_2024 충남 사회적경제 한마당 웹자보.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지의 주제는 무엇인가요?",
+                "answer": "2024 충남 사회적경제 한마당"
+            },
+            {
+                "difficulty": "medium",
+                "question": "행사는 언제 열리나요?",
+                "answer": "11월 4일(월) 10:00-19:00"
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의 전화번호는 무엇인가요?",
+                "answer": "041-406-8124"
+            }
+        ]
+    },
+    {
+        "doc_id": "94338",
+        "image_file": "94338_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "2025-2 글쓰기 특강에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "신청 기간은 언제인가요?",
+                "answer": "2025년 9월 8일부터 2025년 12월 12일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "문의처 번호는 041-540-5462입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "93652",
+        "image_file": "93652_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "2025-2학기 교수법 컨설팅은 무엇에 대한 공지인가요?",
+                "answer": "2025-2학기 교수법 컨설팅 11월 운영 안내에 관한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "교수법 컨설팅의 운영 기간은 언제인가요?",
+                "answer": "운영 기간은 2025년 11월 3일부터 11월 10일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "문의처 번호는 041-540-9618입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "84703",
+        "image_file": "84703_img_1.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 것인가요?",
+                "answer": "㈜아워홀에 임사하게 된 계기와 과정에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "졸업 후 취업 준비 과정에서 어떤 준비를 해야 하나요?",
+                "answer": "교수님의 추천으로 준비하고 임사하는 것이 중요합니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처는 어떻게 되나요?",
+                "answer": "구체적인 문의처는 이미지에 언급되어 있지 않으므로 추가 확인이 필요합니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "91963",
+        "image_file": "91963_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 관한 건가요?",
+                "answer": "교내 드라마 촬영 협조 안내입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "촬영 장소는 어디인가요?",
+                "answer": "촬영 장소는 소규모 일원입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "촬영 시간은 언제인가요?",
+                "answer": "촬영 시간은 오전 9시부터 일요일 5시까지입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "92963",
+        "image_file": "92963_img_1.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이번 공지는 무엇에 대한 건가요?",
+                "answer": "국제업무팀 프로그램 참여자 모집"
+            },
+            {
+                "difficulty": "medium",
+                "question": "지원 방법에는 어떤 것이 있나요?",
+                "answer": "1차는 서류 심사, 2차는 면접"
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "문의처 번호는 제공되지 않음"
+            }
+        ]
+    },
+    {
+        "doc_id": "85631",
+        "image_file": "85631_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "2024-2학기 글쓰기 공모전 결과 발표입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "수상자 명단 발표는 언제 이루어지나요?",
+                "answer": "2024년 12월 30일부터 2025년 1월 5일 사이에 이루어집니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처의 전화번호는 무엇인가요?",
+                "answer": "041-540-5462입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "87076",
+        "image_file": "87076_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "공지의 주제는 무엇인가요?",
+                "answer": "버디 프로그램 합격자 발표"
+            },
+            {
+                "difficulty": "medium",
+                "question": "합격자 명단의 학생들은 어디에서 공부하나요?",
+                "answer": "러시아, 중국, 일본 등"
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처는 무엇인가요?",
+                "answer": "유학생 연락처는 개인 정보로 본인의 유출을 금지합니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "86474",
+        "image_file": "86474_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "Hi-Five 생물 프로그램 참여자 모집입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "프로그램 신청은 언제부터 언제까지인가요?",
+                "answer": "2025년 03월 10일까지 신청할 수 있습니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "신전해 연구실의 전화번호는 041)540-5461입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "88350",
+        "image_file": "88350_img_2.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지의 주제는 무엇인가요?",
+                "answer": "디지털 창의 콜로퀴엄에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "1회차와 2회차의 날짜와 시간을 알려주세요.",
+                "answer": "1회차는 5월 29일 목요일 14:00 - 15:30, 2회차는 6월 5일 목요일 10:30 - 12:00입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처의 전화번호는 무엇인가요?",
+                "answer": "010-5079-6470입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "82480",
+        "image_file": "82480_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "주차관제 시스템에 대한 공지는 무엇인가요?",
+                "answer": "주차관제 시스템 Q&A입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "정기권 신청 기간은 언제인가요?",
+                "answer": "정기권 신청 기간은 8월 19일부터 8월 31일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "주차관제실 전화번호는 041-540-5451입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "88365",
+        "image_file": "88365_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "취업연계과정 온라인 설명회입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "설명회의 일시는 언제인가요?",
+                "answer": "2025년 5월 23일 금요일 15:00부터 16:00까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "041-560-8707입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "82079",
+        "image_file": "82079_img_1.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지의 주제는 무엇인가요?",
+                "answer": "유의사항"
+            },
+            {
+                "difficulty": "medium",
+                "question": "적격자가 아닐 경우 어떻게 되나요?",
+                "answer": "채용되지 않을 수 있음"
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "041-540-5121, 5122"
+            }
+        ]
+    },
+    {
+        "doc_id": "95237",
+        "image_file": "95237_img_2.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "반도체 패키지 공정 연계 전공에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "참여학부는 무엇인가요?",
+                "answer": "반도체공학, 기계자동화공학, 미래자동차공학, 로봇공학, 지능로봇학, 전자공학, 전자융합공학부입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "신청 자격에 대해 자세히 설명해 주세요.",
+                "answer": "아래 1~4전공 중 영업력 1과목씩 2개 영역의 선사과목을 이수한 학생이어야 합니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "80949",
+        "image_file": "80949_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "2024학년도 하계방학 봉사장학생 모집 공지는 무엇에 관한 건가요?",
+                "answer": "하계방학 봉사장학생 모집에 관한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "접수 기간은 언제부터 언제까지인가요?",
+                "answer": "접수 기간은 2024년 5월 30일부터 2024년 6월 14일 17:30까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "문의처 전화번호는 041-540-5304입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "92296",
+        "image_file": "92296_img_3.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 것인가요?",
+                "answer": "KTX 시간표에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "천안아산역의 출발 시간은 무엇인가요?",
+                "answer": "천안아산역의 출발 시간은 9:10입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "상단에 보이지 않지만, 일반적으로 공지 하단에 위치할 수 있습니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "92112",
+        "image_file": "92112_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "주차관제 시스템 운영 안내입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "주차 정기권 등록 기간은 언제인가요?",
+                "answer": "2025년 8월 19일(화)부터 8월 26일(화)까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "주차관제실로 내선 5451, 전화 8222입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "86160",
+        "image_file": "86160_img_1.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "서류 제출 및 공고에 관한 내용입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "서류 접수 기간은 언제인가요?",
+                "answer": "2025년 2월 6일부터 2025년 2월 10일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "041-540-5043 또는 041-540-5048입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "88630",
+        "image_file": "88630_img_1.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 지도는 무엇에 대한 내용인가요?",
+                "answer": "대학교 캠퍼스 지도입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "이 지도에서 안내하고 있는 건물의 개수는 몇 개인가요?",
+                "answer": "총 43개의 건물이 표시되어 있습니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "지도 하단 중앙에 있는 넓은 공터의 명칭은 무엇인가요?",
+                "answer": "이 공터의 명칭은 '학생 운동장'입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "85738",
+        "image_file": "85738_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "2025학년도 1학기 호서대학교 신규관생 모집안내입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 기간은 언제인가요?",
+                "answer": "2025년 1월 20일 ~ 2월 3일(월)입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "비고 사항에는 어떤 내용이 있나요?",
+                "answer": "신입생은 1학기에는 4인실로 배정되며, 신청시 반드시 확인이 요구됩니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "94019",
+        "image_file": "94019_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "호서대학교 탄소중립 서포터즈 모집에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "신청 기한은 언제인가요?",
+                "answer": "신청 기한은 2025년 11월 25일(화) 18:00까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "문의처 번호는 041-540-9506입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "94390",
+        "image_file": "94390_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지의 주제는 무엇인가요?",
+                "answer": "융합교육 학습경험 우수사례 공모전입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "공모전의 모집 기간은 언제인가요?",
+                "answer": "2025년 11월 20일부터 12월 5일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "041-540-5420입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "93056",
+        "image_file": "93056_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "제6회 가을맞이 지역주민과 함께하는 캠핑 데이 참가자 명단 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "참여 대상자는 누구인가요?",
+                "answer": "참여 대상자는 공연, 장기자랑 등 참여 가능한 오시는 분들입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "041-540-5082, 5083, 5084입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "95769",
+        "image_file": "95769_img_1.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지의 주제는 무엇인가요?",
+                "answer": "진동(진로탐색 및 동기강화) 프로그램입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "신청 기간은 언제부터 언제까지인가요?",
+                "answer": "2026년 03월 03일부터 2026년 04월 02일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "천안캠퍼스 041-560-8525, 아산캠퍼스 041-540-9717입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "79644",
+        "image_file": "79644_img_1.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 것인가요?",
+                "answer": "박유덕의 골목 막걸리에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "골목 막걸리의 시작과 관련된 구체적인 정보는 무엇인가요?",
+                "answer": "대전 청년문화지구에서 작은 규모의 수제 막걸리로 시작하였습니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호나 비고 사항은 무엇인가요?",
+                "answer": "문의처 번호는 이미지에 나타나지 않지만, 하단의 QR코드를 통해 추가 정보를 확인할 수 있습니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "80349",
+        "image_file": "80349_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "2024년 충청남도 청년인턴 사업 '충전' 참여 학생 모집에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "신청 기간은 언제인가요?",
+                "answer": "신청 기간은 2024년 5월 28일(화) 17:00까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "문의처 번호는 041-540-5063입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "82620",
+        "image_file": "82620_img_1.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "채용 서류 제출에 관한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "서류 접수 기간은 언제인가요?",
+                "answer": "2024년 8월 19일부터 2024년 8월 24일 17:00까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "04150-5043이며, 팩스 번호는 04150-5048입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "85709",
+        "image_file": "85709_img_3.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 포스터의 주제는 무엇인가요?",
+                "answer": "뱅킹 앱 구축 프로젝트에 대한 내용입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "프로젝트에 대한 지원은 어떻게 이루어지나요?",
+                "answer": "자발적으로 지원하여 참여할 기회를 찾는 방식으로 이루어집니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "포스터의 구석에 있는 작은 글씨로 확인할 수 있습니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "93351",
+        "image_file": "93351_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지의 주요 주제는 무엇인가요?",
+                "answer": "학생생활 건강 증진 및 캠퍼스 내 안전 프로그램입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "장학금 신청 기간은 언제인가요?",
+                "answer": "1차는 10월 20일부터 11월 14일까지, 2차는 11월 17일부터 12월 12일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "학생장학팀 041-540-5084입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "93738",
+        "image_file": "93738_img_5.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "반도체 패키지 신뢰성 연계 전공에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "참여학과는 무엇인가요?",
+                "answer": "반도체공학과, 전자공학과, 전자융합공학부, 컴퓨터공학과입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "신청 자격은 어떻게 되나요?",
+                "answer": "1~4학년 중 1과목씩 2개 영역의 선수과목을 이수한 학생이어야 합니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "84335",
+        "image_file": "84335_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "CLP 교육과정 디스플레이 온라인 교육 참가 학생 모집"
+            },
+            {
+                "difficulty": "medium",
+                "question": "교육과정 신청 기간은 언제인가요?",
+                "answer": "2024년 10월 22일 화요일부터 12월 20일 금요일까지"
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "041-540-9751"
+            }
+        ]
+    },
+    {
+        "doc_id": "80020",
+        "image_file": "80020_AI융합대.png",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지의 주제는 무엇인가요?",
+                "answer": "제1회 AI융합 프리젠테이션 경진대회입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "신청 기간은 언제인가요?",
+                "answer": "2024년 4월 15일부터 5월 1일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "010-8692-5571입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "85832",
+        "image_file": "85832_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "호서대학교 강사 및 비전임교원 초빙 공고"
+            },
+            {
+                "difficulty": "medium",
+                "question": "지원 대상은 누구인가요?",
+                "answer": "전문가, 대학원생, 박사후 연구원 등"
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "전화: 041-630-8000"
+            }
+        ]
+    },
+    {
+        "doc_id": "92728",
+        "image_file": "92728_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "강사 및 비전임교원 초빙 공고입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "신청 기간은 언제인가요?",
+                "answer": "2025년 8월 6일 16:00까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처의 이메일 주소는 무엇인가요?",
+                "answer": "professors@hoseo.edu입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "93565",
+        "image_file": "93565_img_5.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "서류 접수 방법에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "서류 접수 방법은 무엇인가요?",
+                "answer": "이메일로 접수하며, jwchoi@hcseo.edu 로 보내야 합니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "041-540-9523입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "82097",
+        "image_file": "82097_2024 충청권 ICT이노베이션 아이디어 및 SW 개발 공모전_포스터.png",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공모전은 무엇에 대한 건가요?",
+                "answer": "ICT 이노베이션 아이디어 및 SW 개발 공모전입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 기간은 언제인가요?",
+                "answer": "2024년 7월 22일(월)부터 8월 30일(금) 18:00까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "070-5117-3251입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "80942",
+        "image_file": "80942_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이번 공지는 무엇에 대한 건가요?",
+                "answer": "아산 두어스 대학생 창업 부트캠프 참가자 모집입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "신청 기간은 언제인가요?",
+                "answer": "2024년 5월 16일부터 6월 11일 오후 5시까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "QR코드는 어떤 목적으로 사용되나요?",
+                "answer": "QR코드는 아산 두어스 참가 신청 페이지(출처: bit.ly/ASANDOERS2ND)로 연결됩니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "86163",
+        "image_file": "86163_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 어떤 내용인가요?",
+                "answer": "2025학년도 1학기 7주 집중이수제에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "신청 기간은 언제인가요?",
+                "answer": "신청 기간은 2025년 2월 10일부터 2월 14일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "문의처 전화번호는 041-360-4812입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "88900",
+        "image_file": "88900_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "효서대학교 비전임교원 초빙 공고입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "원서 접수 기간은 언제인가요?",
+                "answer": "2025년 6월 9일부터 2025년 6월 14일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "문의처 번호는 공고 내에 명시되어 있지 않습니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "95608",
+        "image_file": "95608_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "공지의 주제는 무엇인가요?",
+                "answer": "비전임교원 초빙 공고"
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 기간은 언제인가요?",
+                "answer": "2023년 2월 23일부터 2023년 3월 8일까지"
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의 처 번호는 어떻게 되나요?",
+                "answer": "042-540-1835"
+            }
+        ]
+    },
+    {
+        "doc_id": "86444",
+        "image_file": "86444_img_2.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "7주 집중 이수제 혜택에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "장학금은 얼마인가요?",
+                "answer": "장학금은 학생당 100,000원입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "생활관 이용 시 1박에 얼마인가요?",
+                "answer": "생활관 신청 시 1박은 7,000원입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "85307",
+        "image_file": "85307_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "개인형 이동장치 안전 이용에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "올바른 이용 방법에에는 어떤 내용이 포함되어 있나요?",
+                "answer": "안전모 착용은 기본이며, 2인 이상 탑승과 음주운전은 절대 금지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 어디에 있나요?",
+                "answer": "문의처 번호는 구석의 작은 글씨에 기재되어 있습니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "85077",
+        "image_file": "85077_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이번 공지는 무엇에 대한 것인가요?",
+                "answer": "2024호서그룹 가상회사 동계인턴 채용공고입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 기간은 언제까지인가요?",
+                "answer": "1차 모집 기간은 2024년 12월 8일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "문의처 번호는 041-540-9882입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "95715",
+        "image_file": "95715_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "아산캠퍼스 승용차 무료 주차장 안내입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "운영 시작 기간은 언제인가요?",
+                "answer": "2026학년도 1학기부터입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처는 어디인가요?",
+                "answer": "시설안전본부장입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "86473",
+        "image_file": "86473_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "Hi-Five 수학 프로그램 참여자 모집에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 기간은 언제인가요?",
+                "answer": "모집 기간은 2025년 2월 25일부터 2025년 3월 10일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "문의처 번호는 041)540-5461입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "92763",
+        "image_file": "92763_img_1.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 것인가요?",
+                "answer": "반도체 후공정(패키징·테스트) 교육과정에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 기간은 언제부터 언제까지인가요?",
+                "answer": "모집 기간은 9월 22일부터 10월 23일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "공지문의 연락처 번호는 무엇인가요?",
+                "answer": "공지문에 연락처 번호는 기재되어 있지 않습니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "78829",
+        "image_file": "78829_img_2.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "대상 업종에 대한 세부사항입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 대상 업종은 무엇인가요?",
+                "answer": "금융 및 보험업, 부동산업, 숙박 및 음식점업 등입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "각 업종에 따라 문의처 번호가 다릅니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "92709",
+        "image_file": "92709_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "EMC 예약 신청 안내는 무엇에 대한 공지인가요?",
+                "answer": "EMC (English & Multilingual Cafe)의 예약 신청에 대한 안내입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "EMC 예약 신청 기간은 언제인가요?",
+                "answer": "신청 기간은 2025년 9월 15일부터 11월 27일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "문의처 번호는 041-540-9524입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "92717",
+        "image_file": "92717_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "RE:bom 학습공동체 참여자 모집"
+            },
+            {
+                "difficulty": "medium",
+                "question": "신청기간은 언제부터 언제까지인가요?",
+                "answer": "신청기간은 2025년 09월 08일부터 09월 23일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "문의처 전화번호는 041-540-9881입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "86064",
+        "image_file": "86064_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "2024학년도 전기 학위수여식 안내입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "학위수여식은 언제 열리나요?",
+                "answer": "2025년 2월 20일 오전 11시에 열립니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "교무처 학사팀 041-540-5054~5056입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "78656",
+        "image_file": "78656_img_1.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "제출서류 안내"
+            },
+            {
+                "difficulty": "medium",
+                "question": "제출 서류 접수 기간은 언제인가요?",
+                "answer": "2024년 1월 24일 수요일부터 2024년 1월 29일 월요일 17:00까지"
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "전화번호: (041)540-5043, 팩스: (041)540-5048"
+            }
+        ]
+    },
+    {
+        "doc_id": "92176",
+        "image_file": "92176_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 어떤 프로그램에 대한 건가요?",
+                "answer": "Hi-Five 영어 프로그램 참여자 모집에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "프로그램 신청 기간은 언제인가요?",
+                "answer": "2025년 09월 05일부터 09월 15일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "문의처 번호는 0401-540-5462입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "95454",
+        "image_file": "95454_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "비전임교원 초빙 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "비전임교원 초빙의 모집 기간은 언제인가요?",
+                "answer": "모집 기간은 구체적으로 언급되어 있지 않습니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "문의처 번호는 문서에서 확인할 수 없습니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "79471",
+        "image_file": "79471_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "제 12기 버디 프로그램 합격자 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "합격자는 언제 발표되었나요?",
+                "answer": "2024년 3월 19일에 합격자가 발표되었습니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "지원자가 연락할 수 있는 방법은 무엇인가요?",
+                "answer": "유학생 연락처는 개인 정보로 본인의 유출을 금지합니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "83919",
+        "image_file": "83919_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지의 주제는 무엇인가요?",
+                "answer": "디지털 창의 토크콘서트"
+            },
+            {
+                "difficulty": "medium",
+                "question": "행사는 언제와 어디서 열리나요?",
+                "answer": "10월 17일 호서대학교 아산캠퍼스 강슈교육관 513호와 11월 8일 호서대학교 아산캠퍼스 벤처산학협력관 203호에서 열립니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "010-5079-6470"
+            }
+        ]
+    },
+    {
+        "doc_id": "79015",
+        "image_file": "79015_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "주차관제 시스템에 대한 공지인가요?",
+                "answer": "네, 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "정기권 신청 기간은 언제인가요?",
+                "answer": "정기권 신청 기간은 2월 19일부터 2월 29일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "정기권 신청 방법에는 어떤 것이 있나요?",
+                "answer": "정기권 신청 방법은 온라인 신청과 현장 결제로 나뉘어 있습니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "93871",
+        "image_file": "93871_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "대학혁신 지원사업 수기 공모전입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 기간은 언제인가요?",
+                "answer": "11월 17일(월)부터 12월 7일(일)까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "02-6672-3030입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "80314",
+        "image_file": "80314_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "퍼스널컬러 및 면접복장 코칭에 관한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 대상은 누구인가요?",
+                "answer": "재학생 30명입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "041-540-5063입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "83437",
+        "image_file": "83437_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지의 주제는 무엇인가요?",
+                "answer": "2024년 미래로 일자리 박람회"
+            },
+            {
+                "difficulty": "medium",
+                "question": "일자리 박람회의 날짜와 시간은 언제인가요?",
+                "answer": "2024년 10월 2일 수요일, 10:00~17:00"
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "041-404-1421-23"
+            }
+        ]
+    },
+    {
+        "doc_id": "81119",
+        "image_file": "81119_img_6.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 것인가요?",
+                "answer": "MES 개발자 및 SW 엔지니어링 관련 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "MES 시스템에서 어떤 작업을 주로 수행하나요?",
+                "answer": "사용자 요구 사항을 분석하고, 소프트웨어를 설계 및 개발합니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "MES IT 매니저의 역할은 무엇인가요?",
+                "answer": "프로젝트 계획, 예산 관리, 팀 관리 및 각 이해관계자와의 커뮤니케이션을 담당합니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "80052",
+        "image_file": "80052_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 것인가요?",
+                "answer": "해외파견 교환학생 최종선발 결과 안내입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 기간은 언제인가요?",
+                "answer": "2024년 4월 25일부터 2024년 4월 30일 3시까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "041-540-9522입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "81943",
+        "image_file": "81943_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 것인가요?",
+                "answer": "2024학년도 2학기 호서대학교 강사 및 비전임교원 초빙 공고입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "신청 마감일은 언제인가요?",
+                "answer": "신청 마감일은 2024년 7월 31일입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "문의처 번호는 02-1234-5678입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "87845",
+        "image_file": "87845_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "영어권 자매대학 교환학생 서류전형 결과 안내입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "면접 일시는 언제인가요?",
+                "answer": "2025년 4월 30일 수요일, 17:30부터 18:30까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "면접 장소는 어디인가요?",
+                "answer": "강석규 교육관 208호 국제회의실입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "95870",
+        "image_file": "95870_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지사항은 무엇에 대한 것인가요?",
+                "answer": "ICAN+ 멘토단 모집에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "멘토단 모집 기간은 언제인가요?",
+                "answer": "2025년 2월 24일부터 3월 8일 23:59까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "041-540-9887입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "80012",
+        "image_file": "80012_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이번 공지는 무엇에 대한 건가요?",
+                "answer": "모교 방문 행사에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 기간은 언제인가요?",
+                "answer": "모집 기간은 04.22(월)부터 05.17(금)까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "문의처 전화번호는 041-540-5077입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "91424",
+        "image_file": "91424_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "강사 및 비전임교원 초빙 공고입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "신청 기간은 언제인가요?",
+                "answer": "2025년 6월 30일부터 2025년 7월 6일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "호서대학교 채용 홈페이지에서 확인할 수 있습니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "80122",
+        "image_file": "80122_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "2024년에 대한 공지는 무엇인가요?",
+                "answer": "2024 파란사다리와 관련된 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "파란사다리의 본문 내용은 어떤 정보를 포함하고 있나요?",
+                "answer": "더욱더 새로워진 파란사다리를 공유하려고 합니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "문의처 번호에 대한 정보는 이미지에 명시되어 있지 않습니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "85736",
+        "image_file": "85736_img_1.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 것인가요?",
+                "answer": "전국지역인재 7급 수습직원 선발시험 관련 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "지원에 필요한 제출서류는 무엇인가요?",
+                "answer": "수습직원 선발 시험의 추천서, 졸업증명서, 성적증명서, 영어능력검정시험 성적표 등이 필요합니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "한국사능력검정시험 인증증서는 몇 급 이상이어야 하나요?",
+                "answer": "한국사능력검정시험 인증증서는 2급 이상이어야 합니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "88675",
+        "image_file": "88675_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "2025학년도 1학기 장애학생 등록 절차 안내입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "장애학생 등록 신청 방법은 무엇인가요?",
+                "answer": "장애학생 등록 신청은 온라인으로 할 수 있으며, 장애학생지원센터 홈페이지를 통해 가능합니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화 번호는 무엇인가요?",
+                "answer": "문의처 전화 번호는 041-540-5084입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "91939",
+        "image_file": "91939_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "재학생 및 복학생 등록 안내입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 기간은 언제인가요?",
+                "answer": "2025년 8월 22일(화)부터 2025년 8월 28일(목)까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "041-540-5102~5106입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "91938",
+        "image_file": "91938_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "2025학년도 2학기 장기 표준현장실습학기제(Co-op) 참여자 모집 안내입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "신청 기간은 언제인가요?",
+                "answer": "신청 기간은 2025년 08월 14일부터 2025년 12월 31일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "문의처 번호는 041-540-5063입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "80904",
+        "image_file": "80904_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "미디어 파사드 행사에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "행사는 언제 열리나요?",
+                "answer": "2024년 5월 30일 목요일 오후 8시 30분에 열립니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "행사 장소는 어디인가요?",
+                "answer": "아산캠퍼스 원형광장에서 열립니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "95707",
+        "image_file": "95707_img_1.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지가 무엇에 대한 건가요?",
+                "answer": "버스 정류장 위치에 대한 안내입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "버스 정류장은 어디에 위치하고 있나요?",
+                "answer": "호수공원과 동탄역 근처에 있습니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "구체적인 전화번호 정보는 이미지에서 확인해야 합니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "85497",
+        "image_file": "85497_img_1.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "서류 제출 및 지원서류에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "지원서 제출의 마감일은 언제인가요?",
+                "answer": "2025년 1월 2일 16:00 (KST)까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "041-540-5042, 5043, 5047입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "92388",
+        "image_file": "92388_img_1.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 대한 건가요?",
+                "answer": "또래상담 멘토멘티 프로그램 참여자 모집 안내입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "신청 기간은 언제인가요?",
+                "answer": "모집기간은 2025년 8월 29일부터 2025년 9월 14일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 전화번호는 무엇인가요?",
+                "answer": "문의를 위한 전화번호는 041-540-9620과 041-560-8486입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "78607",
+        "image_file": "78607_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지는 무엇에 관한 건가요?",
+                "answer": "교원(예비)창업기업 지원계획 안내입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "모집 기간은 언제부터 언제까지인가요?",
+                "answer": "2024년 1월 12일부터 2024년 1월 31일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "지원 절차에서 연락처는 무엇인가요?",
+                "answer": "이메일 주소는 sio2@hgu.edu입니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "86472",
+        "image_file": "86472_img_0.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이 공지의 주제는 무엇인가요?",
+                "answer": "Hi-Five 영어 프로그램 참여자 모집"
+            },
+            {
+                "difficulty": "medium",
+                "question": "신청 기간은 언제인가요?",
+                "answer": "2025년 2월 25일부터 2025년 3월 10일까지"
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "신대연 교수 041)540-5461"
+            }
+        ]
+    },
+    {
+        "doc_id": "88940",
+        "image_file": "88940_img_3.jpg",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "이번 공지는 무엇에 대한 건가요?",
+                "answer": "2025학년도 하계방학 셔틀버스 운행 시간표입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "셔틀버스의 첫 운행 시간은 언제인가요?",
+                "answer": "첫 번째 운행 시간은 7:45입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 번호는 무엇인가요?",
+                "answer": "문의처 번호는 명시되어 있지 않습니다."
+            }
+        ]
+    },
+    {
+        "doc_id": "79746",
+        "image_file": "79746_SPIGEN 기업 설명회 포스터 (1).png",
+        "qas": [
+            {
+                "difficulty": "easy",
+                "question": "무엇에 대한 공지인가요?",
+                "answer": "Spigen 인턴 모집에 대한 공지입니다."
+            },
+            {
+                "difficulty": "medium",
+                "question": "인턴 모집의 지원 기간은 언제인가요?",
+                "answer": "2024년 1월 6일부터 2024년 5월 3일까지입니다."
+            },
+            {
+                "difficulty": "hard",
+                "question": "문의처 이메일 주소는 무엇인가요?",
+                "answer": "info@igeworld.co.kr입니다."
+            }
+        ]
+    }
+]
