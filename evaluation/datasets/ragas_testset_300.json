@@ -1,0 +1,2102 @@
+[
+  {
+    "question_type": "추론형",
+    "question": "중소기업 연구인력 현장맞춤형 양성지원사업이 왜 필요한 거야?",
+    "ground_truth": "이 사업은 현장맞춤형 연구인력 양성을 통해 중소기업의 연구인력 공급기반 구축 및 기술경쟁력 제고를 목적으로 해.",
+    "context_used": "청크 2",
+    "source_file": "81491_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "2026년에 졸업예정자인데, 중소기업 연구인력 현장맞춤형 양성지원사업 신청할 수 있어?",
+    "ground_truth": "졸업예정자도 신청 가능해, 그래서 2026년에도 지원할 수 있을 거야.",
+    "context_used": "청크 8",
+    "source_file": "81491_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "예비연구자 양성과정에서 월 지원금이 얼마인지랑 지원 기간은 얼마나 돼?",
+    "ground_truth": "예비연구자 양성과정은 월 130만원 지원하고, 지원 기간은 2개월이야.",
+    "context_used": "청크 4, 청크 5",
+    "source_file": "81491_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "교수역량지원센터의 연구원 채용은 석사 학위 이상 소지자가 지원해야 하는 이유가 뭐야?",
+    "ground_truth": "석사 학위 이상 소지자가 지원해야 하는 이유는 연구원으로서 필요한 전문 지식과 연구 능력을 갖추기 위한 기준으로 설정되었기 때문이야.",
+    "context_used": "청크 2",
+    "source_file": "79341_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 교수역량지원센터 연구원 채용에 지원할 수 있는 자격이 뭐야?",
+    "ground_truth": "채용 자격은 석사 학위 이상 소지자여야 하고, 교육(공학) 학위 소지자가 우대되지만, 컴퓨터공학과는 특별히 제한이 없으니 지원 가능해.",
+    "context_used": "청크 2",
+    "source_file": "79341_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "교수역량지원센터 연구원 채용의 근무 시작일은 언제고, 접수 마감일은 언제야?",
+    "ground_truth": "근무 시작일은 4월 1일이고, 접수 마감일은 2024년 3월 29일 17:00이야.",
+    "context_used": "청크 3, 청크 5",
+    "source_file": "79341_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "제4차 첨단기술 융합세미나에서 인공지능 센서와 인식기술 외에 다른 어떤 주제도 다루나요?",
+    "ground_truth": "세미나에서는 AI기반 자율적 물체 조작 기술, 디스플레이 산업 전망, 로봇을 위한 신경 모방 영상 기술 등 다양한 분야의 최신 동향과 사례도 다룰 예정이에요.",
+    "context_used": "청크 2",
+    "source_file": "94202_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 2026년에는 제4차 첨단기술 융합세미나에 참여할 수 있어?",
+    "ground_truth": "세미나는 온라인으로 진행되므로, 컴공 학생도 참여할 수 있어요. 그러나 2026년 일정은 아직 발표되지 않았어요.",
+    "context_used": "청크 3",
+    "source_file": "94202_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "세미나를 수강하려면 어떻게 신청해야 하는지와 세미나 날짜는 언제인지 알려줘!",
+    "ground_truth": "세미나는 2025년 12월 3일에 열리고, 신청은 구글 폼이나 포스터 QR코드를 통해 할 수 있어요.",
+    "context_used": "청크 3, 청크 4",
+    "source_file": "94202_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "글쓰기특강 수료하면 CanDo 마일리지 몇 점 주는 거야?",
+    "ground_truth": "수료 시 CanDo 마일리지 8점을 주고, 최대 40점까지 받을 수 있어.",
+    "context_used": "청크 3",
+    "source_file": "79450_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "26년도에 글쓰기특강 신청하려면 언제까지 해야 돼?",
+    "ground_truth": "이 공지는 2024년 기준이라서, 2024년 3월 18일부터 3월 25일까지 신청해야 해. 26년도 일정은 아직 안 나온 것 같아.",
+    "context_used": "청크 1",
+    "source_file": "79450_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "글쓰기특강 강의 주제랑 강사 이름 알려줄 수 있어?",
+    "ground_truth": "1차시는 2024년 5월 2일에 '효과적인 글쓰기' 주제로 허성필 교수님이 강의하고, 2차시는 5월 9일에 '주제 쓰기의 기술' 주제로 뱀헌 작가님이 강의해.",
+    "context_used": "청크 2",
+    "source_file": "79450_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "또래상담 멘토멘티 개인멘티 모집이 언제까지 진행되는 거야?",
+    "ground_truth": "신청은 2024년 12월 1일 일요일까지 가능해.",
+    "context_used": "청크 3",
+    "source_file": "84778_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나는 컴공 학생인데, 또래상담 멘토멘티 개인멘티 신청할 수 있어?",
+    "ground_truth": "신청 자격에 대한 구체적인 언급은 없지만, 일반적으로 모든 학과 학생들이 참여할 수 있는 프로그램이야.",
+    "context_used": "청크 1",
+    "source_file": "84778_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "또래상담 멘토멘티 활동은 어떻게 진행되고, 상담 일정은 언제까지야?",
+    "ground_truth": "활동은 대면/비대면으로 진행되며, 총 7회기 중 1회기 상담은 30분 이상 진행돼. 상담 일정은 12월 1일 일요일까지야.",
+    "context_used": "청크 3, 청크 4",
+    "source_file": "84778_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "아이디어 경진대회에서 상위 10팀은 어떤 혜택이 있지?",
+    "ground_truth": "상위 10팀에게는 장학금 지급, 전시 연계, 시제품 제작비 지원(최대 500만원), 글로벌 전시회 출품 기회가 제공돼.",
+    "context_used": "청크 4",
+    "source_file": "87680_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "컴퓨터공학부 학생이 2025년 아이디어 경진대회에 참가하려면 어떻게 해야 해?",
+    "ground_truth": "제안서를 이메일(bju0223@hoseo.edu)로 제출하면 되고, 파일 제목은 '2025 아이디어 경진대회 공모전 신청 개인 or 팀명'으로 해야 해.",
+    "context_used": "청크 3",
+    "source_file": "87680_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "아이디어 경진대회 제출 기간이랑 1차 서류 심사 일정이 언제인지 알려줘.",
+    "ground_truth": "접수기간은 2025.04.16 ~ 2025.05.04고, 1차 서류 심사는 2025.05.07 ~ 2025.05.08이야.",
+    "context_used": "청크 2",
+    "source_file": "87680_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2024 호서그룹 가상회사 동계 인턴십 일경험 프로그램은 어떤 방식으로 진행되는 건데?",
+    "ground_truth": "메타버스 가상 오피스 환경인 네이버 ZEP에서 진행돼.",
+    "context_used": "청크 2",
+    "source_file": "85077_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 2024 호서그룹 가상회사 동계 인턴십 일경험 프로그램 신청할 수 있어?",
+    "ground_truth": "모집대상이 호서대학교 재학생이니까, 컴공 학생인 너도 신청할 수 있어.",
+    "context_used": "청크 5",
+    "source_file": "85077_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2024 호서그룹 가상회사 동계 인턴십 일경험 프로그램 수료하면 어떤 혜택이 있어? 그리고 언제까지 신청해야 해?",
+    "ground_truth": "수료하면 20만원 장학금과 2025-1학기 자유학점 1학점이 지급되고, 신청은 2024.12.08까지 해야 해.",
+    "context_used": "청크 2, 청크 1",
+    "source_file": "85077_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "학습도우미 근로학생 모집은 왜 직전학기 성적이 3.0 이상이어야 해?",
+    "ground_truth": "직전학기 성적 3.0 이상인 학생을 우대하는 이유는 학습도우미로서의 역할에 필요한 학습 역량을 갖춘 학생을 선발하기 위함이야.",
+    "context_used": "청크 2",
+    "source_file": "86194_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 아산캠퍼스 소속인데, 학습도우미 지원 가능하려면 어떤 조건이 더 필요해?",
+    "ground_truth": "아산캠퍼스 소속 학생이어야 하고, 직전학기 성적이 3.0 이상이어야 해. 그리고 컴퓨터 활용 관련 자격증이 있으면 우대받을 수 있어.",
+    "context_used": "청크 2",
+    "source_file": "86194_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "학습도우미 근로기간은 언제부터 언제까지고, 모집 기간은 언제야?",
+    "ground_truth": "근로 기간은 2025년 3월 4일부터 6월 20일까지고, 모집 기간은 2025년 2월 10일부터 2월 20일 오후 2시까지야.",
+    "context_used": "청크 4, 청크 6",
+    "source_file": "86194_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2025학년도 비전임교원 초빙 원서 접수는 언제부터 언제까지야?",
+    "ground_truth": "원서 접수는 2025.02.14(금)부터 2025.02.18(화) 23:59까지야.",
+    "context_used": "청크 2",
+    "source_file": "86279_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "컴공 전공자인데 2025학년도 비전임교원 초빙 지원 자격이 어떻게 돼?",
+    "ground_truth": "비전임교원 초빙 지원 자격은 사립학교 교원 자격에 해당하고, 초빙 전공 분야의 박사학위 소지자가 되어야 해. 컴공 전공자는 지원할 수 없어.",
+    "context_used": "청크 3",
+    "source_file": "86279_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2025학년도 비전임교원 초빙 심사 결과는 언제 발표되는데, 원서 접수는 어떻게 해?",
+    "ground_truth": "심사 결과는 2025.02.24(월) 예정이고, 원서 접수는 호서대학교 채용 홈페이지에서 인터넷 접수로만 가능해. 우편이나 방문 접수는 안 돼.",
+    "context_used": "청크 2, 청크 5",
+    "source_file": "86279_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "이번 2024 호서대학교 취업박람회에서 제공하는 우수기업 채용정보는 어떤 식으로 제공돼?",
+    "ground_truth": "우수기업 채용정보는 지역우수기업 채용정보 링크를 통해 제공되며, 상담도 가능해.",
+    "context_used": "청크 6",
+    "source_file": "84271_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "내가 2026년도 컴공 소속인데, 2024 호서대학교 취업박람회 참가하려면 어떻게 해야 해?",
+    "ground_truth": "2024 호서대학교 취업박람회는 모든 학생이 참여 가능하니까 신청 링크를 통해 신청하면 돼.",
+    "context_used": "청크 5",
+    "source_file": "84271_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2024 호서대학교 취업박람회에서 온라인 특강은 언제 하고, 주제는 뭐야?",
+    "ground_truth": "온라인 특강은 10월 30일 수요일 저녁 6시부터 8시까지 하고, 주제는 인사담당자가 알려주는 반도체 IT 업계 채용 트렌드 및 취업 전략이야.",
+    "context_used": "청크 4, 청크 6",
+    "source_file": "84271_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "Hi-Five 튜터 활동은 왜 활동시간 미충족하면 장학금 지급이 안 되는 걸까?",
+    "ground_truth": "활동시간 미충족 시 미수료로 간주되기 때문이야. 장학금은 활동 완료에 대한 보상이니까.",
+    "context_used": "청크 6",
+    "source_file": "79160_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 Hi-Five 튜터 생물 과목 지원 가능한 거야?",
+    "ground_truth": "지원 자격이 호서대학교 재학생이니까 가능해. 단, 생물 과목 튜터로 활동할 수 있어야 해.",
+    "context_used": "청크 3",
+    "source_file": "79160_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "Hi-Five 튜터 신청서 제출하려면 어떤 서류가 필요한지랑 활동기간은 언제인지 알려줘.",
+    "ground_truth": "신청서와 개인정보 수집 동의서가 필요하고, 활동기간은 2024-1학기, 총 13주야.",
+    "context_used": "청크 4, 청크 2",
+    "source_file": "79160_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2025학년도 하계 계절학기 단기 표준현장실습학기제(Co-op) 신청 기간이 지나면 어떻게 되는 거야?",
+    "ground_truth": "신청 기간이 지나면 더 이상 신청할 수 없고, 다음 모집 공고를 기다려야 해.",
+    "context_used": "청크 1, 청크 3",
+    "source_file": "88097_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 2026년에 컴공 3학년인데, 8월 졸업예정자로 하계 계절학기 단기 표준현장실습학기제 신청 가능한 거야?",
+    "ground_truth": "8월 졸업예정자는 4주만 신청 가능해. 그러니까 20일만 가능하다는 거지.",
+    "context_used": "청크 2",
+    "source_file": "88097_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2025학년도 하계 계절학기 단기 표준현장실습학기제 신청하려면 어떤 절차를 따라야 해?",
+    "ground_truth": "신청하려면 안전교육 및 사전교육 이수 후 실습기업 온라인 신청하고, 현장실습지원센터 승인 받은 다음에 이력서와 자기소개서 작성하고 매칭 신청해야 해.",
+    "context_used": "청크 6, 청크 4",
+    "source_file": "88097_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "학칙 개정이 왜 필요한 건지 궁금한데, 주된 이유가 뭐야?",
+    "ground_truth": "학칙 개정은 정부재정지원사업 선정에 따른 제도적 기반 마련, 학사 구조개혁에 따른 교육단위 체계 표준화 및 교육과정 개편 필요 등의 이유로 필요해.",
+    "context_used": "청크 1",
+    "source_file": "94996_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "2026학번 교육과정표가 언제 추가되는 건지 알고 싶어.",
+    "ground_truth": "2026학번 교육과정표는 학칙 시행규칙 개정에 따라 추가되는 거라서 곧 반영될 예정이야.",
+    "context_used": "청크 2",
+    "source_file": "94996_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "RISE 사업 선정된 후에 조기취업형 계약학과 운영은 어떻게 바뀌는 건지 궁금해.",
+    "ground_truth": "RISE 사업 선정에 따라 조기취업형 계약학과는 3년(6학기) 운영으로 변경되며, 이 내용을 학칙에 근거를 마련했어.",
+    "context_used": "청크 1, 청크 2",
+    "source_file": "94996_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "임상병리학과 교육조교는 어떤 자격이 필요해?",
+    "ground_truth": "4년제 대졸자여야 하고, 국가공무원법 제 33조의 결격사유에 해당하지 않아야 해.",
+    "context_used": "청크 2",
+    "source_file": "79518_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "2026년도에 임상병리학과 교육조교로 지원하려면 언제까지 서류를 내야 해?",
+    "ground_truth": "2024년 기준으로는 2024.04.05.까지 서류를 제출해야 하고, 2026년 일정은 아직 안 나온 것 같아.",
+    "context_used": "청크 5",
+    "source_file": "79518_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "임상병리학과 교육조교는 언제부터 근무 시작해? 그리고 계약 기간은 얼마나 돼?",
+    "ground_truth": "근무 시작일은 2024.04.22. 예정이고, 계약 기간은 1년으로 평가에 따라 1년 재임용 가능해.",
+    "context_used": "청크 3, 청크 7",
+    "source_file": "79518_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "초과학기생 등록금 납부 일정이 3월 11일부터 15일까지인 이유가 뭐야?",
+    "ground_truth": "등록금 납부 일정은 수강신청 후 고지서가 발행되기 때문에, 그 기간에 맞춰 설정된 거야.",
+    "context_used": "청크 2",
+    "source_file": "79223_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "내가 2026년도에 9학기 초과할 것 같은데, 그때도 등록금 납부 기간은 3월 11일부터 15일까지야?",
+    "ground_truth": "이 일정은 2024년 기준이니까, 2026년도 일정은 아직 발표되지 않았어. 그때 상황은 달라질 수 있어.",
+    "context_used": "청크 2",
+    "source_file": "79223_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "고지서 출력기간이 3월 11일부터 15일인데, 수강정정기간 이후에 확인하라고 했어. 그럼 고지서 언제 확인해야 해?",
+    "ground_truth": "수강정정기간이 끝난 후에 고지서를 확인해야 하니까, 3월 11일부터 15일 사이에 확인하고 납부 기간 중에 납부하면 돼.",
+    "context_used": "청크 2",
+    "source_file": "79223_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "ICAN+ 멘토단 지원 자격에 평균성적 조건이 3.5 이상인데, 이 조건이 왜 설정된 거야?",
+    "ground_truth": "지원 자격이 성적 기준을 두는 이유는 멘토단의 활동이 학습 지원을 목적으로 하기 때문에, 관련된 지식과 경험이 필요한 학생을 선발하기 위해서야.",
+    "context_used": "청크 3",
+    "source_file": "95628_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "2026년도 컴공인데, ICAN+ 멘토단 신청 기간이 2월 24일부터 3월 4일이 맞아?",
+    "ground_truth": "응, 맞아. ICAN+ 멘토단 신청 기간은 2026년 2월 24일(화)부터 3월 4일(수)까지야.",
+    "context_used": "청크 1",
+    "source_file": "95628_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "ICAN+ 멘토단 활동 중에 어떤 프로그램들이 포함되어 있고, 그 기간은 언제야?",
+    "ground_truth": "활동 내용으로는 학습공동체 멘토 활동과 멘토 성장 프로그램이 포함돼. 멘토 성장 프로그램은 온라인 학습법 특강, 프리젠테이션 관련 워크숍, 리더십 캠프가 있어. 활동은 학기 중에 진행되고, 오리엔테이션은 3월 중순에 예정이야.",
+    "context_used": "청크 4, 청크 5",
+    "source_file": "95628_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "초과학기생 등록금 납부는 왜 9학기 이상부터 적용되는 거야?",
+    "ground_truth": "9학기 이상 등록자는 학업 연장이 필요하다고 판단되어 별도의 고지서로 수업료가 청구되는 것이야.",
+    "context_used": "청크 2",
+    "source_file": "86268_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 2025학년도 1학기 초과학기생 등록금 납부는 어떻게 돼?",
+    "ground_truth": "0학점에서 3학점은 수업료의 1/6, 4학점에서 6학점은 3/6, 7학점에서 9학점은 5/6, 10학점 이상은 전액 납부해야 해.",
+    "context_used": "청크 4",
+    "source_file": "86268_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2025학년도 1학기 초과학기생 등록금 고지서 출력은 언제부터 언제까지야?",
+    "ground_truth": "고지서 출력기간은 2025.03.10.(월)부터 2025.03.14.(금)까지야.",
+    "context_used": "청크 3",
+    "source_file": "86268_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "비전임교원 초빙에서 강의 시간은 어떻게 되지?",
+    "ground_truth": "비전임교원은 주당 6시간 이하로 강의해야 하고, 일반적으로 비전임교원은 주당 9시간 이하로 강의할 수 있어.",
+    "context_used": "청크 6",
+    "source_file": "80386_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 2024학년도 비전임교원 초빙 지원하려면 어떤 조건이 필요해?",
+    "ground_truth": "컴공 전공이 아니라도, 비전임교원 초빙에 지원하려면 관련 분야 박사학위 소지자 이상이어야 하고, 교원 임용에 결격사유가 없어야 해.",
+    "context_used": "청크 5",
+    "source_file": "80386_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "비전임교원 초빙의 원서 접수는 언제부터 언제까지야? 그리고 심사결과는 언제 발표돼?",
+    "ground_truth": "원서 접수는 2024년 5월 13일부터 5월 19일 17시까지고, 심사결과는 2024년 5월 27일에 발표될 예정이야.",
+    "context_used": "청크 3, 청크 3",
+    "source_file": "80386_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2024학년도 과제형 캡스톤디자인의 운영기간은 언제부터 언제까지야?",
+    "ground_truth": "운영기간은 2024년 4월 1일부터 10월 31일까지야.",
+    "context_used": "청크 2",
+    "source_file": "79281_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "내가 컴공인데, 2024학년도 2학기 종료일까지 휴학 계획이 없으면 캡스톤디자인 지원할 수 있어?",
+    "ground_truth": "응, LINC3.0사업단 참여학과 재학 중이고 2024학년도 2학기 종료일까지 휴학 계획이 없다면 지원할 수 있어.",
+    "context_used": "청크 2",
+    "source_file": "79281_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2024학년도 캡스톤디자인 신청접수는 언제 시작되고, 어떻게 해야 해?",
+    "ground_truth": "신청접수는 2024년 3월 6일부터 3월 14일까지야. LMS 자율강좌를 통해 [LINC3.0] 2024학년도 과제형 캡스톤디자인 강좌에서 신청서를 제출하면 돼.",
+    "context_used": "청크 4, 청크 5",
+    "source_file": "79281_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2025 호서그룹 가상회사 동계 일경험 프로그램 참가하면 어떤 혜택이 있어?",
+    "ground_truth": "동계 인턴 수료 시 20만원 장학금 지급과 2026-1학기 자유학점 1학점이 지급돼.",
+    "context_used": "청크 2",
+    "source_file": "94490_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나는 컴공 학생인데, 2025 호서그룹 가상회사 동계 일경험 프로그램 신청할 수 있어?",
+    "ground_truth": "호서대학교 재학생이면 신청할 수 있어.",
+    "context_used": "청크 4",
+    "source_file": "94490_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2025 호서그룹 가상회사 동계 일경험 프로그램 신청은 언제부터 하고, 참여 기간은 언제야?",
+    "ground_truth": "신청은 12월 22일부터 시작하고, 참여는 12월 29일부터 2026년 2월 1일까지야.",
+    "context_used": "청크 1, 청크 5",
+    "source_file": "94490_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "NASEL-i 조사에 참여하면 마일리지랑 상품권 둘 다 받을 수 있는 거 맞아?",
+    "ground_truth": "응, NASEL-i 조사에 참여하면 전원에게 ConDo 마일리지와 CU 모바일 상품권 5천원이 지급돼.",
+    "context_used": "청크 3",
+    "source_file": "88976_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 2025년도 NASEL-i 조사 참여하면 혜택은 뭐야?",
+    "ground_truth": "2025년도 NASEL-i 조사에 참여하면 ConDo 마일리지와 CU 모바일 상품권 5천원을 받을 수 있어.",
+    "context_used": "청크 3",
+    "source_file": "88976_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "NASEL-i 조사 참여 기간이 언제인지랑 참여 방법은 어떻게 되는지 알려줄 수 있어?",
+    "ground_truth": "NASEL-i 조사는 2025년 6월 4일부터 7월 16일까지 참여 가능하고, QR코드로 접속해서 참여하면 돼.",
+    "context_used": "청크 2, 청크 4",
+    "source_file": "88976_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "미래내일 일경험(인턴형) 지원사업 참여청년 모집 공고에서 기본 요건이 뭐야?",
+    "ground_truth": "최종학력이 고졸 이상이어야 하고, 전공은 무관해. 문서작성 능력과 전산기 활용 능력이 기초적으로 요구돼.",
+    "context_used": "청크 4",
+    "source_file": "84619_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 미래내일 일경험(인턴형) 지원사업 신청하려면 어떤 조건이 필요해?",
+    "ground_truth": "컴퓨터공학부 학생도 지원할 수 있어. 최종학력은 고졸 이상이고, 전공은 무관하지만 문서작성 능력과 전산기 활용 능력이 필요해.",
+    "context_used": "청크 4",
+    "source_file": "84619_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "미래내일 일경험(인턴형) 프로그램은 언제 하고, 근무 시간은 어떻게 돼?",
+    "ground_truth": "프로그램은 2024년 11월 18일부터 2025년 1월 10일까지 진행되고, 근무 시간은 월요일부터 금요일까지 12시부터 18시까지야. 주 25시간 근무하고 수당은 월 140만원이야.",
+    "context_used": "청크 5, 청크 6",
+    "source_file": "84619_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "호서마음약국 축제에서 심리검사 하면 어떤 혜택이 있어?",
+    "ground_truth": "심리검사를 통해 나의 심리 정서적 상태를 점검할 수 있고, 참여자 중 선발하여 상품 지급 및 CanDo 마일리지 18점을 적립할 수 있어. 단, 만족도 조사를 해야 상품 추첨에 응모할 수 있어.",
+    "context_used": "청크 3",
+    "source_file": "81709_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "내가 컴퓨터공학부 학생인데, 호서마음약국 축제 참여는 가능해?",
+    "ground_truth": "네, 컴퓨터공학부 학생도 참여 가능해. 행사에 제한이 없기 때문에 누구나 참여할 수 있어.",
+    "context_used": "청크 1",
+    "source_file": "81709_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "호서마음약국 축제는 언제부터 언제까지 열리고, 심리검사는 어떤 종류가 있어?",
+    "ground_truth": "호서마음약국 축제는 2024년 3월 4일부터 8월 4일까지 열리고, 연애유형검사, 우울검사, 불안검사 등 다양한 심리검사가 있어.",
+    "context_used": "청크 1, 청크 2",
+    "source_file": "81709_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "호서토익 응시료가 왜 8,000원이야? 다른 시험들이랑 비교했을 때 어떤 이유가 있을까?",
+    "ground_truth": "문서에는 응시료에 대한 특별한 이유는 명시되어 있지 않지만, 일반적으로 학교에서 시행하는 모의시험은 정규 시험보다 저렴하게 설정되는 경우가 많아.",
+    "context_used": "청크 2",
+    "source_file": "93548_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "2025학년도 7차 호서토익 신청기간이 10월 30일부터 11월 5일인데, 나 26년도 컴공인데 이 시점에서 신청하려면 어떻게 해야 해?",
+    "ground_truth": "2025학년도 기준으로 신청해야 하므로, 26년도에는 해당 일정이 없고, 그 해의 일정이 발표되기 전까지는 신청할 수 없어.",
+    "context_used": "청크 2",
+    "source_file": "93548_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "호서토익 시험이 11월 13일이고, 성적발표는 11월 21일인데, 입실 완료 시간은 언제까지야?",
+    "ground_truth": "시험은 18:30부터 시작되며, 18:15까지 입실해야 해. 그러니까 성적이 발표되기 전까지 입실을 완료해야 해.",
+    "context_used": "청크 1, 청크 3",
+    "source_file": "93548_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "나태주 시인 특강에 다과 제공이 있는데, 이거 꼭 참석해야 혜택 받는 거야?",
+    "ground_truth": "다과는 특강에 참석하는 모든 사람에게 제공되니까, 참석해야 혜택을 받을 수 있어.",
+    "context_used": "청크 1",
+    "source_file": "93752_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 26년도에 인문학 특강 참여하고 싶은데, 그때도 나태주 시인 오는 거야?",
+    "ground_truth": "이 공지는 2024년 기준이라서 26년도 일정은 아직 확인할 수 없어.",
+    "context_used": "청크 1",
+    "source_file": "93752_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "나태주 시인 특강에 참석하면 다과도 제공되는데, HCC위원회에서 다른 행사도 계획 중인지 알고 싶어.",
+    "ground_truth": "문서에는 HCC위원회에서 다른 행사에 대한 정보는 없고, 나태주 시인 특강에 대한 내용만 있어.",
+    "context_used": "청크 1",
+    "source_file": "93752_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "교육수요자만족도조사 참여하면 우리 학교 교육 서비스 개선에 어떤 도움이 될까?",
+    "ground_truth": "조사 결과는 학교의 발전 계획 방향 설정과 문제점 개선에 활용될 거야. 그래서 교육 서비스 질이 향상될 수 있어.",
+    "context_used": "청크 1",
+    "source_file": "83118_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "2026년도 컴공 재학생인데, 교육수요자만족도조사 언제 참여해야 해?",
+    "ground_truth": "2024학년도 기준으로 재학생은 2024.09.05부터 2024.10.20까지 참여할 수 있어. 26년도 일정은 아직 안 나왔어.",
+    "context_used": "청크 2",
+    "source_file": "83118_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "교육수요자만족도조사 참여 기간이 학부모랑 같아? 그리고 문의는 어디로 해야 해?",
+    "ground_truth": "응, 학부모도 2024.09.05부터 2024.10.20까지 참여하고, 문의는 교육학신처 학생R센터에 전화하면 돼. 연락처는 041-540-9998이야.",
+    "context_used": "청크 2, 청크 3",
+    "source_file": "83118_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "캠핑데이에서 숙박 신청한 사람들은 텐트랑 테이블 받을 수 있냐?",
+    "ground_truth": "숙박 신청한 사람들은 텐트와 테이블이 배정돼.",
+    "context_used": "청크 2",
+    "source_file": "83821_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 캠핑데이 참가하려면 어떻게 해야 돼?",
+    "ground_truth": "컴공 학생도 교내 재학생으로 신청하면 참여 가능해. 선착순이니까 빨리 신청해야 해.",
+    "context_used": "청크 3",
+    "source_file": "83821_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "캠핑데이 불참할 때 어떻게 연락해야 하는지 알려줘, 그리고 공연은 누구나 관람 가능하다고 했던 것 같은데 맞지?",
+    "ground_truth": "불참 의사는 성명과 전화번호만 알려주면 되고, 공연과 장기자랑은 참여 대상자가 아니어도 관람할 수 있어.",
+    "context_used": "청크 5, 청크 6",
+    "source_file": "83821_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2025학년도 1학기 Go Global 해외 일본 교환학생 면접 일정은 언제야?",
+    "ground_truth": "면접 일자는 2024년 10월 23일 수요일 오후 예정이야. 합격 발표는 2024년 10월 25일 금요일에 개별 통지 및 홈페이지에 공고될 거야.",
+    "context_used": "청크 9",
+    "source_file": "83840_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 2025학년도 1학기 Go Global 교환학생 지원하려면 어떤 조건이 필요한 거야?",
+    "ground_truth": "지원 자격으로는 3학기에서 6학기 중인 학생이어야 하고, 평점 평균이 2.80 이상이어야 해. 만약 2.8 미만이라면 직전학기 평점이 2.8 이상이어야 하고 학과장의 추천도 받아야 해.",
+    "context_used": "청크 6",
+    "source_file": "83840_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "교환학생 지원할 때 제출해야 하는 서류 목록이 뭐야? 그리고 지원 가능 언어 성적 기준도 알고 싶어.",
+    "ground_truth": "제출해야 하는 서류는 신청서, 추천서, 확인서, 성적증명서, 재학증명서, 개인정보 활용 동의서, 공인어학성적표 사본, 학부모 동의서야. 언어 성적 기준은 교토문교 대학과 고마츠 대학은 N2 이상이 필수고, 산요학원은 N3 이상이 필수야.",
+    "context_used": "청크 7, 청크 4",
+    "source_file": "83840_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2024학년도 2학기 생활관생 모집은 왜 재학생하고 복학생만 지원할 수 있어?",
+    "ground_truth": "재학생과 복학생만 지원할 수 있는 이유는 생활관의 인원 배정과 관리 차원에서 현재 등록된 학생들을 우선적으로 고려하기 때문이야.",
+    "context_used": "청크 2, 청크 3",
+    "source_file": "81957_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "내가 2026년도 컴공인데, 2학기 생활관 신청은 언제부터 시작해?",
+    "ground_truth": "2024학년도 기준으로는 2024년 7월 19일에서 7월 28일 사이에 신청해야 해. 2026년도 일정은 아직 안 나왔어.",
+    "context_used": "청크 2, 청크 4",
+    "source_file": "81957_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2인실 A타입과 B타입 생활관비가 각각 얼마인지 궁금한데, 선발 기준도 알려줘.",
+    "ground_truth": "2인실 A타입은 1,425,000원이고, 2인실 B타입은 1,226,000원이야. 선발 기준은 성적과 거리 각각 50%씩 반영돼.",
+    "context_used": "청크 6, 청크 3",
+    "source_file": "81957_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2025년 COREA 창업동아리 모집 기간이 왜 이렇게 정해졌는지 궁금해.",
+    "ground_truth": "모집 기간은 보통 동아리 팀 구성 및 사업 계획 수립을 위한 충분한 시간을 제공하기 위해 설정되며, 이 경우 2025년 4월 14일부터 5월 2일 사이로 정해졌어.",
+    "context_used": "청크 1, 청크 7",
+    "source_file": "87597_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "2026년 컴공 학생인데, 2025년 COREA 창업동아리에 신청할 수 있어?",
+    "ground_truth": "2025년 COREA 창업동아리는 호서대학교 대학(원)생으로 구성된 3인 이상의 동아리팀이 신청할 수 있어서, 컴공 소속이니 신청 가능해.",
+    "context_used": "청크 2",
+    "source_file": "87597_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2025년 COREA 창업동아리 지원 내용에 창업교육이 포함된다고 했는데, 그게 뭐지?",
+    "ground_truth": "지원 내용에는 사업계획서 작성법과 지적재산권 출원 같은 창업교육이 포함되어 있어서, 창업 관련 지식을 제공하려고 해.",
+    "context_used": "청크 5, 청크 4",
+    "source_file": "87597_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2024년도 예비군 훈련은 왜 5월에 하는 거야?",
+    "ground_truth": "2024년도 예비군 훈련은 봄철에 진행되어야 학생들이 학기 중에 훈련을 받는 데 지장이 없도록 하기 위함이야.",
+    "context_used": "청크 1, 청크 2",
+    "source_file": "79777_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 2024년도 예비군 훈련 날짜는 언제야?",
+    "ground_truth": "2024년도 예비군 훈련은 5월 20일에 진행돼. 컴퓨터공학부 훈련 일정이야.",
+    "context_used": "청크 7",
+    "source_file": "79777_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2024년도 예비군 훈련 때 셔틀버스는 몇 시에 출발해?",
+    "ground_truth": "아산캠퍼스에서 셔틀버스는 8시 20분에 출발하고, 천안캠퍼스는 7시 40분에 출발해.",
+    "context_used": "청크 3, 청크 2",
+    "source_file": "79777_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2025 인턴십 직무부트캠프 과정은 총 몇 주로 진행되는데?",
+    "ground_truth": "총 5주로 진행돼. 1주차와 2주차에 현직자 직무 과제를 수행하고, 3주차에 과제를 발표해. 4주차엔 에센스 강의와 피드백이 있고, 마지막 5주차엔 온라인 세션과 피드백이 있어.",
+    "context_used": "청크 1",
+    "source_file": "92188_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "내가 컴퓨터공학부 소속인데, 2025 인턴십 직무부트캠프 신청할 수 있어?",
+    "ground_truth": "이 프로그램은 호서대학교 재학생이면 신청할 수 있지만, 참여학과 명단에 컴퓨터공학부는 포함되어 있지 않아. 그래서 신청할 수 없어.",
+    "context_used": "청크 2, 청크 9",
+    "source_file": "92188_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2025 인턴십 직무부트캠프 신청 기간은 언제고, OT 선발 발표는 몇일에 있어?",
+    "ground_truth": "신청 기간은 2025년 9월 3일이고, OT 선발 발표는 2025년 9월 5일 오후 5시에 있어.",
+    "context_used": "청크 3",
+    "source_file": "92188_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "이번 2024-1학기 방학 셔틀버스 운행은 언제부터 언제까지야?",
+    "ground_truth": "방학 셔틀버스는 6월 24일부터 방학 시간표로 운행되고, 방학 기간에는 국·공휴일 및 토요일, 일요일은 운행하지 않아.",
+    "context_used": "청크 2, 청크 7",
+    "source_file": "81329_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "컴공 학생인데, 2024-1학기 보강주 셔틀버스 언제 운행해?",
+    "ground_truth": "2024-1학기 보강주에 해당하는 6월 17일부터 20일까지는 학기 시간표로 정상운행해.",
+    "context_used": "청크 2",
+    "source_file": "81329_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2024-1학기 방학 셔틀버스 시간표랑 통학버스 운행 시작일 언제야?",
+    "ground_truth": "방학 셔틀버스는 6월 24일부터 운행하고, 통학버스는 8월 26일 개강일에 운행이 시작돼. 8월 25일부터 예약이 가능해.",
+    "context_used": "청크 4, 청크 3",
+    "source_file": "81329_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2025 DX와 AX 비즈니스 전략 특강에서 수료증 받으려면 최소 몇 분은 들어야 해?",
+    "ground_truth": "수료기준은 교육시간 80분 이상이야.",
+    "context_used": "청크 2",
+    "source_file": "94034_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 2025 DX와 AX 비즈니스 전략 특강 신청하려면 언제까지 해야 해?",
+    "ground_truth": "신청 기간은 2025년 12월 9일 화요일까지야.",
+    "context_used": "청크 3",
+    "source_file": "94034_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2025 DX와 AX 비즈니스 전략 특강은 언제 있고, 거기서 CanDo 마일리지는 얼마 줘?",
+    "ground_truth": "특강은 2025년 12월 11일에 열리고, CanDo 마일리지는 40점이야.",
+    "context_used": "청크 1, 청크 2",
+    "source_file": "94034_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "25학년도 상반기 미국 해외취업(J-1인턴)에 참여하려면 어떤 조건들이 필요한지 궁금해.",
+    "ground_truth": "25학년도 2월 졸업자 및 8월 졸업예정자, 운전면허 및 여권 소지자(예정자 포함), 영어회화 중급 이상 가능자가 필요해. 운전면허 및 여권은 5월까지 취득 가능자도 포함돼.",
+    "context_used": "청크 1",
+    "source_file": "87384_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "내가 컴공인데, 25학년도 상반기 미국 해외취업(J-1인턴) 신청하려면 어떤 서류를 제출해야 해?",
+    "ground_truth": "자기소개서, 개인정보 수집·이용 제공 동의서, 재학증명서 또는 졸업(예정)증명서, 성적증명서, 해당자의 경우 자격증 증명서 및 활동 증명서를 제출해야 해.",
+    "context_used": "청크 4",
+    "source_file": "87384_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "25학년도 상반기 미국 해외취업(J-1인턴) 비용이랑 지원금에 대해 알아보고 싶은데, 총 비용은 얼마고 정부 지원금은 얼마야?",
+    "ground_truth": "총 비용은 약 800만원이고, 정부 지원은 900만원 예정이야.",
+    "context_used": "청크 3",
+    "source_file": "87384_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2026년 2월 비전임교원 초빙 공고에서 지원 서류는 어떤 게 필요한지 알 수 있어?",
+    "ground_truth": "지원 서류는 인적사항 자기소개서 또는 이력서, 최종학위증명서, 강의평가서, 강의계획서, 연구실적 목록, 개인정보 수집 이용 제공 동의서, 건강보험 자격득실 확인서, 학력증명서 및 성적증명서, 경력증명서, 자격증 및 면허증 등이 필요해.",
+    "context_used": "청크 4",
+    "source_file": "94886_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 2026년 1월에 비전임교원 초빙에 지원하려면 어떤 조건이 있어?",
+    "ground_truth": "이 공고는 글로벌융합대학과 산학협력단의 분야에 해당되므로 컴공은 지원 자격이 없어. 지원할 수 있는 분야는 관련 전공이 필요해.",
+    "context_used": "청크 2",
+    "source_file": "94886_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2026년 비전임교원 초빙 공고의 전형 일정이랑 지원 서류 제출 마감일이 언제인지 알려줄 수 있어?",
+    "ground_truth": "원서 접수는 2026년 1월 6일부터 1월 11일 23:59까지고, 심사 결과는 1월 16일에 발표될 예정이야.",
+    "context_used": "청크 3, 청크 4",
+    "source_file": "94886_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2025-2학기 혁신교수법 운영보고서는 언제까지 제출해야 해?",
+    "ground_truth": "운영보고서 제출 기한은 2025년 12월 1일(월)부터 12월 18일(목) 16시까지야. 기간 연장은 없으니까 꼭 맞춰서 제출해야 해.",
+    "context_used": "청크 3, 청크 4",
+    "source_file": "93666_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 2025-2학기에 혁신교수법 적용한 수업도 운영보고서 제출해야 해?",
+    "ground_truth": "응, 2025-2학기 혁신교수법을 적용한 강좌는 어떤 학과든지 운영보고서를 제출해야 해.",
+    "context_used": "청크 3, 청크 4",
+    "source_file": "93666_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "혁신교수법 교과목 운영보고서 작성할 때 주의할 점이 뭐야?",
+    "ground_truth": "운영보고서의 5개 항목은 임의로 합치거나 누락하지 말고, 각 항목의 작성 요령에 있는 기본 요건을 빠짐없이 작성해야 해. 다분반 강좌는 모든 분반 운영보고서를 업로드해야 하고, 우수성과 수업반응도 결과를 종합적으로 고려해서 우수 교원을 선정할 예정이야.",
+    "context_used": "청크 5, 청크 3",
+    "source_file": "93666_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "곽수민 동문이 공무원 진로를 선택한 이유가 뭐야?",
+    "ground_truth": "곽수민 동문은 4학년 2학기 졸업을 앞두고 진로 고민 후 MBTI 성격유형 검사 및 직업 선호도 검사를 통해 공무원이 적합하다는 것을 알게 되었고, 지역인재 공무원 채용 소식을 듣고 시험에 응시하게 되었다고 해.",
+    "context_used": "청크 2",
+    "source_file": "83996_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "내가 2026년도에 공무원 시험 준비하려고 하는데, 곽수민 동문처럼 PSAT 준비가 힘들 거라고 생각해?",
+    "ground_truth": "곽수민 동문도 PSAT 준비가 가장 힘들었다고 하니까, 아마 힘들 거야. 하지만 최선을 다하면 좋은 결과가 있을 거야.",
+    "context_used": "청크 2",
+    "source_file": "83996_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "곽수민 동문이 대학생으로 돌아간다면 하고 싶은 활동은 뭐라고 했고, 그 활동이 왜 중요하다고 생각해?",
+    "ground_truth": "곽수민 동문은 대학생으로 돌아간다면 여행, 취미 활동, 대내외 프로그램 등에 참여하여 다양한 경험을 해보고 싶다고 했어. 이런 경험들이 인생의 전환점이 될 수 있기 때문에 중요하다고 생각해.",
+    "context_used": "청크 2",
+    "source_file": "83996_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "5월 7일 아산캠퍼스는 왜 버스가 안 다녀?",
+    "ground_truth": "5월 7일 아산캠퍼스는 버스탑승 인원이 5명 이하일 경우 별도 셔틀버스 운행이 없기 때문이야.",
+    "context_used": "청크 5",
+    "source_file": "87954_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 5월 8일에 아산캠퍼스에서 훈련 가려면 몇 시에 버스를 타야 해?",
+    "ground_truth": "5월 8일 아산캠퍼스에서 훈련을 가려면 오전 8시 20분에 출발하는 셔틀버스를 타야 해.",
+    "context_used": "청크 4",
+    "source_file": "87954_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "천안캠퍼스에서 5월 7일에 훈련 가려면 몇 시에 출발하는 버스를 타야 하고, 아산캠퍼스에서는 언제 버스가 다녀?",
+    "ground_truth": "천안캠퍼스에서 5월 7일에 훈련 가려면 오전 7시 40분에 출발하는 버스를 타야 하고, 아산캠퍼스는 5월 8일 오전 8시 20분에 버스가 다녀.",
+    "context_used": "청크 3, 청크 4",
+    "source_file": "87954_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2024-2학기 글쓰기클리닉 신청하면 어떤 도움을 받을 수 있어?",
+    "ground_truth": "글쓰기클리닉은 글쓰기 능력을 향상시키기 위한 프로그램으로, 개인 맞춤형 지도를 받을 수 있어.",
+    "context_used": "청크 1",
+    "source_file": "83716_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 2024-2학기 글쓰기클리닉 신청할 수 있어?",
+    "ground_truth": "글쓰기클리닉은 모든 학과 학생들이 신청할 수 있는 프로그램이야, 그래서 컴공도 신청 가능해.",
+    "context_used": "청크 1",
+    "source_file": "83716_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2024-2학기 글쓰기클리닉 신청 링크는 어디서 찾을 수 있어?",
+    "ground_truth": "신청 링크는 클리닉 사이트에서 찾을 수 있고, 사이트 주소는 https://hoseo.iwcc.kr/writing-hoseo/standard/main/main.do야.",
+    "context_used": "청크 2",
+    "source_file": "83716_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "학석사연계과정에 지원하려면 평점이 3.0 이상이어야 하는 이유가 뭐야?",
+    "ground_truth": "학석사연계과정은 학업 능력과 연구에 대한 기초가 필요하기 때문에 일정 수준 이상의 평점평균을 요구해.",
+    "context_used": "청크 2",
+    "source_file": "95008_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "26년도 학사과정 3학년 2학기 이수 중인데, 학석사연계과정 지원 가능해?",
+    "ground_truth": "2026학년도 기준으로 학사과정 6개 학기를 이수해야 하니까 가능해. 하지만 총 평점평균이 3.0 이상이어야 하고, 학과장 추천도 필요해.",
+    "context_used": "청크 2",
+    "source_file": "95008_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "학석사연계과정 지원서 제출할 때 어떤 서류가 필요한지 궁금한데, 전형료는 얼마야?",
+    "ground_truth": "지원서, 개인정보제공동의서, 학과장 추천서, 학업계획서, 전형료 납입증명서가 필요해. 전형료는 20,000원이야.",
+    "context_used": "청크 3, 청크 4",
+    "source_file": "95008_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "디스플레이 채용박람회에서 OMDIA가 어떤 주제로 강의하는지 궁금한데?",
+    "ground_truth": "OMDIA는 2025년 시장 전망 및 전략에 대해 강의할 예정이야.",
+    "context_used": "청크 4",
+    "source_file": "91900_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "내가 컴공인데, K-Display 2025 디스플레이 채용박람회에 참여할 수 있어?",
+    "ground_truth": "디스플레이 산업에 관심 있는 학부생도 참여 가능하니까, 관심 있으면 신청해도 돼.",
+    "context_used": "청크 2",
+    "source_file": "91900_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "K-Display 2025 디스플레이 채용박람회가 열리는 날짜와 사전신청 마감일이 언제인지 알려줄 수 있어?",
+    "ground_truth": "행사는 2025년 8월 7일부터 8일까지 열리고, 사전신청은 8월 4일 18:00까지 해야 해.",
+    "context_used": "청크 4, 청크 5",
+    "source_file": "91900_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "캠퍼스 라이프 체크카드 이벤트는 왜 I-Campus 체크카드만 대상으로 해?",
+    "ground_truth": "이벤트는 I-Campus 체크카드를 발급받은 고객을 위해 기획된 것이어서, 이 카드 사용자를 대상으로 혜택을 제공하려는 의도가 있어.",
+    "context_used": "청크 3, 청크 4, 청크 7",
+    "source_file": "95885_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 캠퍼스 라이프 체크카드 이벤트에 참여하려면 어떤 조건이 필요해?",
+    "ground_truth": "I-Campus 체크카드를 발급받아야 하고, 5천원 이상 결제해야 혜택 대상이 돼. 또, 행사 기간은 2026년 3월 3일부터 3월 31일이야.",
+    "context_used": "청크 2, 청크 3, 청크 4",
+    "source_file": "95885_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "캠퍼스 라이프 체크카드 이벤트에서 Airpod Pro 3를 받으려면 얼마나 써야 해?",
+    "ground_truth": "합산 30만원 이상 이용해야 추첨 대상이 되고, 당첨자는 2026년 4월 중 발표돼.",
+    "context_used": "청크 5, 청크 6",
+    "source_file": "95885_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "통학버스 미운행 기간이랑 학기 종료일이 언제인지 궁금해!",
+    "ground_truth": "통학버스는 2025년 12월 15일부터 2025년 12월 23일까지 미운행이며, 학기는 2025년 12월 21일에 종료돼.",
+    "context_used": "청크 2",
+    "source_file": "94453_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 2025학년도 학기말 통학버스 운행은 어떻게 되는 거야?",
+    "ground_truth": "2025년 12월 12일에 통학버스는 정상운행하고, 12월 15일부터 23일까지는 미운행이야.",
+    "context_used": "청크 2",
+    "source_file": "94453_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2025년 통학버스 운행 일정이랑 공휴일 운행은 언제부터 시작되는지 알고 싶어!",
+    "ground_truth": "통학버스는 2025년 12월 12일에 정상운행하고, 공휴일 운행은 2025년 12월 22일부터 시작될 예정이야.",
+    "context_used": "청크 1, 청크 2",
+    "source_file": "94453_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "잇다 멘토링 서비스 이용하려면 어떤 정보를 입력해야 해?",
+    "ground_truth": "멘티 정보 기입 후 제휴서비스를 이용해야 하고, 맞춤 답변을 받기 위해 정보를 정확하게 입력해야 해. 이 정보는 학교의 통계 목적으로도 활용된다고.",
+    "context_used": "청크 3",
+    "source_file": "87562_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "2026년도에 컴공 학생도 잇다 멘토링 이용할 수 있어?",
+    "ground_truth": "호서대학교 재(휴)학생이기만 하면 2026년도에도 잇다 멘토링을 이용할 수 있어.",
+    "context_used": "청크 2",
+    "source_file": "87562_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "잇다 멘토링에서 질문한 후 답변 받는 데 얼마나 걸리는지랑, 어떤 멘토링 글을 볼 수 있는지 알려줘.",
+    "ground_truth": "질문 작성 후 5일 이내로 답변을 받을 수 있고, 직무별 인기 멘토링 글은 무제한으로 열람할 수 있어.",
+    "context_used": "청크 5",
+    "source_file": "87562_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2024-2학기 창업대체학점 신청하려면 창업교과목 몇 과목 이상 들어야 해?",
+    "ground_truth": "창업대체학점 신청하려면 창업교과목을 2과목 이상 이수해야 해.",
+    "context_used": "청크 4",
+    "source_file": "80802_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 2학기 이상 이수했는데, 창업실습 신청할 수 있어?",
+    "ground_truth": "2학기 이상 이수한 재학생이니까 창업실습 신청 가능해. 단, 교내 창업교과목 1과목 이상 이수해야 해.",
+    "context_used": "청크 3",
+    "source_file": "80802_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2024-2학기 창업학기제 신청 기간이랑 제출 서류 뭐야?",
+    "ground_truth": "신청 기간은 2024.06.01 (수)부터 2024.08.30 (금)까지고, 제출 서류는 신청서 및 이수계획서야.",
+    "context_used": "청크 5, 청크 9",
+    "source_file": "80802_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "AI-Tech학습공동체에서 지원하는 CanDo 마일리지 장학금은 어떤 조건을 충족해야 받을 수 있어?",
+    "ground_truth": "CanDo 마일리지 장학금은 AI-Tech학습공동체에 참여하는 모든 학생에게 지급돼. 따라서 신청하고 활동에 참여하면 받을 수 있어.",
+    "context_used": "청크 4",
+    "source_file": "93483_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나는 컴공 학생인데, AI-Tech학습공동체 신청 기간이 언제까지인지 알고 싶어.",
+    "ground_truth": "신청 기간은 10월 24일 자정까지야. 꼭 그 전에 신청해!",
+    "context_used": "청크 1",
+    "source_file": "93483_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "AI-Tech학습공동체의 운영 기간은 언제부터 시작되고, 팀원 수는 몇 명인지 알고 싶어.",
+    "ground_truth": "운영 기간은 시작일로부터 2개월로 예정되어 있어. 팀원 수는 100명이야.",
+    "context_used": "청크 2, 청크 3",
+    "source_file": "93483_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2025학년도 1학기 7주 집중이수제에서 장학금은 어떻게 지원되는 거야?",
+    "ground_truth": "장학금은 학점당 10만원으로 지원되며, 식사와 스쿨버스도 무료로 제공돼.",
+    "context_used": "청크 3, 청크 8",
+    "source_file": "86163_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "2026년에는 7주 집중이수제 신청 기간이 언제인지 알 수 있어?",
+    "ground_truth": "2026년 일정은 아직 발표되지 않았고, 이 공지는 2025년 기준이라 2025년 신청 기간은 2월 10일부터 14일까지야.",
+    "context_used": "청크 2",
+    "source_file": "86163_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "7주 집중이수제에서 어떤 과목들이 개설되는지랑 수업 시간도 알려줄 수 있어?",
+    "ground_truth": "수요일에는 중급생활일봉어, 융합경영을 위한 새로운 인문학적 접근법, 손에 잡히는 데이터 시각화, 예술과 AI 같은 과목들이 개설되고, 수업 시간은 2,4,5교시로 다양해.",
+    "context_used": "청크 6, 청크 7",
+    "source_file": "86163_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2024학년도 2학기 등록금 추가 납부 기간이 언제인지 알려줘.",
+    "ground_truth": "등록금 추가 납부 기간은 2024년 3월 19일(월)부터 2024년 3월 23일(금)까지야.",
+    "context_used": "청크 2",
+    "source_file": "82524_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 초과학기생 등록금 납부는 어떻게 해야 해?",
+    "ground_truth": "초과학기생 등록금 납부는 9학기 이상인 경우에 해당하고, 수강신청 후 고지서를 확인하고 2024년 9월 2일(월)부터 2024년 9월 6일(금) 사이에 납부해야 해.",
+    "context_used": "청크 3",
+    "source_file": "82524_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "등록금 추가 납부는 기업은행에서만 가능한 거야, 아니면 다른 은행도 돼?",
+    "ground_truth": "등록금 추가 납부는 기업은행과 외국인만 대상으로 하는 하나은행에서 가능해. 기업은행은 방문 및 입금 전용 계좌 이체로 납부할 수 있고, 하나은행은 외국인만 이용할 수 있어.",
+    "context_used": "청크 2, 청크 3",
+    "source_file": "82524_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2024학년도 1학기 강사 초빙 공고에서 박사 학위 소지자가 필요한 전공은 어떤 게 있어?",
+    "ground_truth": "박사 학위 소지자가 필요한 전공은 사회복지학부의 노인복지/상담, 청소년문화상담학과의 청소년지도 또는 활동, 기독교신학(전 분야), 미디어데이터마이닝 분야 등이 있어.",
+    "context_used": "청크 2, 청크 3",
+    "source_file": "78549_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 2024학년도 1학기 강사 초빙 공고에 지원할 수 있어?",
+    "ground_truth": "컴퓨터공학부는 초빙 대상에 포함되지 않아서 지원할 수 없어.",
+    "context_used": "청크 2",
+    "source_file": "78549_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2024학년도 1학기 강사 초빙 공고의 원서 접수 기간은 언제야? 그리고 심사결과 발표는 언제야?",
+    "ground_truth": "원서 접수 기간은 2024.01.18부터 01.23까지고, 심사결과 발표는 2024.02.08 예정이야.",
+    "context_used": "청크 4",
+    "source_file": "78549_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "학습도우미 모집이 왜 필요한 건지 궁금해!",
+    "ground_truth": "학습도우미 모집은 학생들이 서로 도움을 주고받으며 학습 역량을 높이기 위해 필요해.",
+    "context_used": "청크 1",
+    "source_file": "83192_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 2024-2학기 학습도우미 신청 조건이 뭐야?",
+    "ground_truth": "2024-2학기 학습도우미는 학습역량지원센터에서 모집하니까, 컴공 학생도 신청 가능해.",
+    "context_used": "청크 1",
+    "source_file": "83192_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "학습도우미 모집이 언제까지 신청 가능한지랑, 어떻게 신청하는지 알려줄 수 있어?",
+    "ground_truth": "신청 마감일은 문서에 명시되어 있지 않지만, 보통 모집 공고와 함께 신청 방법이 안내되니까 학습역량지원센터 홈페이지를 확인해봐.",
+    "context_used": "청크 1",
+    "source_file": "83192_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "캠핑데이에서 제공되는 식사는 어떤 게 있지?",
+    "ground_truth": "안주 및 분식류가 무료로 제공돼.",
+    "context_used": "청크 3",
+    "source_file": "92794_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "재학생도 2025년 캠핑데이에 신청할 수 있어?",
+    "ground_truth": "응, 재학생도 선착순 25팀으로 신청할 수 있어.",
+    "context_used": "청크 2",
+    "source_file": "92794_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "캠핑데이 신청은 어떻게 하고, 참가비는 얼마야?",
+    "ground_truth": "신청은 QR코드 접속 후 작성하면 되고, 참가비는 무료야.",
+    "context_used": "청크 4, 청크 2",
+    "source_file": "92794_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "교양교육센터는 어떤 업무를 지원하는 거야?",
+    "ground_truth": "교양교육센터는 교양교육 교과 및 비교과 프로그램 운영을 지원하는 업무를 담당해.",
+    "context_used": "청크 1",
+    "source_file": "86158_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "원격교육지원센터 지원하려면 어떤 학위가 필요해?",
+    "ground_truth": "원격교육지원센터는 석사 학위 이상의 소지자가 지원 가능하고, 교육(공)학 학위 소지자여야 해.",
+    "context_used": "청크 9",
+    "source_file": "86158_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2025년 원서접수 일정은 언제야? 그리고 카리타스상담센터는 따로 접수 마감이 있던데?",
+    "ground_truth": "2025년 원서접수는 2월 5일부터 2월 14일까지야. 카리타스상담센터는 2월 9일까지 접수해야 해.",
+    "context_used": "청크 11",
+    "source_file": "86158_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2025학년도 벤처프런티어 선발 사전설명회에 참석 안 해도 괜찮은 거지?",
+    "ground_truth": "참석 의무는 없지만 선발 관련 세부 안내 측면에서 불리하게 작용할 수 있어.",
+    "context_used": "청크 3",
+    "source_file": "86776_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "내가 컴공 소속인데 2025학년도 벤처프런티어 선발 자격이 되는 거야?",
+    "ground_truth": "본교 학부생이기 때문에 지원 자격이 있어. 전공은 상관없어.",
+    "context_used": "청크 5",
+    "source_file": "86776_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "사전접수 마감일이랑 설명회 날짜는 언제야?",
+    "ground_truth": "사전접수 마감은 2025년 3월 17일이고, 설명회는 2025년 3월 19일이야.",
+    "context_used": "청크 4, 청크 2",
+    "source_file": "86776_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2025 SC연계 반도체 디스플레이 직무교육과정 신청은 왜 구글 폼으로만 받는 거야?",
+    "ground_truth": "온라인 신청을 통해 선정된 학생에게 수강 관련 안내 자료를 메일로 발송하기 위해서야.",
+    "context_used": "청크 2, 청크 4",
+    "source_file": "88236_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 2025 SC연계 반도체 디스플레이 직무교육과정 신청해도 되나?",
+    "ground_truth": "대상은 공학계열 학부 재학생이라서 컴공도 신청할 수 있어.",
+    "context_used": "청크 2",
+    "source_file": "88236_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2025 SC연계 반도체 디스플레이 직무교육과정의 1차 온라인 교육은 언제부터 언제까지야? 그리고 수강 완료 후에 뭐 해야 해?",
+    "ground_truth": "1차 온라인 교육은 2025. 5. 15.(목)부터 7. 31.(목)까지 진행되고, 수강 완료 후에는 이수현황을 제출해야 해.",
+    "context_used": "청크 3, 청크 4",
+    "source_file": "88236_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "LINC3.0사업단 봉사장학생 선발인원이 2명인 이유가 뭐야?",
+    "ground_truth": "선발인원이 제한된 이유는 예산이나 운영 효율성을 고려했기 때문일 가능성이 높아.",
+    "context_used": "청크 3",
+    "source_file": "82588_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 26년도 컴공인데, 2024학년도 2학기 봉사장학생 조건 충족하려면 성적이 얼마나 돼야 해?",
+    "ground_truth": "직전학기 성적이 3.0 이상이어야 지원할 수 있어.",
+    "context_used": "청크 2",
+    "source_file": "82588_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "LINC3.0사업단 봉사장학생 접수기간이 언제인지, 그리고 제출서류는 뭐가 필요한지 알려줘.",
+    "ground_truth": "접수기간은 2024.08.19.부터 2024.08.23. 17:30까지고, 제출서류는 봉사장학생 지원서, 재학증명서, 성적증명서가 필요해.",
+    "context_used": "청크 5, 청크 7",
+    "source_file": "82588_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "단기현장실습학기제(Co-op) 참여하려면 3학년 이상이어야 하는 이유가 뭐야?",
+    "ground_truth": "본교 3학년 이상 재학생만 참여 가능하다는 조건은 현장 실습의 전문성과 해당 분야의 기초 지식을 요구하기 때문이야.",
+    "context_used": "청크 3",
+    "source_file": "80572_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 26년도 컴공인데, 8월 졸업 예정자도 단기현장실습학기제 신청할 수 있어?",
+    "ground_truth": "8월 졸업 예정자는 4주(20일)만 신청 가능해. 8주 신청은 불가능해.",
+    "context_used": "청크 3",
+    "source_file": "80572_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "단기현장실습학기제 신청 기간이랑 현장실습 기간 말해줄 수 있어?",
+    "ground_truth": "신청 기간은 2024년 5월 20일부터 6월 12일까지고, 현장실습 기간은 2024년 6월 24일부터 8월 23일까지야.",
+    "context_used": "청크 4, 청크 7",
+    "source_file": "80572_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2024년 8월 22일에 있는 학위수여식이 왜 그 날로 정해졌는지 이유 알 수 있어?",
+    "ground_truth": "학위수여식은 매년 정해진 일정에 따라 진행되며, 2023학년도 후기 학위수여식이 2024년 8월 22일에 개최되는 것으로 정해진 이유는 대학원 학사 일정에 따른 것입니다.",
+    "context_used": "청크 2",
+    "source_file": "82303_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 2024년 8월 22일 학위수여식에 참석하려면 어떤 준비물을 챙겨야 해?",
+    "ground_truth": "컴퓨터공학부 소속 학생도 학위수여식에 참석할 수 있으며, 신분증과 석사가운을 지참해야 합니다.",
+    "context_used": "청크 3",
+    "source_file": "82303_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "석사학위 수여식 당일에 학위증을 어떻게 수령해야 하는지랑, 가운 반납은 언제 하는지 알려줘.",
+    "ground_truth": "학위증은 아산캠퍼스 본관 2층 대학원 교학팀에서 09:30부터 10:10 사이에 수령할 수 있고, 가운은 12:00부터 14:00 사이에 반납해야 해.",
+    "context_used": "청크 4, 청크 5",
+    "source_file": "82303_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2024학년도 2학기 일반물리실험 실습조교 모집이 왜 이렇게 중요해?",
+    "ground_truth": "실습조교는 학생들에게 실험 수업을 지원하고 물리학의 이해를 돕는 역할을 하니까 중요해.",
+    "context_used": "청크 1",
+    "source_file": "82883_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나는 컴공인데 2024학년도 2학기 일반물리실험 실습조교 지원할 수 있어?",
+    "ground_truth": "문서에는 물리학과 학생만 지원 가능하다고 명시되어 있어서 컴공은 지원할 수 없어.",
+    "context_used": "청크 1",
+    "source_file": "82883_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2024학년도 2학기 일반물리실험 실습조교 모집에 지원하려면 어떤 자격이 필요한지 궁금한데, 물리학과 기준이랑 신청기간도 알려줘.",
+    "ground_truth": "물리학과 학생이어야 하고, 신청기간은 문서에 언급되어 있지 않아. 일반적으로 모집 공고에 나오는 경우가 많으니 확인해봐야 해.",
+    "context_used": "청크 1",
+    "source_file": "82883_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "H+세미나에서 연구윤리는 언제 다루는 거야?",
+    "ground_truth": "H+세미나에서는 15:00부터 16:30까지 중복 게재와 문장 재사용 사례를 중심으로 연구윤리를 다룰 예정이야.",
+    "context_used": "청크 3",
+    "source_file": "81247_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "2026년도에 H+세미나 참여할 수 있는 조건 뭐야?",
+    "ground_truth": "2026년도 H+세미나에 대한 정보는 아직 공개되지 않았고, 2024년 기준으로 신청해야 해.",
+    "context_used": "청크 2, 청크 5",
+    "source_file": "81247_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "H+세미나 신청하면 Zoom 링크 언제 받아?",
+    "ground_truth": "신청하면 세미나 당일에 문자로 Zoom 접속 링크를 전달받게 돼.",
+    "context_used": "청크 4, 청크 2",
+    "source_file": "81247_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "추석연휴 기간 셔틀버스 운행이 언제 시작되는지 궁금해.",
+    "ground_truth": "추석연휴 기간의 시작은 매년 명절에 따라 다르지만, 보통 9월 중순에 해당해. 구체적인 날짜는 공지사항을 확인해야 해.",
+    "context_used": "청크 1",
+    "source_file": "83586_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 추석연휴 기간 셔틀버스 이용하려면 특별한 조건 있어?",
+    "ground_truth": "추석연휴 기간 셔틀버스는 모든 학생들이 이용 가능하니까, 특별한 조건은 없어.",
+    "context_used": "청크 1",
+    "source_file": "83586_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "추석연휴 기간 셔틀버스 운행이랑, 학생장학팀의 다른 지원 프로그램이랑 관련돼서 알려줄 수 있어?",
+    "ground_truth": "추석연휴 기간 셔틀버스는 학생들이 귀향할 때 도움을 주기 위한 운행이지만, 학생장학팀의 지원 프로그램은 장학금이나 학비 지원과 관련이 있어. 둘 다 학생 복지를 위한 노력이긴 해.",
+    "context_used": "청크 1",
+    "source_file": "83586_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2026학년도 1학기 통학 셔틀버스 시간표에서 제일 첫 번째 아산캠퍼스 출발 시간은 뭐야?",
+    "ground_truth": "첫 번째 아산캠퍼스 출발 시간은 7:45야.",
+    "context_used": "청크 2",
+    "source_file": "95546_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 2026학년도 1학기 KTX 순환 시간표에서 가장 이른 아산캠퍼스 출발 시간은 언제야?",
+    "ground_truth": "가장 이른 아산캠퍼스 출발 시간은 8:50이야.",
+    "context_used": "청크 3, 청크 4",
+    "source_file": "95546_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2026학년도 1학기 통학 셔틀버스와 KTX 순환 시간표에서 아산캠퍼스와 천안캠퍼스 간의 가장 늦은 출발 시간은 각각 언제야?",
+    "ground_truth": "통학 셔틀버스는 22:40 출발, KTX는 20:15 출발이야.",
+    "context_used": "청크 2, 청크 4",
+    "source_file": "95546_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "호서토익 응시료가 8,000원이잖아. 신청 못 하면 돈은 어떻게 돼?",
+    "ground_truth": "신청기간 내에 시험신청과 응시료 납부를 완료하지 않으면 시험에 응시할 수 없고, 응시료는 환불되지 않아.",
+    "context_used": "청크 2",
+    "source_file": "88623_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 2025년 6월 10일에 호서토익 시험 보려면 언제까지 신청해야 해?",
+    "ground_truth": "2025년 5월 29일부터 6월 4일 사이에 신청해야 해.",
+    "context_used": "청크 1",
+    "source_file": "88623_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "호서토익 시험이 6월 10일인데, 그날 시험이 끝나고 언제 성적 발표되는지 알 수 있어?",
+    "ground_truth": "시험 성적은 2025년 6월 20일에 발표돼.",
+    "context_used": "청크 1, 청크 2",
+    "source_file": "88623_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2025학년도 제42회 전기 학위수여식 언제 하는 거야?",
+    "ground_truth": "학위수여식은 2026년 2월 24일 화요일 오전 11시에 진행돼.",
+    "context_used": "청크 2",
+    "source_file": "95245_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "2026년도 컴퓨터공학부 졸업생인데, 학위가운 언제 받을 수 있어?",
+    "ground_truth": "학위가운은 2026년 2월 24일 화요일 오전 9시 30분부터 11시 30분까지 받을 수 있어.",
+    "context_used": "청크 3",
+    "source_file": "95245_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2024학년도 후기 졸업생도 2025학년도 제42회 전기 학위수여식에 참석할 수 있다고 하는데, 그럼 학사 가운은 어떻게 받아야 해?",
+    "ground_truth": "2024학년도 후기 졸업생도 참석 가능하고, 가운은 행사 당일 신분증 지참 후 2026년 2월 24일 오전 9시 30분부터 11시 30분 사이에 받을 수 있어.",
+    "context_used": "청크 4, 청크 3",
+    "source_file": "95245_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "항공서비스학과 교육조교 채용 공고에 서류전형 합격자는 면접 통보를 받는 거 맞아?",
+    "ground_truth": "응, 서류전형 합격자에 한하여 개별 통보가 있어.",
+    "context_used": "청크 4",
+    "source_file": "83606_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 2026년에 졸업할 컴공인데, 항공서비스학과 교육조교 지원 자격은 뭐야?",
+    "ground_truth": "지원 자격은 4년제 대졸자여야 하고, 국가공무원법 제 33조의 결격사유에 해당하지 않아야 해.",
+    "context_used": "청크 2",
+    "source_file": "83606_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "항공서비스학과 교육조교 채용 공고에서 근무시작일과 접수기간은 언제야?",
+    "ground_truth": "근무시작일은 2024년 10월 1일이고, 접수기간은 2024년 9월 20일 17:00까지야.",
+    "context_used": "청크 3, 청크 5",
+    "source_file": "83606_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "교환학생 최종 합격자 발표는 언제 나왔어?",
+    "ground_truth": "최종 합격자 발표는 2025학년도 1학기 Go Global 해외 일본 교환학생 프로그램에 관련된 내용으로, 구체적인 발표 날짜는 문서에 명시되어 있지 않아. 일반적으로는 선발 후 공지되는 경우가 많아.",
+    "context_used": "청크 1",
+    "source_file": "84390_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 해외 일본 교환학생 포기할 경우 제출 기한은 언제야?",
+    "ground_truth": "해외 일본 교환학생 포기할 경우는 10월 30일까지 교환학생 취소신청서를 제출해야 해.",
+    "context_used": "청크 4",
+    "source_file": "84390_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "교환학생으로 나가려면 여권 영문명 제출하는 거 맞지? 그리고 서류는 언제 제출해야 해?",
+    "ground_truth": "여권 발급 신청자의 경우 여권 신청 영문명을 제출해야 하고, 서류 제출은 파견대학 제출일에 맞춰 단독방 공지를 통해 안내될 예정이야.",
+    "context_used": "청크 3, 청크 4",
+    "source_file": "84390_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "디지털금융경영학과 교육조교는 언제부터 일 시작하는 거야?",
+    "ground_truth": "2024년 7월 1일에 근무를 시작할 예정이야.",
+    "context_used": "청크 3",
+    "source_file": "81159_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 디지털금융경영학과 교육조교 지원하려면 어떤 자격이 필요해?",
+    "ground_truth": "4년제 대졸자여야 하고, 국가공무원법 제 33조의 결격사유에 해당하지 않아야 해.",
+    "context_used": "청크 2",
+    "source_file": "81159_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "디지털금융경영학과 교육조교 지원서 언제까지 내야 하고, 어떤 서류가 필요해?",
+    "ground_truth": "2024년 6월 14일 17:00까지 접수해야 하고, 입사지원서, 자기소개서, 졸업증명서, 성적증명서가 필요해.",
+    "context_used": "청크 5, 청크 6",
+    "source_file": "81159_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "천안흥타령축제 때문에 셔틀버스가 언제부터 언제까지 우회해?",
+    "ground_truth": "2024년 9월 27일 금요일 12시부터 막차까지 우회해.",
+    "context_used": "청크 2",
+    "source_file": "83910_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 9월 27일에 아산캠퍼스에서 천안캠퍼스로 가는 셔틀버스는 어떻게 타야 해?",
+    "ground_truth": "천안터미널 정류장에서 하나은행 앞이 대체 정류장이라서 거기로 가면 돼.",
+    "context_used": "청크 3",
+    "source_file": "83910_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "천안역에서 아산으로 가는 셔틀버스는 대체 정류장이 어디야? 그리고 언제까지 대체 정류장을 이용해야 해?",
+    "ground_truth": "천안농협 동부지점 앞이 대체 정류장이고, 9월 27일 금요일 12시부터 막차까지 대체 정류장을 이용해야 해.",
+    "context_used": "청크 5, 청크 2",
+    "source_file": "83910_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "버디 프로그램에서 봉사시간 30시간 인정받는 이유는 뭐야?",
+    "ground_truth": "유학생 도우미 활동을 통해 봉사시간이 인정되며, 이 프로그램은 외국인 유학생들에게 도움을 주는 활동이기 때문이야.",
+    "context_used": "청크 2",
+    "source_file": "92346_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "내가 컴공 3학년인데 2025학년도 2학기 버디 프로그램 지원할 수 있어?",
+    "ground_truth": "응, 본교 1~4학년 학부 재학생이 지원 가능하니까 컴공 3학년도 지원할 수 있어.",
+    "context_used": "청크 2",
+    "source_file": "92346_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "버디 프로그램 신청할 때 제출 서류는 뭐가 필요하고, 언제까지 제출해야 해?",
+    "ground_truth": "유학생 도우미 지원서 1부와 활동 계획서 1부가 필요하고, 신청 기간은 2025년 08월 28일부터 09월 03일까지야.",
+    "context_used": "청크 2",
+    "source_file": "92346_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "대체공휴일 셔틀버스 운행 기간은 언제부터 언제까지야?",
+    "ground_truth": "대체공휴일 셔틀버스는 2025년 3월 1일부터 3일까지 운행돼.",
+    "context_used": "청크 3",
+    "source_file": "86451_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 대체공휴일에 천안캠퍼스 가려면 셔틀버스 언제 타야 해?",
+    "ground_truth": "2025년 3월 2일에는 천안캠퍼스에서 아산캠퍼스로 가는 셔틀버스를 10:00, 10:13, 10:18에 탈 수 있어.",
+    "context_used": "청크 5",
+    "source_file": "86451_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "대체공휴일 때 서북 방면은 셔틀버스 운행 안 한다고 하는데, 그럼 아산캠퍼스에서 천안캠퍼스로는 언제 갈 수 있어?",
+    "ground_truth": "서북 방면은 공휴일에 미운행이고, 아산캠퍼스에서 천안캠퍼스로는 3월 1일 9:00, 9:13, 9:18에 갈 수 있어.",
+    "context_used": "청크 6, 청크 5",
+    "source_file": "86451_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "5월 27일 교수님 특별 강연에 가면 어떤 혜택이 있어?",
+    "ground_truth": "참여자 전원에게 CanDo 마일리지 10점 지급되고, 우수 참여자에게 도서 상품권도 증정돼.",
+    "context_used": "청크 5",
+    "source_file": "88339_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "컴공 학생도 2025년 5월 27일 특별 강연 신청할 수 있어?",
+    "ground_truth": "신청 조건에 대한 언급이 없어서, 컴공 학생도 신청할 수 있을 거야.",
+    "context_used": "청크 3",
+    "source_file": "88339_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "특별 강연이 언제고, 어떤 내용인지 다시 정리해줄래?",
+    "ground_truth": "2025년 5월 27일 오후 2시에 디자인의 미학에 대해 교수님과 함께 하는 강연이야.",
+    "context_used": "청크 1, 청크 2",
+    "source_file": "88339_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2025학년도 하계방학 집중이수제 장학금은 왜 학점당 10만원으로 정해졌어?",
+    "ground_truth": "장학금이 학점당 10만원으로 설정된 이유는 학생들이 학업을 더욱 적극적으로 수행하도록 유도하기 위함일 수 있어.",
+    "context_used": "청크 1",
+    "source_file": "88513_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 2025년 하계방학 집중이수제 신청은 언제부터 언제까지야?",
+    "ground_truth": "2025년 하계방학 집중이수제 신청은 2025년 6월 2일부터 6월 5일까지야.",
+    "context_used": "청크 1",
+    "source_file": "88513_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2025학년도 하계방학 집중이수제의 수업기간이랑 정정기간은 언제인지 둘 다 알려줄 수 있어?",
+    "ground_truth": "전체 수업기간은 2025년 6월 30일부터 7월 18일까지고, 정정기간은 2025년 6월 9일부터 6월 10일까지야.",
+    "context_used": "청크 1, 청크 2",
+    "source_file": "88513_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "도서관 투어 신청하면 어떤 혜택이 있어?",
+    "ground_truth": "CANDO 마일리지 17점을 받을 수 있고, 도서관 신입생 이벤트에 참여하여 선물을 받을 수 있어.",
+    "context_used": "청크 5",
+    "source_file": "86517_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "컴공 학생인데 2025년 3월 도서관 투어 언제 가면 좋을까?",
+    "ground_truth": "2025년 3월 10일부터 21일 사이에 가면 되고, 아산에서는 월/수/금 오후 2시, 4시나 화목 오전 11시, 오후 3시에 참가할 수 있어.",
+    "context_used": "청크 3",
+    "source_file": "86517_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "도서관 투어 신청 방법과 집결 장소는 어디야?",
+    "ground_truth": "신청은 전자도서관 로그인 후 [연구·학습지원] > [도서관 교육]에서 할 수 있고, 아산은 성재도서관 3층 학술정보교육실, 천안은 종합정보관 1층 멀리미디어센터 학술정보교육실에서 모여.",
+    "context_used": "청크 2, 청크 4",
+    "source_file": "86517_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "창업대체학점 신청서 어떻게 제출해야 해?",
+    "ground_truth": "대면으로 제출할 경우 강석규 교육관 211호 취업팀에 있는 '창업교육센터' 담당자에게 제출하거나, 이메일로 26002@hoseo.edu로 제출하면 돼.",
+    "context_used": "청크 1, 청크 5",
+    "source_file": "95324_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 창업학기제 신청할 수 있는 조건 뭐야?",
+    "ground_truth": "창업학기제는 재학 중 1회 가능하고, 6학기 이상 이수한 재학생이어야 해. 만약 예비 창업자라면 4학기 이상 이수한 학생이야.",
+    "context_used": "청크 3",
+    "source_file": "95324_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "창업대체학점 신청 기간이랑 제출 시간 알려줘.",
+    "ground_truth": "신청 기간은 2026년 2월 2일부터 2월 27일까지고, 신청 시간은 오전 9시부터 오후 5시까지야.",
+    "context_used": "청크 4, 청크 1",
+    "source_file": "95324_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2026학년도 대학원 전기 신입학 면접전형은 언제 진행돼?",
+    "ground_truth": "면접전형은 2025년 12월 22일부터 12월 26일까지 진행돼.",
+    "context_used": "청크 1",
+    "source_file": "94051_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 2026학년도 대학원 지원하려면 어떤 자격이 필요한 거야?",
+    "ground_truth": "컴퓨터공학부 소속 학생은 석사과정의 경우 2026년 2월에 학사학위를 취득할 예정이어야 지원이 가능해.",
+    "context_used": "청크 2",
+    "source_file": "94051_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2026학년도 대학원 등록금 얼마인지랑 장학금 조건은 뭐야?",
+    "ground_truth": "석사과정의 등록금은 4,275,000원에서 5,506,000원이고, 장학금은 직전 학기 과락 없이 6학점 이상이고 평균평점 3.5 이상인 자에게 주어진대.",
+    "context_used": "청크 9, 청크 10",
+    "source_file": "94051_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "RE:born 학습공동체에서 활동하려면 주당 최소 몇 시간은 꼭 해야 해?",
+    "ground_truth": "주당 최소 2시간은 필수로 활동해야 해.",
+    "context_used": "청크 5",
+    "source_file": "79352_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "내가 컴공 전공인데, RE:born 학습공동체에 참여하려면 평균 성적 몇 점 이상이어야 해?",
+    "ground_truth": "멘토 자격요건은 직전학기 평균성적 3.5 이상이야.",
+    "context_used": "청크 3",
+    "source_file": "79352_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "RE:born 학습공동체 신청하고 나면 언제 OT가 있어?",
+    "ground_truth": "OT는 2024년 3월 25일부터 3월 31일 사이에 진행돼.",
+    "context_used": "청크 6",
+    "source_file": "79352_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2025년 중소기업 연구인력 현장맞춤형 양성지원사업은 어떤 자격을 갖춘 사람만 지원할 수 있어?",
+    "ground_truth": "지원자격은 대한민국 국적 소지자이며 자연계열, 공학계열, 의약계열 졸업(예정)자 및 구직자 중에서 4학년 2학기 이상인 사람이에요.",
+    "context_used": "청크 2",
+    "source_file": "86657_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "내가 컴공 4학년 2학기인데, 2025년 중소기업 연구인력 현장맞춤형 양성지원사업에 지원 가능할까?",
+    "ground_truth": "네, 4학년 2학기 이상이면 지원 가능해요. 단, 대한민국 국적이 있어야 하고 자연계열, 공학계열, 의약계열 졸업(예정)자여야 해요.",
+    "context_used": "청크 2",
+    "source_file": "86657_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2025년 중소기업 연구인력 현장맞춤형 양성지원사업의 Level 1과 Level 2 지원금은 각각 얼마야?",
+    "ground_truth": "Level 1은 월 130만원, Level 2는 월 160만원이에요.",
+    "context_used": "청크 3, 청크 4",
+    "source_file": "86657_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "호서人터뷰에서 박유덕 동문이 발효과학에 흥미를 느꼈던 이유는 뭐야?",
+    "ground_truth": "박유덕 동문은 대학 1학년부터 발효과학에 흥미를 느끼고 용돈을 모아 쌀과 누룩을 사서 연구하기 시작했어.",
+    "context_used": "청크 4",
+    "source_file": "79644_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "컴퓨터공학부 학생도 호서대학교의 창업 프로그램에 참여할 수 있어?",
+    "ground_truth": "응, 호서대학교의 다양한 프로그램은 정규교과 외에도 운영되니까 컴퓨터공학부 학생도 참여할 수 있어.",
+    "context_used": "청크 5",
+    "source_file": "79644_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "박유덕 동문이 졸업 후 농촌진흥청에서 연구원으로 근무한 경로는 어떻게 돼?",
+    "ground_truth": "박유덕 동문은 학교 현장실습을 통해 농촌진흥청과 연이 닿았고, 그 후 3년간 연구원으로 근무하면서 전통주 연구에 몰두했어.",
+    "context_used": "청크 6",
+    "source_file": "79644_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "차세대디스플레이 서포터즈 모집에 지원하면 어떤 혜택이 있어?",
+    "ground_truth": "서포터즈로 활동하면 월 30,000원의 장학금이 지급되고, 활동증명서 및 수료증이 발급돼. 우수 활동을 한 서포터즈에게는 시상과 상금도 있어.",
+    "context_used": "청크 7",
+    "source_file": "86610_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "내가 컴공인데, 차세대디스플레이 서포터즈 지원할 수 있어?",
+    "ground_truth": "차세대디스플레이 서포터즈는 호서대학교 재학생이면 학과에 관계없이 지원 가능해. 그래서 컴공이라도 문제 없어.",
+    "context_used": "청크 2",
+    "source_file": "86610_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "차세대디스플레이 서포터즈의 모집 일정은 언제부터 언제까지야? 그리고 합격자는 언제 발표돼?",
+    "ground_truth": "서포터즈는 2025년 3월 5일부터 3월 7일까지 지원서를 접수하고, 합격자는 3월 20일에 발표돼.",
+    "context_used": "청크 4, 청크 4",
+    "source_file": "86610_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "전국단위훈련 신청하려면 훈련일 며칠 전에 신청해야 해?",
+    "ground_truth": "훈련일로부터 3일전까지 신청이 되어야 해.",
+    "context_used": "청크 1",
+    "source_file": "95373_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 26년도 컴공인데, 휴일예비군훈련은 어떤 훈련에 신청할 수 있어?",
+    "ground_truth": "1~4년차 동원훈련2형과 5~6년차 기본훈련, 작계훈련 3차훈련에 신청할 수 있어.",
+    "context_used": "청크 2",
+    "source_file": "95373_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "전국단위훈련 신청하고 불참하면 어떤 불이익이 있어?",
+    "ground_truth": "전국단위훈련 신청 후 불참하면 소속 예비군부대에서 훈련차수를 추가 적용해. 예를 들어 2차훈련을 신청했는데 불참하면 다음훈련은 3차훈련으로 나와.",
+    "context_used": "청크 1, 청크 2",
+    "source_file": "95373_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2025학년도 1학기 통학버스 시간표가 조정된 이유가 뭐야?",
+    "ground_truth": "2025학년도 1학기 교시별 수업 시간표 변경에 따라 통학 셔틀버스 시간표가 조정되었어.",
+    "context_used": "청크 2",
+    "source_file": "86623_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 2025학년도 1학기 셔틀버스 시간표는 언제부터 적용돼?",
+    "ground_truth": "2025학년도 1학기 셔틀버스 시간표는 2025년 3월 4일부터 적용돼.",
+    "context_used": "청크 2",
+    "source_file": "86623_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2025학년도 1학기 통학버스 시간표 조정이 시작되는 날짜랑 확인할 수 있는 방법이 뭐야?",
+    "ground_truth": "2025학년도 1학기 통학버스 시간표 조정은 2025년 3월 4일부터 시작되며, 시간표는 학교 홈페이지 및 버스 안내 페이지에서 확인할 수 있어.",
+    "context_used": "청크 2",
+    "source_file": "86623_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "식품공학과 교육조교 채용 공고의 서류전형 합격자는 언제 개별 통보되나?",
+    "ground_truth": "서류전형 합격자는 면접 대상자에게 개별 통지 예정이야.",
+    "context_used": "청크 4",
+    "source_file": "84580_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 2024년도 교육조교 채용 기간이 언제인지 알 수 있어?",
+    "ground_truth": "2024년도 교육조교 채용 접수기간은 ~ 2024.11.22.(금) 17:00이야.",
+    "context_used": "청크 5",
+    "source_file": "84580_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "식품공학과 교육조교가 주 5일 근무하는데, 근무시간은 어떻게 되지?",
+    "ground_truth": "교육조교는 주 5일 근무하며, 월~금 09:00~17:30 근무하고 방학 중에는 17:00까지야.",
+    "context_used": "청크 6",
+    "source_file": "84580_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "주차관제 시스템 운영 이유가 뭐야?",
+    "ground_truth": "교내 차량 증가로 인한 주차 공간 확보의 어려움과 불법 주정차 및 교통사고를 예방하기 위한 거야.",
+    "context_used": "청크 1",
+    "source_file": "82480_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "2026년도에 컴공 학생으로 주차 정기권 어떻게 신청해?",
+    "ground_truth": "신규자는 오프라인으로 신청서 작성 후 주차관제실에 제출하거나, 온라인으로 8/19 ~ 8/31에 포털시스템에서 신청할 수 있어.",
+    "context_used": "청크 5",
+    "source_file": "82480_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "주차 요금은 어떻게 되고, 정기권 요금 결제는 어떻게 해?",
+    "ground_truth": "주차 요금은 30분 이내 출차 시 무료, 30분 이후 기본요금 500원이야. 정기권은 급여공제 가능자와 불가능자에 따라 결제 방법이 다르고, 급여공제자는 매월 25일에 차감돼.",
+    "context_used": "청크 3, 청크 4",
+    "source_file": "82480_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "이번 제3차 세미나에서 어떤 주제를 다루는지 궁금해!",
+    "ground_truth": "주제는 '인공지능 데이터 기반 품질개선과 최적화'야.",
+    "context_used": "청크 2",
+    "source_file": "93494_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "내가 컴공 학생인데, 세미나에 참여하려면 어떤 조건이 필요한지 알려줘.",
+    "ground_truth": "학생들은 전체 세미나를 수강하거나 원하는 주제만 선택해서 참여할 수 있어.",
+    "context_used": "청크 4",
+    "source_file": "93494_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "세미나가 언제 열리고, 참가 방법은 어떻게 되는 거야?",
+    "ground_truth": "세미나는 2025년 11월 5일 수요일 14:00부터 17:00까지 온라인으로 진행되고, 구글 폼을 통해 신청할 수 있어.",
+    "context_used": "청크 3, 청크 4",
+    "source_file": "93494_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2024학년도 1학기 셔틀버스는 매일 몇 회 운행돼?",
+    "ground_truth": "주중 셔틀버스는 아산캠퍼스에서 천안캠퍼스로 하루에 63회 운행돼.",
+    "context_used": "청크 4",
+    "source_file": "79142_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 천안캠에서 수업 듣는데, 셔틀버스 하교 시간은 몇 시에 출발해?",
+    "ground_truth": "하교 시간은 14:00, 15:35, 16:00, 17:40 등이 있어.",
+    "context_used": "청크 3",
+    "source_file": "79142_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "주말에 셔틀버스 몇 회 운행되고, 일요일 시간표는 어떻게 돼?",
+    "ground_truth": "주말에는 총 8회 운행되고, 일요일은 10:00, 12:00, 14:00 같은 시간에 출발해.",
+    "context_used": "청크 5, 청크 6",
+    "source_file": "79142_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "버디 프로그램 합격자한테 카톡방 주소랑 유학생 연락처 언제 오는 거야?",
+    "ground_truth": "합격자에게는 문자로 버디 프로그램 진행을 위한 카톡방 주소 및 유학생 연락처가 전달될 예정이야.",
+    "context_used": "청크 3",
+    "source_file": "87076_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "내가 컴공인데 버디 프로그램 활동 보고서 제출할 때 사진은 꼭 버디 얼굴이 보여야 해?",
+    "ground_truth": "응, 활동 보고서 제출할 때는 버디 얼굴이 보이는 사진을 제출해야 해.",
+    "context_used": "청크 4",
+    "source_file": "87076_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "버디 프로그램 중도 탈락하면 봉사시간 못 받고, 카카오톡으로 연락하는 건 인정 안 되지?",
+    "ground_truth": "맞아, 중도 탈락 시 봉사시간을 인정받지 못하고, 카카오톡 같은 SNS로 연락하는 것은 프로그램 참여로 인정되지 않아.",
+    "context_used": "청크 7",
+    "source_file": "87076_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "호서대학교 모바일 신분증이 어떤 기능을 제공하는지 좀 더 자세히 알고 싶어.",
+    "ground_truth": "호서대학교 모바일 신분증은 디지털 지갑, 학생/교직원 신분증, QR 스캔을 통한 신원 인증 기능을 제공해.",
+    "context_used": "청크 3",
+    "source_file": "86556_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 모바일 신분증 설치할 때 조건 같은 거 있어?",
+    "ground_truth": "모바일 신분증 설치 시 포털 ID와 비밀번호로 로그인 후 약관에 동의해야 하고, 전자지갑 암호 등록이 필요해. 특별한 조건은 없어.",
+    "context_used": "청크 4",
+    "source_file": "86556_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "모바일 신분증 설치 방법이랑 향후 추가될 기능에 대해 모두 알고 싶어.",
+    "ground_truth": "모바일 신분증 설치 방법은 Play Store/App Store에서 ‘호서대 신분증’ 앱을 설치하고, 포털 ID와 PW로 로그인한 후 약관에 동의하고 전자지갑 암호를 등록해야 해. 향후 추가될 기능으로는 CanDo 마일리지 연계, 각종 증명서 발급, 전자 출결 등이 있어.",
+    "context_used": "청크 4, 청크 5",
+    "source_file": "86556_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "심리검사 끝나고 나면 결과지는 언제 받을 수 있어?",
+    "ground_truth": "만족도 조사 완료 후, 메일로 전문가 해석 결과지를 받습니다.",
+    "context_used": "청크 2",
+    "source_file": "83093_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 2024-2학기 DSC 공유대학 심리검사 신청할 수 있어?",
+    "ground_truth": "특정 학과에 대한 제한은 없으므로, 컴공 학생도 신청할 수 있습니다.",
+    "context_used": "청크 1",
+    "source_file": "83093_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "심리검사 신청하고 나서 결과지를 받으려면 어떤 과정을 거쳐야 해?",
+    "ground_truth": "신청 후 검사 실시 -> 만족도 조사 -> 결과 발송의 순서로 진행됩니다.",
+    "context_used": "청크 1, 청크 2",
+    "source_file": "83093_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2024학년도 1학기 등록금 고지서 출력 기간은 언제야?",
+    "ground_truth": "등록금 고지서 출력 기간은 2024년 02월 06일 (화) 오전 09:00부터 시작해.",
+    "context_used": "청크 2",
+    "source_file": "78689_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 26년도 컴공인데, 분할 납부 신청은 언제부터 할 수 있어?",
+    "ground_truth": "분할 납부 신청은 2024년 02월 01일 (목)부터 2024년 02월 23일 (금)까지 가능해.",
+    "context_used": "청크 4",
+    "source_file": "78689_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "학자금 대출 신청은 언제부터 언제까지 하고, 고지서 출력은 언제부터 할 수 있어?",
+    "ground_truth": "학자금 대출 신청은 2024년 02월 01일 (목)부터 2024년 02월 23일 (금)까지 하고, 고지서 출력은 2024년 02월 06일 (화) 오전 09:00부터 할 수 있어.",
+    "context_used": "청크 2, 청크 6",
+    "source_file": "78689_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2025-2학기 학습법 워크숍은 뭘 목표로 하고 있어?",
+    "ground_truth": "학습법 워크숍은 학습 및 실무 역량 향상을 지원하는 프로그램이야.",
+    "context_used": "청크 1",
+    "source_file": "93414_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "컴공 학생인데 2025-2학기 학습법 워크숍 신청은 어떻게 해?",
+    "ground_truth": "신청은 LMS와 MOOC에서 자동 승인으로 진행돼.",
+    "context_used": "청크 3",
+    "source_file": "93414_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2025-2학기 학습법 워크숍 언제 하고, 누구 강연해?",
+    "ground_truth": "2025년 10월 28일에 박찬종이 강연해.",
+    "context_used": "청크 2, 청크 2",
+    "source_file": "93414_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "학군사관후보생(ROTC) 지원서 접수 기간이 언제인지 알려줄 수 있어?",
+    "ground_truth": "지원서 접수는 2025년 9월 1일(월)부터 10월 14일(화) 24:00까지야.",
+    "context_used": "청크 1",
+    "source_file": "92562_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나는 컴공 2학년인데, 학군사관후보생(ROTC) 지원할 수 있는 조건이 뭐야?",
+    "ground_truth": "4년제 학과 2학년으로 지원할 수 있으니까 괜찮아. 66기 대상이야.",
+    "context_used": "청크 2",
+    "source_file": "92562_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "학군사관후보생(ROTC) 면접 평가 기간하고 최종 합격자 발표는 언제인지 알 수 있을까?",
+    "ground_truth": "면접 평가는 11. 3.(월)부터 11. 14.(금)까지고, 최종 합격자 발표는 12. 10.(수) 14:00이야.",
+    "context_used": "청크 4, 청크 7",
+    "source_file": "92562_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "멘토링 프로그램에서 멘토가 몇 명의 멘티를 맡게 되는지 궁금해!",
+    "ground_truth": "멘토 1명이 2명의 멘티를 배정받게 돼.",
+    "context_used": "청크 2",
+    "source_file": "95686_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "자유전공학부 출신이 아닌데 멘토링 신청할 수 있는 방법 없을까?",
+    "ground_truth": "자유전공학부 출신이 아니라면 멘토로 신청할 수 없어. 멘토 모집 대상에 명시된 학과만 가능해.",
+    "context_used": "청크 1",
+    "source_file": "95686_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "멘토링 신청하면 장학금은 얼마 받을 수 있어? 모집 일정도 알고 싶어!",
+    "ground_truth": "멘토링 신청하면 20만원의 장학금을 받고, 우수 멘토에게는 추가 10만원도 지급돼. 모집 기간은 2026년 2월 26일부터 3월 8일까지야.",
+    "context_used": "청크 3, 청크 4",
+    "source_file": "95686_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2026학년도 1학기 개강 셔틀버스 언제부터 운행 시작해?",
+    "ground_truth": "운행 시작일은 2026년 3월 3일(화)부터야.",
+    "context_used": "청크 2",
+    "source_file": "95587_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나는 컴공 학생인데, 2026년 1학기 개강 셔틀버스 운행 미실시는 언제야?",
+    "ground_truth": "운행 미실시는 2026년 2월 28일(토)야.",
+    "context_used": "청크 2",
+    "source_file": "95587_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2026학년도 1학기 개강 셔틀버스 토요일 시간표는 어떻게 돼?",
+    "ground_truth": "토요일 시간표는 1회차가 09:00, 09:13, 09:18, 09:33, 09:38, 09:48부터 시작해.",
+    "context_used": "청크 4",
+    "source_file": "95587_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "반도체 패키지 공정기술 기초과정 교육은 어떤 내용을 배우는 거야?",
+    "ground_truth": "교육 내용은 반도체 패키지 공정 이론 및 실습, 반도체 패키지 품질 기획 분석, 사전 품질 기획 APQP, 계측 시스템 분석 MSA, 그리고 Advanced Package 교육으로 Trend, HBM 구조, TSV 기술 등이 포함돼.",
+    "context_used": "청크 4",
+    "source_file": "95026_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 26년도 컴공인데, 반도체 패키지 공정기술 기초과정 교육에 신청할 수 있어?",
+    "ground_truth": "이 과정은 4년제 대학 4학년 이상 졸업예정자 및 반도체 후공정 분야 취업을 희망하는 미취업 졸업생이 대상이어서, 조건을 만족하면 신청 가능해.",
+    "context_used": "청크 1",
+    "source_file": "95026_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "반도체 패키지 공정기술 기초과정 교육은 언제부터 언제까지 진행되고, 서류 접수는 언제까지야?",
+    "ground_truth": "교육은 2026년 2월 2일부터 2월 12일까지 진행되고, 서류 접수는 1월 7일부터 1월 21일까지야.",
+    "context_used": "청크 1, 청크 3",
+    "source_file": "95026_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "유기발광디스플레이 직무설명회에서 어떤 기업의 강연이 있을까?",
+    "ground_truth": "직무설명회에서는 Lam Research와 ICD, Applied Materials, CINOS, UNIST 등 여러 기업의 강연이 있을 예정이야.",
+    "context_used": "청크 3",
+    "source_file": "92626_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데 유기발광디스플레이 직무설명회에 참여하려면 사전 등록은 어떻게 해야 해?",
+    "ground_truth": "사전 참여등록은 상단 QR코드를 통해서 해야 하고, 등록한 사람만 중식이 제공돼.",
+    "context_used": "청크 4",
+    "source_file": "92626_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "유기발광디스플레이 직무설명회가 2025년 9월 17일에 열리는데, 그때 어떤 강연이 진행될 예정이야?",
+    "ground_truth": "2025년 9월 17일에는 강연0로 Lam Research의 기술 및 직무, 채용 동향이, 강연@로는 ICD의 차세대 기술이 있을 거야.",
+    "context_used": "청크 2, 청크 3",
+    "source_file": "92626_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "중국파견 교환학생 오리엔테이션은 언제 하는 건지 알고 싶어.",
+    "ground_truth": "오리엔테이션은 2024년 11월 8일 금요일에 진행될 예정이야.",
+    "context_used": "청크 4",
+    "source_file": "84400_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "2026년도에 컴공 학생으로 교환학생 취소하고 싶으면 어떻게 해야 해?",
+    "ground_truth": "교환학생 포기를 희망하는 경우, 오리엔테이션 전까지 교환학생 취소 신청서를 국제협력처에 제출해야 해. 2026년도 일정은 아직 안 나왔지만, 기본적인 절차는 비슷할 거야.",
+    "context_used": "청크 5",
+    "source_file": "84400_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "길림외국어대학으로 파견된 학생들은 어떤 서류를 준비해야 해?",
+    "ground_truth": "길림외국어대학으로 파견된 학생들은 상대교의 교환학생 제출서류를 준비해야 하고, 제출 요청은 학교별로 기간이 상이하여 개별 연락이 갈 거야.",
+    "context_used": "청크 2, 청크 5",
+    "source_file": "84400_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2025년 충남 청년인턴 사업 '충전'이 어떤 학생들에게 지원 자격이 있는지 궁금해.",
+    "ground_truth": "지원 자격은 졸업예정자, 즉 2026년 2월에 졸업하는 학생들이야.",
+    "context_used": "청크 3",
+    "source_file": "88100_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 26년도 컴공인데, 2025년 충남 청년인턴 사업 '충전' 신청할 수 있어?",
+    "ground_truth": "신청할 수 있어, 근데 졸업예정자여야 해. 2026년 2월에 졸업하는 학생들만 지원 가능해.",
+    "context_used": "청크 3",
+    "source_file": "88100_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "2025년 충남 청년인턴 사업 '충전' 신청서 제출 기간이랑 접수 기간이 어떻게 돼?",
+    "ground_truth": "신청서는 5월 7일부터 5월 27일까지 접수 받는 거야.",
+    "context_used": "청크 2",
+    "source_file": "88100_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "2025년 봄철 산불 예방 기간이 왜 이렇게 정해졌을까?",
+    "ground_truth": "보통 봄철은 건조한 날씨와 강한 바람이 불어 산불 발생 위험이 높기 때문에, 이 시기에 산불 예방을 강조하고 활동을 진행하는 것으로 보입니다.",
+    "context_used": "청크 2",
+    "source_file": "87171_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 봄철 산불 예방 기간에 산림 가까이 가면 안 되는 이유가 뭐야?",
+    "ground_truth": "산림과 가까운 곳에서 불을 사용하는 행위가 산불을 유발할 수 있기 때문에, 산림 근처에서 영농 부산물이나 쓰레기를 태우는 행위는 금지되고 있습니다.",
+    "context_used": "청크 3",
+    "source_file": "87171_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "산불 신고할 때 어떤 정보를 포함해야 하는지, 그리고 신고할 수 있는 곳은 어디인지 알려줄 수 있어?",
+    "ground_truth": "산불 신고 시에는 발생 장소와 시간, 산불의 크기, 신고자의 인적사항(이름, 연락처 등)을 포함해야 합니다. 신고할 수 있는 곳은 시청, 군청, 구청, 지방산림청, 중앙산불방지대책본부, 소방관서, 경찰관서, 군부대 등입니다.",
+    "context_used": "청크 3, 청크 4",
+    "source_file": "87171_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "한국어 강사 전형은 서류전형이랑 면접심사가 있다고 하는데, 이 순서가 왜 이렇게 정해졌을까?",
+    "ground_truth": "서류전형을 통해 기본적인 자격 요건을 충족하는 지원자를 먼저 걸러내고, 이후 면접심사와 시범강의를 통해 실제 강의 능력과 적합성을 평가하기 위해서야.",
+    "context_used": "청크 4, 청크 5",
+    "source_file": "83967_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "한국어교원 2급 자격증이 있는데, 2024학년도 2학기 한국어 강사에 지원할 수 있을까?",
+    "ground_truth": "응, 한국어교원 2급 이상 소지자는 지원 자격이 되니까 지원할 수 있어.",
+    "context_used": "청크 2",
+    "source_file": "83967_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "한국어 강사 지원하려고 하는데, 서류 접수는 어떻게 하고, 최종 발표는 언제인지 궁금해!",
+    "ground_truth": "서류 접수는 이메일로 jwchoi@hoseo.edu로 해야 하고, 최종 발표는 2024년 10월 25일에 있어.",
+    "context_used": "청크 6, 청크 5",
+    "source_file": "83967_chunks.json"
+  },
+  {
+    "question_type": "추론형",
+    "question": "충청지역 Design Thinking & Presentation 캠프에서 팀 구성을 위해 어떤 과정이 있는 거야?",
+    "ground_truth": "서로 다른 대학 소속의 학생 간 팀 구성을 위한 팀빌딩 제공이 있어. 이 과정에서 아이디어 도출이 이루어질 거야.",
+    "context_used": "청크 4",
+    "source_file": "80809_chunks.json"
+  },
+  {
+    "question_type": "조건부",
+    "question": "나 컴공인데, 26년도에 충청지역 Design Thinking & Presentation 캠프 신청할 수 있어?",
+    "ground_truth": "이 캠프는 2024년 기준으로 모집하는 거라서 26년도에 대한 정보는 아직 없어. 하지만 컴공 학생도 신청할 수 있을 거야.",
+    "context_used": "청크 1",
+    "source_file": "80809_chunks.json"
+  },
+  {
+    "question_type": "다중 문맥",
+    "question": "충청지역 Design Thinking & Presentation 캠프의 온라인 강의는 언제부터 언제까지 진행돼?",
+    "ground_truth": "온라인 강의는 2024년 6월 21일부터 24일까지 진행되고, 총 9시간이 소요돼.",
+    "context_used": "청크 3, 청크 5",
+    "source_file": "80809_chunks.json"
+  }
+]
