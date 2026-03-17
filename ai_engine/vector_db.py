@@ -1,125 +1,120 @@
 import os
 import json
-import torch
-from elasticsearch import Elasticsearch, helpers
-from sentence_transformers import SentenceTransformer
-
-# 1. 보안 가드레일 우회 설정
-os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
-os.environ["TRUST_REMOTE_CODE"] = "True"
-
-print(f"✅ 현재 PyTorch 버전: {torch.__version__}")
-print("⏳ SBERT 모델 로딩 중 (ko-sbert-sts)...")
-
-try:
-    model = SentenceTransformer('jhgan/ko-sbert-sts') 
-    print("✅ 모델 로딩 완료!")
-except Exception as e:
-    print(f"❌ 모델 로딩 실패: {e}")
-    exit()
-
-# 2. [연구실 환경] Elasticsearch 연결 설정 (강제 호환 모드)
-es = Elasticsearch(
-    "http://localhost:9200",
-    verify_certs=False,
-    request_timeout=60,
-    meta_header=False, 
-    headers={
-        "Accept": "application/vnd.elasticsearch+json; compatible-with=8",
-        "Content-Type": "application/vnd.elasticsearch+json; compatible-with=8"
-    }
+from pathlib import Path
+from pymilvus import (
+    connections, FieldSchema, CollectionSchema, DataType, Collection, utility
 )
+from FlagEmbedding import BGEM3FlagModel
 
-def create_index(index_name="hoseo_notices"):
-    """하이브리드 검색을 위한 인덱스 재생성"""
-    try:
-        # 기존 인덱스가 있다면 삭제하고 깔끔하게 다시 만듭니다. (구조 변경을 위해)
-        if es.indices.exists(index=index_name):
-            print(f"♻️ 기존 인덱스 '{index_name}'를 삭제하고 새로 생성합니다.")
-            es.indices.delete(index=index_name)
-
-        # [핵심] 키워드 검색(title, ai_summary)과 벡터 검색(notice_vector)을 동시 지원하는 구조
-        mappings = {
-            "properties": {
-                "notice_id": {"type": "keyword"},
-                "title": {"type": "text"},          # BM25 키워드 검색용
-                "content": {"type": "text"},
-                "ai_summary": {"type": "text"},     # BM25 키워드 검색용
-                "notice_vector": {
-                    "type": "dense_vector", 
-                    "dims": 768,
-                    "index": True,
-                    "similarity": "cosine"
-                },
-                "url": {"type": "keyword"},
-                "target_date": {"type": "date"}
-            }
-        }
-        es.indices.create(index=index_name, mappings=mappings)
-        print(f"📂 하이브리드 인덱스 '{index_name}' 생성 완료")
-    except Exception as e:
-        print(f"⚠️ 인덱스 생성 중 오류: {e}")
-
-def index_all_processed_data(index_name="hoseo_notices"):
-    processed_root = os.path.join(os.getcwd(), "data", "processed")
-    if not os.path.exists(processed_root):
-        print(f"❌ '{processed_root}' 폴더가 없습니다.")
-        return
-
-    actions = []
-    target_folders = [f for f in os.listdir(processed_root) if os.path.isdir(os.path.join(processed_root, f))]
-    
-    print(f"🔍 총 {len(target_folders)}개의 공지사항 재구성 중...")
-
-    for notice_id in target_folders:
-        file_path = os.path.join(processed_root, notice_id, "ai_extracted_info.json")
-        if not os.path.exists(file_path): continue
-
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        title = data.get('title', '제목 없음')
-        if title in ["제목 없음", "호서광장", "공지사항"] and data.get('ai_summary_content'):
-            title = data['ai_summary_content'].split('\n')[0][:50]
-
-        # [고도화] 임베딩용 텍스트 재구성
-        # SBERT는 보통 512토큰에서 잘리므로, 가장 중요한 '제목'과 'PDF 요약'을 앞쪽으로 배치합니다.
-        embed_text = f"제목: {title}\n"
+class MilvusIndexer:
+    def __init__(self, collection_name="hoseo_notices"):
+        self.collection_name = collection_name
         
-        pdf_texts = [pdf['summary'] for pdf in data.get("ai_attachment_summaries", [])]
-        if pdf_texts:
-            embed_text += "[첨부파일 핵심 내용]\n" + "\n".join(pdf_texts) + "\n"
+        # 1. BGE-M3 모델 로드 (4090 GPU 활용, FP16으로 메모리/속도 최적화)
+        print("🤖 BGE-M3 모델 로드 중... (시간이 조금 걸릴 수 있습니다)")
+        self.model = BGEM3FlagModel('BAAI/bge-m3', use_fp16=True)
+        
+        # 2. Milvus 서버 연결 (로컬 도커 기준 기본 포트)
+        connections.connect("default", host="localhost", port="19530")
+        print("✅ Milvus DB 연결 완료!")
+
+    def create_collection(self):
+        """Milvus 컬렉션(테이블) 스키마 정의 및 생성"""
+        if utility.has_collection(self.collection_name):
+            print(f"⚠️ '{self.collection_name}' 컬렉션이 이미 존재합니다. 삭제하고 새로 만드시겠습니까? (이 코드는 덮어쓰지 않고 기존 컬렉션을 씁니다)")
+            self.collection = Collection(self.collection_name)
+            return
+
+        # 필드 정의
+        fields = [
+            FieldSchema(name="chunk_id", dtype=DataType.VARCHAR, is_primary=True, max_length=100),
+            FieldSchema(name="parent_id", dtype=DataType.VARCHAR, max_length=100),
+            FieldSchema(name="year", dtype=DataType.VARCHAR, max_length=10),
+            FieldSchema(name="category", dtype=DataType.VARCHAR, max_length=50),
+            FieldSchema(name="target", dtype=DataType.VARCHAR, max_length=100),
+            FieldSchema(name="entity", dtype=DataType.VARCHAR, max_length=100),
+            FieldSchema(name="chunk_text", dtype=DataType.VARCHAR, max_length=65535), # 원문
+            FieldSchema(name="dense_vector", dtype=DataType.FLOAT_VECTOR, dim=1024), # 의미 검색용
+            FieldSchema(name="sparse_vector", dtype=DataType.SPARSE_FLOAT_VECTOR)   # 키워드 검색용
+        ]
+
+        schema = CollectionSchema(fields, description="호서대 공지사항 하이브리드 RAG 컬렉션")
+        self.collection = Collection(name=self.collection_name, schema=schema)
+        
+        # 인덱스 생성 (검색 속도를 위해 필수)
+        print("⚙️ 인덱스 생성 중...")
+        # Dense 인덱스
+        self.collection.create_index(
+            field_name="dense_vector", 
+            index_params={"metric_type": "IP", "index_type": "IVF_FLAT", "params": {"nlist": 128}}
+        )
+        # Sparse 인덱스
+        self.collection.create_index(
+            field_name="sparse_vector", 
+            index_params={"metric_type": "IP", "index_type": "SPARSE_INVERTED_INDEX", "params": {"drop_ratio_build": 0.2}}
+        )
+        print("✅ 컬렉션 및 인덱스 생성 완료!")
+
+    def insert_chunks(self, chunks_dir):
+        """로컬 폴더의 청크 JSON들을 읽어 벡터화 후 Milvus에 삽입"""
+        chunks_path = Path(chunks_dir)
+        files = list(chunks_path.glob("*_chunks.json"))
+        
+        self.collection.load() # 메모리에 컬렉션 적재
+        print(f"🚀 인덱싱 시작 (대상 파일: {len(files)}개)")
+
+        for i, file_path in enumerate(files):
+            with open(file_path, 'r', encoding='utf-8') as f:
+                chunks = json.load(f)
             
-        embed_text += f"[본문 요약]\n{data.get('ai_summary_content', '')}\n"
-        
-        for img in data.get("ai_image_summaries", []):
-            embed_text += f"[이미지 정보]\n{img['summary']}\n"
-            
-        if len(embed_text.strip()) < 5: continue
-        
-        # SBERT 벡터 임베딩 생성 (자동으로 Max Length까지 잘라서 처리됨)
-        embedding = model.encode(embed_text).tolist()
+            if not chunks:
+                continue
 
-        doc = {
-            "_index": index_name,
-            "_id": notice_id,
-            "_source": {
-                "notice_id": notice_id,
-                "title": title,
-                "content": data.get('content', ''),
-                "ai_summary": embed_text,  # 원본 대신 재구성된 텍스트를 저장하여 검색 효율 극대화
-                "notice_vector": embedding,
-                "url": f"https://www.hoseo.ac.kr/Home/BBSView.mbz?action=MAPP_1708240139&schIdx={notice_id}",
-                "target_date": data.get('target_date', '2026-03-04')
+            # 데이터를 담을 리스트 준비
+            data = {
+                "chunk_id": [], "parent_id": [], "year": [], "category": [],
+                "target": [], "entity": [], "chunk_text": [],
+                "dense_vector": [], "sparse_vector": []
             }
-        }
-        actions.append(doc)
-        print(f"📦 벡터화 완료: {title[:25]}... (ID: {notice_id})")
 
-    if actions:
-        helpers.bulk(es, actions)
-        print(f"🚀 총 {len(actions)}개의 하이브리드 데이터를 ES에 저장했습니다!")
+            # 텍스트만 모아서 한 번에 임베딩(배치 처리)하면 속도가 훨씬 빠름
+            texts_to_embed = [chunk["chunk_text"] for chunk in chunks]
+            
+            # BGE-M3 임베딩 실행 (Dense, Sparse 동시 추출)
+            embeddings = self.model.encode(texts_to_embed, return_dense=True, return_sparse=True)
+
+            for idx, chunk in enumerate(chunks):
+                meta = chunk.get("metadata", {})
+                
+                data["chunk_id"].append(chunk["chunk_id"])
+                data["parent_id"].append(chunk["parent_id"])
+                data["year"].append(meta.get("year", ""))
+                data["category"].append(meta.get("category", ""))
+                data["target"].append(meta.get("target", ""))
+                data["entity"].append(meta.get("entity", ""))
+                data["chunk_text"].append(chunk["chunk_text"])
+                
+                data["dense_vector"].append(embeddings['dense_vecs'][idx])
+                data["sparse_vector"].append(embeddings['lexical_weights'][idx])
+
+            # Milvus에 삽입
+            self.collection.insert([
+                data["chunk_id"], data["parent_id"], data["year"], data["category"],
+                data["target"], data["entity"], data["chunk_text"],
+                data["dense_vector"], data["sparse_vector"]
+            ])
+
+            if (i+1) % 50 == 0 or (i+1) == len(files):
+                print(f"[{i+1}/{len(files)}] {file_path.name} 삽입 완료 (현재 청크 누적 삽입 중...)")
+
+        # 삽입 후에는 반드시 flush를 해줘야 검색이 가능해집니다
+        self.collection.flush()
+        print(f"🎉 모든 데이터 인덱싱 완료! 총 {self.collection.num_entities}개의 청크가 Milvus에 저장되었습니다.")
 
 if __name__ == "__main__":
-    create_index()
-    index_all_processed_data()
+    # 청크 데이터가 들어있는 폴더 경로
+    CHUNKS_DIR = "./data/processed/chunks"
+    
+    indexer = MilvusIndexer()
+    indexer.create_collection()
+    indexer.insert_chunks(CHUNKS_DIR)
