@@ -1,69 +1,76 @@
 import os
-import time
-from pathlib import Path
-import pymupdf4llm
+import fitz  # PyMuPDF
+import re
 
-def convert_pdfs_to_paged_markdown(input_dir, output_dir):
-    input_path = Path(input_dir)
-    output_path = Path(output_dir)
+def parse_pdf_to_md_with_smart_tags(pdf_path, output_dir):
+    filename = os.path.basename(pdf_path)
+    base_name = os.path.splitext(filename)[0]
     
-    # 출력 폴더 생성 (없으면 자동 생성)
-    output_path.mkdir(parents=True, exist_ok=True)
+    # 1. 파일명에서 문서 ID 추출 (예: "1-2-1-3. 대학원 장학 규정" -> "1-2-1-3")
+    id_match = re.search(r"(\d+(?:-\d+)+)", base_name)
+    fallback_id = id_match.group(1) if id_match else "unknown"
     
-    pdf_files = list(input_path.glob("*.pdf"))
-    total_files = len(pdf_files)
+    # 2. 문서 본문에서 ID와 페이지 번호를 찾는 정규표현식 (예: 1-1-1-1∼1)
+    pattern = re.compile(r"(\d+(?:-\d+)+)[~∼](\d+)")
     
-    if total_files == 0:
-        print(f"❌ {input_dir} 에 PDF 파일이 없습니다.")
-        return
-
-    print(f"🚀 총 {total_files}개의 학칙 PDF ➡️ '페이지 꼬리표(PAGE_X)' 삽입 파싱 시작")
-    print("멀티모달(Vision) RAG 실험을 위한 핵심 전처리 작업입니다.\n")
-
-    success_count = 0
-    start_time = time.time()
-
-    for idx, pdf_file in enumerate(pdf_files, 1):
-        md_filename = f"{pdf_file.stem}.md"
-        md_filepath = output_path / md_filename
+    try:
+        doc = fitz.open(pdf_path)
+        full_md_text = ""
         
-        print(f"[{idx:03d}/{total_files:03d}] 🔄 꼬리표 삽입 중: {pdf_file.name}", end=" ... ")
+        for idx, page in enumerate(doc):
+            page_text = page.get_text("text")
+            
+            # 본문에서 패턴 검색
+            match = pattern.search(page_text)
+            if match:
+                current_doc_id = match.group(1) 
+                page_num = match.group(2)       
+            else:
+                # 패턴을 못 찾으면 파일명에서 추출한 ID(fallback_id)와 물리적 페이지 번호 사용
+                current_doc_id = fallback_id
+                page_num = str(idx + 1)
+                
+            # 텍스트 정리 (공백 및 줄바꿈 정리)
+            full_md_text += page_text.strip()
+            
+            # ★ 청커를 위한 메타데이터 태그 삽입
+            tag = f'\n\n<page doc_id="{current_doc_id}" num="{page_num}"></page>\n\n'
+            full_md_text += tag
+            
+        # 출력 폴더 확인 및 파일 저장
+        os.makedirs(output_dir, exist_ok=True)
+        output_path = os.path.join(output_dir, f"{base_name}.md")
         
-        try:
-            # 💡 핵심 로직 1: page_chunks=True 옵션으로 텍스트를 페이지 단위로 쪼개서 받음
-            md_chunks = pymupdf4llm.to_markdown(str(pdf_file), page_chunks=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(full_md_text)
             
-            full_md_text = ""
-            
-            # 💡 핵심 로직 2: 각 페이지 텍스트 위에 기계가 인식할 태그 강제 삽입
-            for page_idx, chunk in enumerate(md_chunks, 1):
-                page_text = chunk.get('text', '')
-                
-                # 이 태그가 나중에 Vision 모델이 볼 이미지(page_1.png)와 연결해 줍니다!
-                full_md_text += f"\n\n\n\n"
-                full_md_text += page_text
-                
-            # 최종 마크다운 파일로 덮어쓰기 저장
-            with open(md_filepath, "w", encoding="utf-8") as f:
-                f.write(full_md_text.strip())
-                
-            print("✅ 완료")
-            success_count += 1
-            
-        except Exception as e:
-            print(f"❌ 에러 발생: {str(e)}")
-
-    elapsed_time = time.time() - start_time
-    print("\n" + "="*60)
-    print("🎉 페이지 매핑 마크다운 파싱 대장정 완료!")
-    print(f"📄 성공: {success_count}/{total_files}개")
-    print(f"⏱️ 소요 시간: {elapsed_time:.2f}초")
-    print(f"💾 저장 위치: {output_path}")
-    print("="*60)
+        print(f"✅ 파싱 완료 (문서ID: {fallback_id}): {filename}")
+        return True
+    except Exception as e:
+        print(f"❌ 에러 ({filename}): {e}")
+        return False
 
 if __name__ == "__main__":
-    # 작성자님의 폴더 구조에 맞춘 경로
-    INPUT_DIR = "./data/rules_regulations/raw_pdfs"
-    OUTPUT_DIR = "./data/rules_regulations/markdown_parsed"
+    # 스크립트 파일 위치 기준 절대 경로 생성
+    base_path = os.getcwd()
     
-    convert_pdfs_to_paged_markdown(INPUT_DIR, OUTPUT_DIR)
+    # 🎯 구조에 맞춘 정확한 경로 세팅
+    INPUT_PDF_DIR = os.path.join(base_path, "data", "rules_regulations", "raw_pdfs")
+    OUTPUT_MD_DIR = os.path.join(base_path, "data", "rules_regulations", "markdown_parsed")
+    
+    print(f"📂 입력 경로: {INPUT_PDF_DIR}")
+    print(f"📂 출력 경로: {OUTPUT_MD_DIR}\n")
+
+    if os.path.exists(INPUT_PDF_DIR):
+        pdf_files = [f for f in os.listdir(INPUT_PDF_DIR) if f.lower().endswith('.pdf')]
+        print(f"🔍 발견된 PDF: {len(pdf_files)}개")
+        
+        success_count = 0
+        for pdf_file in pdf_files:
+            pdf_path = os.path.join(INPUT_PDF_DIR, pdf_file)
+            if parse_pdf_to_md_with_smart_tags(pdf_path, OUTPUT_MD_DIR):
+                success_count += 1
+        
+        print(f"\n🎉 작업 완료: {success_count}/{len(pdf_files)} 성공")
+    else:
+        print(f"❌ 오류: 경로를 찾을 수 없습니다. ({INPUT_PDF_DIR})")
