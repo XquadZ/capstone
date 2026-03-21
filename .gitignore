@@ -1,49 +1,45 @@
-# --- 기존 설정 ---
+# ==========================================
+# 1. Environment & Keys
+# ==========================================
+.env
+__pycache__/
+*.pyc
 venv/
 .venv/
-__pycache__/
-data/
-database/
-*.pyc
-.env
-.vscode/
-
-# --- 추가 권장 설정 (sLM/RAG 프로젝트용) ---
-
-# 1. 모델 파일 (Llama, Qwen 등 대용량 가중치 파일)
-# 모델 폴더를 통째로 제외하거나 특정 확장자 제외
-models/
-weights/
-*.bin
-*.pt
-*.pth
-*.gguf
-*.safetensors
-
-# 2. 크롤링 및 로더 작업 중 생성되는 로그 및 임시 파일
-logs/
-*.log
-tmp/
-temp/
-.ipynb_checkpoints/
-
-# 3. 데이터 관련 (data/ 폴더 외 추가 보호)
-# 수집된 raw 데이터와 요약된 processed 데이터는 Git에 올리지 않는 것이 정석입니다.
-raw/
-processed/
-*.jsonl
-*.csv
-
-# 4. OS 및 시스템 파일
 .DS_Store
-Thumbs.db
 
-# 5. 빌드 관련 (vLLM 빌드 시 생성되었던 파일들)
-build/
-dist/
-*.egg-info/
-
+# ==========================================
+# 2. Raw & Processed Data (용량 큼)
+# ==========================================
+data/
+markdown_parsed/
+chunks/
 .byaldi/
+doc_ids_to_file_names.json.gz
+
+# ==========================================
+# 3. Evaluation Results & Datasets (HTML 98%의 주범!)
+# ==========================================
+evaluation/datasets/*.json
+evaluation/results/*.json
+evaluation/results/*.csv
+evaluation/results/*.html
+evaluation/results/*.png
+PDIS_Research_Final_Report.csv
+PDIS_Analysis_Graph.html
+
+# ==========================================
+# 4. Agentic RAG & Training Data
+# ==========================================
+AgenticRAG/rl_traning/*.jsonl
+AgenticRAG/rl_traning/*.json
+dpo_dataset.jsonl
+
+# ==========================================
+# 5. Model Weights & Checkpoints (절대 Push 금지)
+# ==========================================
+router_gemma_checkpoints/
+hoseo_router_gemma_2b/
+
+# Milvus DB Volumes
 volumes/
-__pycache__/
-*.pt
