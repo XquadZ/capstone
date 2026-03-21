@@ -1,42 +1,86 @@
-# 🎓 호서대학교 스마트 캠퍼스 도우미 (Advanced Multimodal RAG)
+# 🎓 호서대학교 학칙/공지사항 멀티모달 RAG
 
-본 프로젝트는 호서대학교의 공지사항, 학사 일정, 장학금 정보를 실시간으로 수집하고, 사용자의 질문에 정확한 출처와 함께 답변을 제공하는 **실시간 스트리밍 RAG 챗봇 시스템**입니다. 
-단일 RTX 4090(24GB) 로컬 서버 환경에서 VRAM을 극대화하여 활용하며, 환각(Hallucination) 없는 고성능 AI 서비스를 제공하는 것을 목표로 합니다.
+본 프로젝트는 호서대학교 **공지사항 + 학칙/규정 문서**를 대상으로,  
+질문 유형에 따라 Text RAG와 Vision RAG를 활용해 답변을 생성하고 성능을 비교/평가하는 캡스톤 코드베이스입니다.
 
-[Image of a modern GitHub README landing page with tech stack badges for React, FastAPI, Redis, and vLLM]
-
-## 🚀 기술 스택 (Core Tech Stack)
-기존의 단순 검색(ChromaDB) 방식에서 벗어나, 속도와 세션 관리를 위한 **Redis 하이브리드 아키텍처**로 고도화되었습니다.
-
-- **Frontend:** React (SSE 스트리밍 응답 처리)
-- **Backend:** FastAPI (비동기 API 및 세션 관리)
-- **Database:** Redis Stack (세션 캐싱, JSON 메타데이터, Vector 검색 통합)
-- **AI & ML:** vLLM (EEVE-10.8B-AWQ), BAAI/bge-m3, ko-reranker, 로컬 Vision LLM
-- **Data Pipeline:** Selenium, BeautifulSoup4, LangChain
+핵심 목표는 다음과 같습니다.
+- 공지/학칙 문서 기반의 근거 중심 답변 생성
+- 표/양식/시각 정보가 포함된 문서에서 Vision 기반 보완
+- RAGAS 기반 정량 평가 및 역평가(Reverse Evaluation)로 정보 유실 검증
 
 ---
 
-## 📚 공식 문서 허브 (Documentation)
-프로젝트의 상세한 설계 및 세팅 가이드는 아래의 문서를 확인해 주세요.
+## 🚀 핵심 스택
 
-| 문서명 | 설명 | 링크 |
-| :--- | :--- | :--- |
-| **시스템 아키텍처** | 전체 시스템 구조, VRAM 분배 및 RAG 파이프라인 | [system_arch.md](docs/system_arch.md) |
-| **API 명세서** | 프론트-백엔드 간 SSE 스트리밍 통신 규격 | [api_spec.md](docs/api_spec.md) |
-| **인프라 세팅 가이드** | RTX 4090 환경의 Docker 및 패키지 설치 방법 | [infra_setup.md](docs/infra_setup.md) |
-| **데이터 파이프라인** | 공지사항 크롤링 및 멀티모달 이미지 전처리 로직 | [crawler_logic.md](docs/crawler_logic.md) |
-| **프롬프트 및 페르소나** | 환각 방지 및 대화 문맥 유지를 위한 시스템 프롬프트 | [prompt_rules.md](docs/prompt_rules.md) |
+- **Vector DB:** Milvus (Hybrid Search: dense + sparse)
+- **Embedding/Rerank:** `BAAI/bge-m3`, `BAAI/bge-reranker-v2-m3`
+- **LLM:** `gpt-4o-mini`(OpenAI/SAIFEX), 로컬 sLM(선택)
+- **Vision:** PDF 페이지 이미지 기반 멀티모달 질의 (`gpt-4o-mini` Vision 입력)
+- **Evaluation:** RAGAS + Matplotlib/Seaborn
 
 ---
 
-## 📂 프로젝트 구조 (Project Structure)
+## 📂 최신 프로젝트 구조
+
 ```text
 CAPSTONE/
-├── ai_engine/          # 핵심 AI 로직 (임베딩, 리랭킹, 멀티모달 변환)
-├── api/                # FastAPI 서버 엔드포인트 및 RAG 라우팅
-├── crawler/            # 오프라인 데이터 수집 모듈 (중복 방지 로직 포함)
-├── data/               # [Git Ignored] 원본 수집 데이터 (PDF, HWP, Images)
-├── docs/               # 설계 문서 및 API 규격서
-├── venv/               # [Git Ignored] Python 로컬 가상환경
-├── .gitignore          # Git 제외 목록 (보안 키, 대용량 데이터 등)
-└── requirements.txt    # 의존성 패키지 목록 (pip install -r)
+├── ai_engine/                 # 검색/파싱/OCR/벡터화/RAG 실행 핵심 엔진
+├── evaluation/
+│   ├── scripts/               # 벤치마크, 평가, QA 생성, 플롯 스크립트
+│   ├── datasets/              # 평가셋(JSON)
+│   └── results/               # 벤치마크/평가 결과(JSON, CSV, PNG)
+├── AgenticRAG/                # LangGraph 기반 Agentic RAG 실험(신규)
+├── docs/                      # 설계/인프라/API 문서
+├── docker-compose.yml         # Milvus(etcd/minio/standalone) 구동
+├── requirements.txt           # Python 의존성(최소 목록)
+└── PROJECT_MAP.md             # 파일별 역할/입출력 상세 맵
+```
+
+> 파일 단위 상세 역할은 `PROJECT_MAP.md`를 참고하세요.
+
+---
+
+## 🔄 실행 파이프라인 요약
+
+### 1) 공지 Text RAG 파이프라인
+1. `full_text_extractor.py` -> 원천 데이터 통합 추출  
+2. `local_slm_refiner.py` -> 정제 JSON 생성  
+3. `chunker.py` -> 컨텍스트 포함 청크 생성  
+4. `vector_db.py` -> Milvus 적재  
+5. `rag_pipeline.py` / `sLM_RAG_pipeline.py` -> 질의응답
+
+### 2) 학칙 Text vs Vision 비교 파이프라인
+1. `md_parser_pdf.py` -> PDF to Markdown(+페이지 태그)  
+2. `rule_data_chunker.py` -> 학칙 청크 JSON 생성  
+3. `vector_db_rules.py` -> Milvus(`hoseo_rules_v1`) 적재  
+4. Text 벤치: `evaluation/scripts/run_benchmark_rules_text.py`  
+5. Vision 벤치: `evaluation/scripts/run_benchmark_rules_pdf.py`  
+6. 평가: `run_eval_rules.py`, `run_eval_reverse.py`, `plot_*`
+
+---
+
+## 🧪 평가/실험 스크립트
+
+- **QA 생성:** `evaluation/scripts/generate_qa.py`, `generate_qa_rules.py`
+- **벤치마크:** `run_benchmark.py`, `run_benchmark_rules_text.py`, `run_benchmark_rules_pdf.py`
+- **RAGAS 평가:** `run_eval.py`, `run_eval_rules.py`
+- **역평가:** `run_eval_reverse.py`
+- **시각화:** `plot_results.py`, `plot_results_rules.py`, `plot_reverse_results.py`
+
+---
+
+## 🧠 AgenticRAG 현황
+
+`AgenticRAG/graph/main_agent.py`에는 LangGraph 프로토타입(라우터 -> Text/Vision -> Critic -> 재시도 루프)이 구현되어 있습니다.  
+`AgenticRAG/nodes/*`, `AgenticRAG/rl_traning/*`, `AgenticRAG/eval/pareto_plot,py`는 현재 스켈레톤(비어 있는 파일) 상태입니다.
+
+---
+
+## 📚 문서
+
+- [파일별 역할 맵](PROJECT_MAP.md)
+- [시스템 아키텍처](docs/system_arch.md)
+- [API 명세서](docs/api_spec.md)
+- [인프라 세팅](docs/infra_setup.md)
+- [크롤링 로직](docs/crawler_logic.md)
+- [프롬프트 규칙](docs/prompt_rules.md)
