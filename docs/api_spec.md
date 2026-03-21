@@ -1,69 +1,107 @@
-# 📄 API Specification (v2.0) - Advanced RAG Backend
-# 📄 Internal API Specification - AI Engine (FastAPI)
+# API Spec (Current Baseline)
 
-본 문서는 호서대학교 스마트 캠퍼스 도우미의 **메인 백엔드(Spring Boot, VM1)**와 **AI 엔진 서버(FastAPI, VM2)** 간의 내부 서버 통신(Server-to-Server) 규격을 정의합니다.
+이 문서는 현재 저장소 기준으로 프론트엔드/백엔드 연동 시 사용할 최소 API 계약을 정의한다.  
+현재 코드에는 API 서버 구현 파일이 포함되어 있지 않으므로, 아래는 `docs/frontend_srs.md`와 평가 스크립트에서 사용한 포맷을 기준으로 한 **권장 표준**이다.
 
-## 1. 기본 설정 (Global Settings)
-- **Base URL:** `http://<VM2_Internal_IP>:8000/api/v1` (내부망 IP 사용)
-- **Content-Type:** `application/json`
-- **보안 (Authentication):** 외부의 직접 접근을 막기 위해 모든 요청 헤더에 내부 통신용 Secret Key를 포함해야 합니다.
-  - `X-API-Key: {SHARED_SECRET_KEY}`
+## 1. 기본 정책
 
----
+- Base URL: `http://<AI_ENGINE_HOST>:8000/api/v1`
+- Content-Type: `application/json`
+- 인증: 운영 환경에서는 `Authorization` 또는 `X-API-Key` 중 1개 표준화 필요
 
-## 2. 챗봇 질의응답 (Streaming API)
-Spring Boot가 사용자의 질문을 전달하면, FastAPI가 RAG 파이프라인을 거쳐 생성된 답변을 스트리밍(SSE) 방식으로 반환합니다. 
-*(주의: Spring Boot는 이 SSE 응답을 WebFlux 등을 활용해 React로 릴레이(Relay)해야 합니다.)*
+## 2. 스트리밍 채팅 API
 
-- **Endpoint:** `POST /chat/stream`
-- **Headers:** - `X-API-Key: string`
-- **Request Body:**
+### 2.1 Request
+- Method: `POST`
+- Path: `/chat/stream`
+
+요청 바디:
 ```json
 {
   "user_id": "student_123",
   "session_id": "session_abc998",
   "question": "이번 2026학년도 장학금 신청 기한이 언제야?"
 }
+```
 
+### 2.2 Response (SSE)
+응답은 `text/event-stream`으로 내려가며, `data:` 라인 단위로 파싱한다.
 
-data: {"chunk": "2026학년도 "}
-data: {"chunk": "1학기 "}
-data: {"chunk": "장학금 신청 기한은 "}
-data: {"chunk": "3월 15일까지입니다. "}
-data: {"chunk": "", "sources": [{"doc_id": "notice_123", "title": "2026 장학금 안내", "file_url": "https://<VM1_Domain>/docs/123/안내문.pdf"}]}
+```text
+data: {"chunk":"2026학년도 "}
+data: {"chunk":"1학기 장학금 신청 기한은 ..."}
+data: {"chunk":"", "sources":[{"doc_id":"notice_123","title":"2026 장학금 안내","file_url":"https://..."}]}
 data: [DONE]
+```
 
+### 2.3 SSE 이벤트 규칙
 
+- `chunk`는 누적 가능한 문자열 조각이어야 한다.
+- 마지막 이벤트 전후로 `sources`를 1회 이상 제공한다.
+- 종료는 `data: [DONE]`으로 명시한다.
+- 오류 발생 시 표준 JSON 이벤트 제공을 권장:
+
+```text
+data: {"error":{"code":"UPSTREAM_TIMEOUT","message":"LLM 응답 지연"}}
+data: [DONE]
+```
+
+## 3. 세션 API (권장)
+
+현재 저장소에는 세션 API 구현이 없으므로 아래 엔드포인트를 권장 표준으로 정의한다.
+
+### 3.1 대화 이력 조회
+- Method: `GET`
+- Path: `/chat/history/{session_id}`
+
+응답 예시:
+```json
 {
   "status": "success",
-  "session_id": "session_9982",
+  "session_id": "session_abc998",
   "history": [
     {
       "role": "user",
-      "content": "올해 성적장학금 기준이 뭐야?",
-      "timestamp": "2026-03-03T23:45:12Z"
+      "content": "성적장학금 기준이 뭐야?",
+      "timestamp": "2026-03-21T12:00:00Z"
     },
     {
       "role": "assistant",
-      "content": "성적장학금 기준은 직전 학기 평점 3.5 이상입니다. [출처: 장학규정 시행세칙]",
-      "timestamp": "2026-03-03T23:45:15Z"
+      "content": "직전 학기 평점 3.5 이상입니다.",
+      "timestamp": "2026-03-21T12:00:02Z"
     }
   ]
 }
+```
 
+### 3.2 세션 초기화
+- Method: `POST`
+- Path: `/chat/session/new`
 
-
+응답 예시:
+```json
 {
-  "status": "empty",
-  "message": "새로운 대화를 시작합니다.",
-  "history": []
+  "status": "success",
+  "session_id": "session_new_001"
 }
+```
 
+## 4. 헬스체크 API (권장)
 
+- Method: `GET`
+- Path: `/health`
 
+응답 예시:
+```json
 {
   "status": "healthy",
-  "gpu_vram_usage": "14.2GB / 24.0GB",
-  "redis_connected": true,
-  "active_sessions": 3
+  "milvus_connected": true,
+  "llm_available": true
 }
+```
+
+## 5. 프론트엔드 구현 체크포인트
+
+- SSE 파서에서 `[DONE]`와 오류 이벤트를 모두 처리할 것
+- 스트리밍 중단 시 부분 응답을 보존할 것
+- `sources`가 누락될 수 있는 상황을 UI에서 허용할 것

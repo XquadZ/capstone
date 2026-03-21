@@ -2,41 +2,105 @@ import sys
 import os
 from typing import Dict
 
-# 상위 폴더(capstone)를 시스템 경로에 추가하여 ai_engine 모듈을 찾을 수 있게 함
+# 경로 설정
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-
-# Graph State 구조 임포트
 from AgenticRAG.graph.state import AgentState
 
-# 기존에 잘 만들어둔 검색 및 생성 함수 임포트
-# (주의: 임포트하는 순간 BGE 모델 로드 및 Milvus 연결이 1회 진행됩니다)
-from ai_engine.rag_pipeline_rules import retrieve_documents, generate_answer
+from ai_engine.rag_pipeline_rules import embedder, reranker, generate_answer
+from pymilvus import Collection, AnnSearchRequest, RRFRanker
 
-def text_rag_node(state: AgentState) -> Dict:
-    print("\n--- [NODE: Text RAG] 학칙 텍스트 검색 및 생성 중 ---")
-    question = state["question"]
+# ==========================================
+# 1. 두 개의 Milvus 컬렉션 로드
+# ==========================================
+print("🔌 [통합 검색] 학칙 및 공지사항 컬렉션 로드 중...")
+collection_rules = Collection("hoseo_rules_v1")
+collection_rules.load()
+
+try:
+    collection_notices = Collection("hoseo_notices")
+    collection_notices.load()
+    has_notices = True
+except Exception as e:
+    print(f"⚠️ 'hoseo_notices' 컬렉션을 찾을 수 없습니다. ({e})")
+    has_notices = False
+
+# ==========================================
+# 2. 통합 하이브리드 검색 엔진
+# ==========================================
+def retrieve_unified_documents(query, top_k_milvus=10, final_top_k=3):
+    query_embs = embedder.encode([query], return_dense=True, return_sparse=True)
+    dense_vec = query_embs['dense_vecs'][0].tolist()
+    sparse_vec = query_embs['lexical_weights'][0]
     
-    # 1. 문서 검색 (기존 로직)
-    chunks = retrieve_documents(question)
+    req_dense = AnnSearchRequest([dense_vec], "dense_vector", {"metric_type": "IP", "params": {"ef": 64}}, limit=top_k_milvus)
+    req_sparse = AnnSearchRequest([sparse_vec], "sparse_vector", {"metric_type": "IP", "params": {"drop_ratio_search": 0.2}}, limit=top_k_milvus)
     
-    # 검색 실패 시 예외 처리
-    if not chunks:
-        print("    -> 관련된 학칙을 찾을 수 없습니다.")
-        return {
-            "generation": "제공된 규정에서는 해당 내용을 찾을 수 없습니다.", 
-            "context": "검색 결과 없음"
-        }
+    combined_chunks = []
+    
+    # 2-1. 학칙 DB 검색 (필드: doc_id, page_num, source, text)
+    try:
+        res_rules = collection_rules.hybrid_search(
+            [req_dense, req_sparse], rerank=RRFRanker(), limit=top_k_milvus,
+            output_fields=["doc_id", "page_num", "source", "text"]
+        )
+        for hit in res_rules[0]:
+            data = hit.entity.to_dict()
+            data['db_type'] = 'rule'
+            combined_chunks.append(data)
+    except Exception as e:
+        print(f"⚠️ 학칙 DB 검색 에러: {e}")
+    
+    # 2-2. 공지사항 DB 검색 (필드: chunk_text, category, year) - 진단 결과 반영!
+    if has_notices:
+        try:
+            res_notices = collection_notices.hybrid_search(
+                [req_dense, req_sparse], rerank=RRFRanker(), limit=top_k_milvus,
+                output_fields=["chunk_text", "category", "year"] 
+            )
+            for hit in res_notices[0]:
+                raw_data = hit.entity.to_dict()
+                
+                # 파이프라인 표준 포맷(text, source, page_num)으로 이름 강제 변환
+                standard_data = {
+                    'text': raw_data.get('chunk_text', ''),
+                    'source': raw_data.get('category', '공지사항'),
+                    'page_num': raw_data.get('year', '-'),
+                    'doc_id': str(hit.id), # pk 값
+                    'db_type': 'notice'
+                }
+                combined_chunks.append(standard_data)
+        except Exception as e:
+            print(f"⚠️ 공지사항 DB 검색 에러: {e}")
+
+    if not combined_chunks:
+        return []
         
-    # 2. 문맥 정리 (Graph State 메모리에 저장하기 위한 용도)
+    # 2-3. BGE-Reranker로 통합 리랭킹
+    sentence_pairs = [[query, chunk['text']] for chunk in combined_chunks]
+    rerank_scores = reranker.compute_score(sentence_pairs, normalize=True)
+    
+    for i in range(len(combined_chunks)):
+        combined_chunks[i]['rerank_score'] = rerank_scores[i]
+        
+    combined_chunks = sorted(combined_chunks, key=lambda x: x['rerank_score'], reverse=True)
+    return combined_chunks[:final_top_k]
+
+# ==========================================
+# 3. LangGraph Text RAG 노드
+# ==========================================
+def text_rag_node(state: AgentState) -> Dict:
+    question = state["question"]
+    chunks = retrieve_unified_documents(question)
+    
+    if not chunks:
+        return {"generation": "제공된 규정 및 공지에서는 해당 내용을 찾을 수 없습니다.", "context": "검색 결과 없음"}
+        
     context_text = ""
     for i, chunk in enumerate(chunks):
-        context_text += f"[문서 {i+1}] {chunk.get('source', '알수없음')} (p.{chunk.get('page_num', '?')})\n"
+        source = chunk.get('source', '알수없음')
+        page = chunk.get('page_num', '?')
+        db_type = "학칙" if chunk.get('db_type') == 'rule' else "공지"
+        context_text += f"[문서 {i+1} | {db_type}] {source} (p.{page})\n"
         
-    # 3. 답변 생성 (기존 타자기 효과가 그대로 터미널에 출력됩니다)
     final_answer = generate_answer(question, chunks)
-    
-    # 4. 상태(State) 업데이트 반환
-    return {
-        "generation": final_answer,
-        "context": context_text
-    }
+    return {"generation": final_answer, "context": context_text}

@@ -1,41 +1,87 @@
-# 🛠️ Infrastructure Setup Guide (RTX 4090 Local)
+# Infrastructure Setup Guide (Current)
 
-본 문서는 호서대학교 스마트 캠퍼스 도우미 챗봇의 **로컬 서버 구축 및 라이브 시연(Demo) 환경 세팅 가이드**입니다.
-클라우드 서버(AWS 등)를 사용하지 않고, 연구실 또는 개인의 NVIDIA RTX 4090 GPU 자원을 100% 활용하여 실시간 API 서빙과 데이터베이스를 구동하는 것을 목표로 합니다.
+본 문서는 현재 저장소에서 실제로 사용 중인 인프라(Milvus + Python 실행 스크립트) 기준으로 정리한다.
 
-## 1. System Requirements (권장 하드웨어 및 OS)
+## 1. 권장 환경
 
-* **GPU:** NVIDIA GeForce RTX 4090 (24GB VRAM 필수)
-* **CPU:** Intel Core i9 또는 AMD Ryzen 9 이상 (멀티스레드 크롤링 및 백그라운드 작업용)
-* **RAM:** 64GB 이상 (대규모 Vector DB 캐싱 및 로컬 텍스트 전처리용)
-* **Storage:** 1TB NVMe SSD 이상 (속도가 느린 HDD 사용 시 DB 읽기/쓰기 병목 발생)
-* **OS:** Ubuntu 22.04 LTS (Windows WSL2 환경에서도 구동 가능하나 Linux Native 권장)
+- GPU: RTX 4090 (권장)
+- OS: Windows 10/11 또는 Ubuntu 22.04+
+- Python: 3.10+
+- Docker Desktop 또는 Docker Engine
 
----
+## 2. Milvus 구동
 
-## 2. VRAM 예산 관리 (Critical: OOM 방지 전략)
+저장소 루트에서 아래 명령으로 Milvus 스택을 실행한다.
 
-RTX 4090의 24GB VRAM 한계를 초과(Out of Memory)하지 않기 위해, 서비스 실행 전 모델별 메모리 할당량을 엄격하게 통제해야 합니다.
-
-| 구성 요소 | 사용 모델 | VRAM 점유율 | 최적화 필수 사항 |
-| :--- | :--- | :--- | :--- |
-| **LLM (생성)** | `EEVE-Korean-10.8B` | **약 8.0 ~ 10.0 GB** | **AWQ 또는 GGUF 양자화(4-bit/8-bit) 버전 사용 필수.** (원본 FP16 사용 시 20GB 이상 점유하여 서버 다운) |
-| **Embedding (검색)** | `BAAI/bge-m3` | **약 4.0 GB** | Batch Size 조절로 메모리 스파이크 방지. |
-| **Reranker (재정렬)** | `ko-reranker` | **약 3.0 GB** | Top-K를 10개 내외로 제한하여 연산량 통제. |
-| **KV Cache & OS** | `vLLM` 버퍼 및 시스템 | **약 5.0 ~ 7.0 GB** | vLLM 실행 시 `--gpu-memory-utilization 0.4` 수준으로 제한. |
-| **Total** | | **Max ~23.5 GB** | 아슬아슬하므로 라이브 데모 중 크롤러 실행 절대 금지. |
-
----
-
-## 3. Environment Setup (설치 및 실행 가이드)
-
-### 단계 1: 시스템 드라이버 및 Docker 준비
-GPU 가속 및 하이브리드 데이터베이스 구동을 위한 기본 환경을 세팅합니다.
 ```bash
-# 1. NVIDIA Driver 및 CUDA 12.1 이상 설치 확인
-nvidia-smi 
+docker compose up -d
+```
 
-# 2. Docker 및 NVIDIA Container Toolkit 설치 (Ubuntu 기준)
-sudo apt update
-sudo apt install docker.io
-# (NVIDIA Container Toolkit 설치는 공식 문서 참조)
+구성 서비스(`docker-compose.yml`):
+- `milvus-etcd`
+- `milvus-minio`
+- `milvus-standalone` (port `19530`, `9091`)
+
+정상 확인:
+```bash
+docker ps
+```
+
+## 3. Python 의존성 설치
+
+`requirements.txt`는 최소 패키지만 포함하므로, 실제 실행 스크립트 기준 추가 설치가 필요할 수 있다.
+
+```bash
+pip install -r requirements.txt
+pip install pymilvus FlagEmbedding openai python-dotenv
+```
+
+필요 시(파일/비전 처리):
+```bash
+pip install pymupdf easyocr pillow olefile
+```
+
+## 4. 환경 변수
+
+실행 시나리오에 따라 아래 키를 사용한다.
+
+- `OPENAI_API_KEY` : OpenAI 직접 호출 스크립트
+- `SAIFEX_API_KEY` : SAIFEX endpoint 호출 스크립트
+
+PowerShell 예시:
+```powershell
+$env:OPENAI_API_KEY="..."
+$env:SAIFEX_API_KEY="..."
+```
+
+## 5. 데이터 경로 전제
+
+코드가 기대하는 기본 경로:
+- `data/raw/`
+- `data/processed/`
+- `data/rules_regulations/raw_pdfs/`
+- `data/rules_regulations/markdown_parsed/`
+- `data/rules_regulations/chunks/`
+
+`data/`는 보통 Git 추적 제외이므로 별도 준비가 필요하다.
+
+## 6. 실행 순서 (권장)
+
+### 공지 파이프라인
+1. `python ai_engine/full_text_extractor.py`
+2. `python ai_engine/local_slm_refiner.py`
+3. `python ai_engine/chunker.py`
+4. `python ai_engine/vector_db.py`
+5. `python ai_engine/rag_pipeline.py`
+
+### 학칙 파이프라인
+1. `python ai_engine/md_parser_pdf.py`
+2. `python ai_engine/rule_data_chunker.py`
+3. `python ai_engine/vector_db_rules.py`
+4. `python ai_engine/rag_pipeline_rules.py`
+
+## 7. 트러블슈팅
+
+- Milvus 연결 실패: `localhost:19530` 포트 점유/컨테이너 상태 확인
+- 인코딩 깨짐(Windows): 스크립트 내 UTF-8 래핑 사용 또는 터미널 UTF-8 설정
+- OOM: batch size 축소, retrieve_k/top_k 축소, 비전 모델 동시 실행 지양

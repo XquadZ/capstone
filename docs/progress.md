@@ -1,27 +1,33 @@
-# 🚀 캡스톤 프로젝트 진행 상황
+# 프로젝트 진행 현황 (2026-03-21 기준)
 
-## 📅 2026-03-03 (오늘 완료된 작업)
-- [x] **호서대 크롤러(`hoseo_spider.py`) 고도화**
-    - Iframe 구조 분석 및 상대 경로(`urljoin`) 문제 해결.
-    - 본문 내 포스터 이미지(ThumbnailPrint) 및 첨부파일(PDF, HWP) 로컬 저장 기능 완성.
-    - `data/raw/{notice_id}/` 구조로 데이터 물리적 저장 성공.
-- [x] **디버깅 및 환경 설정**
-    - Selenium 타임아웃 예외 처리 및 유연한 선택자 적용.
-    - `SSL InsecureRequestWarning` 대응 및 세션 쿠키 활용 다운로드 로직 구현.
+## 1. 완료된 핵심 작업
 
-## 📅 2026-03-04 (내일부터 이어할 작업)
-- [ ] **파일명 및 구조 정규화**
-    - `ai_engine/vision_preocessor.py` 오타 수정 → `vision_processor.py`.
-- [ ] **Vision AI 연동 (OCR)**
-    - 로컬에 저장된 `img_*.jpg` 파일에서 텍스트 추출 로직 구현.
-    - 추출된 텍스트를 기존 `info.json`에 병합하는 기능 추가.
-- [ ] **문서 파싱 기능 확장**
-    - `attachments/` 폴더 내 PDF 및 HWP 파일의 텍스트 추출 방안 검토 (PyMuPDF 등 활용).
-- [ ] **데이터 정제(Preprocessing)**
-    - 수집된 원본 데이터를 모델 학습 또는 검색에 용이한 형태로 가공.
+- 공지/학칙 RAG 파이프라인 분리 구축
+  - 공지: `full_text_extractor` -> `local_slm_refiner` -> `chunker` -> `vector_db` -> `rag_pipeline`
+  - 학칙: `md_parser_pdf` -> `rule_data_chunker` -> `vector_db_rules` -> `rag_pipeline_rules`
+- Milvus 하이브리드 검색 체계 적용
+  - BGE-M3 dense+sparse + RRF + reranker
+- 평가 자동화 스크립트 구축
+  - QA 생성, 벤치마크, RAGAS 채점, 비교 플롯, 역평가
+- 문서 정비
+  - `PROJECT_MAP.md`
+  - `docs/frontend_srs.md`
 
----
-## 💡 개발자 조언 (놓치기 쉬운 부분)
-1. **오타 수정**: `preocessor` 같은 오타는 나중에 외부 라이브러리에서 이 파일을 참조할 때 `ImportError`를 유발하므로 가장 먼저 수정하는 것이 좋습니다.
-2. **이미지 품질 체크**: 저장된 이미지들이 OCR을 돌리기에 해상도가 충분한지 육안으로 한 번 확인해 보세요.
-3. **git ignore**: 만약 Git을 사용 중이라면, `data/raw/` 내부의 대용량 파일들이 원격 저장소에 올라가지 않도록 `.gitignore` 설정을 확인해야 합니다. 
+## 2. 진행 중
+
+- `AgenticRAG` 구조 정리
+  - `graph/main_agent.py` 프로토타입 존재
+  - `nodes/*`, `rl_traning/*`, `eval/pareto_plot,py` 고도화 필요
+
+## 3. 다음 우선순위
+
+1. AgenticRAG 노드 분리 구현(`router`, `text_rag`, `vision_rag`, `critic`)
+2. 파일명 정리: `pareto_plot,py` -> `pareto_plot.py`, `rl_traning` 오탈자 여부 검토
+3. API 서버 코드와 문서 스키마 동기화(`/chat/stream`, history/session)
+4. 평가 파이프라인 CI 자동화(최소 smoke benchmark)
+
+## 4. 리스크/체크포인트
+
+- `data/` 미추적 환경이라 재현성 확보를 위해 샘플 데이터셋 버전 관리 필요
+- 외부 API 키(`OPENAI_API_KEY`, `SAIFEX_API_KEY`) 의존 스크립트 분리/명시 필요
+- GPU 메모리 사용량은 배치 크기 및 모델 동시 구동에 민감하므로 실행 프로파일 축적 필요

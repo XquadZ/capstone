@@ -1,7 +1,7 @@
 # Software Requirements Specification (SRS)
 ## 호서대 학칙/공지사항 멀티모달 RAG - 프론트엔드 명세서
 
-문서 버전: v1.0  
+문서 버전: v1.1  
 작성일: 2026-03-21  
 대상: 프론트엔드(React) 개발팀, 백엔드 연동 담당, QA
 
@@ -116,6 +116,8 @@
 ---
 
 ## 6. 외부 인터페이스 요구사항
+
+본 장의 API 내용은 `docs/api_spec.md`의 최신 표준과 동일한 기준으로 유지한다.
 
 ## 6.1 API 연동 (요약)
 - Base URL: `http://<AI_ENGINE_HOST>:8000/api/v1`
