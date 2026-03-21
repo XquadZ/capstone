@@ -1,111 +1,98 @@
 import os
 import torch
 from datasets import load_dataset
-from trl import DPOTrainer, DPOConfig
-from unsloth import FastLanguageModel
+from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments
+from peft import LoraConfig, get_peft_model
+from trl import DPOTrainer
 
 # ==========================================
-# ⚙️ 1. 기본 설정 및 VRAM 최적화 로드
+# 1. 기본 설정
 # ==========================================
-max_seq_length = 1024 # 라우터는 긴 문맥이 필요 없으므로 메모리 절약을 위해 제한
-dtype = None # Unsloth가 하드웨어(4090)에 맞춰 자동 설정 (보통 bfloat16)
-load_in_4bit = True # 🔥 핵심: 4-bit 양자화로 로드하여 VRAM 사용량 극소화 (약 2GB 소모)
-
-print("🧠 베이스 모델(Gemma-2-2B-it)을 4-bit 양자화 상태로 로드 중...")
-model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name = "unsloth/gemma-2-2b-it",
-    max_seq_length = max_seq_length,
-    dtype = dtype,
-    load_in_4bit = load_in_4bit,
-)
-
-# ==========================================
-# 🧩 2. LoRA 어댑터 설정 (기존 지식 보호 + 라우팅 능력 학습)
-# ==========================================
-print("🔧 LoRA 어댑터 장착 중...")
-model = FastLanguageModel.get_peft_model(
-    model,
-    r = 16, # Rank 크기 (높을수록 똑똑해지나 메모리 차지, 16이 적당)
-    target_modules = ["q_proj", "k_proj", "v_proj", "o_proj",
-                      "gate_proj", "up_proj", "down_proj",],
-    lora_alpha = 16,
-    lora_dropout = 0, # Unsloth 최적화를 위해 0 사용
-    bias = "none",
-    use_gradient_checkpointing = "unsloth", # VRAM 폭발 방지
-    random_state = 42,
-    use_rslora = False,
-)
-
-# ==========================================
-# 📝 3. DPO 데이터셋 로드 및 전처리 (Gemma 포맷팅)
-# ==========================================
+model_id = "google/gemma-2-2b-it"
+save_path = "hoseo_router_gemma_2b"
 dataset_path = "dpo_dataset.jsonl"
-if not os.path.exists(dataset_path):
-    raise FileNotFoundError(f"❌ 데이터셋을 찾을 수 없습니다: {dataset_path}")
 
-raw_dataset = load_dataset("json", data_files=dataset_path, split="train")
-
-def format_dpo_gemma(sample):
-    """
-    Gemma-2의 프롬프트 템플릿(<bos>, <start_of_turn> 등)에 맞게 데이터 포맷팅
-    TRL DPOTrainer는 'prompt', 'chosen', 'rejected' 키를 요구합니다.
-    """
-    system_instruction = "당신은 호서대 학칙 AI의 지능형 라우터입니다. 사용자의 질문을 분석하여 텍스트 검색(TEXT)과 이미지/표 검색(VISION) 중 적절한 경로를 단답으로 출력하세요."
-    
-    # Gemma Prompt 형식: <bos><start_of_turn>user\n[내용]<end_of_turn>\n<start_of_turn>model\n
-    prompt = f"<bos><start_of_turn>user\n{system_instruction}\n\n{sample['prompt']}<end_of_turn>\n<start_of_turn>model\n"
-    
-    # 정답과 오답에 종료 토큰 명시
-    chosen = f"{sample['chosen']}<end_of_turn><eos>"
-    rejected = f"{sample['rejected']}<end_of_turn><eos>"
-    
-    return {
-        "prompt": prompt,
-        "chosen": chosen,
-        "rejected": rejected,
-    }
-
-print(f"📊 {len(raw_dataset)}개의 데이터를 DPO 형식으로 변환 중...")
-dpo_dataset = raw_dataset.map(format_dpo_gemma)
+print(f"🔬 논문용 연구 환경 세팅 중... (Model: {model_id})")
 
 # ==========================================
-# 🏋️‍♂️ 4. DPO 트레이너 설정 및 학습 시작
+# 2. 토크나이저 및 모델 로드 (양자화 제거 -> 순수 bfloat16)
 # ==========================================
-training_args = DPOConfig(
-    output_dir="router_gemma_checkpoints",
-    per_device_train_batch_size=4,
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+tokenizer.pad_token = tokenizer.eos_token
+tokenizer.padding_side = "right"
+
+# 4-bit 양자화(BitsAndBytes)를 빼고, 4090의 네이티브 16-bit(bfloat16)로 로드합니다.
+model = AutoModelForCausalLM.from_pretrained(
+    model_id,
+    device_map="auto",
+    torch_dtype=torch.bfloat16, 
+)
+
+# ==========================================
+# 3. 표준 LoRA 설정 (논문 방법론 기재용)
+# ==========================================
+peft_config = LoraConfig(
+    r=16,
+    lora_alpha=32,
+    target_modules=["q_proj", "v_proj", "k_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+    lora_dropout=0.05,
+    bias="none",
+    task_type="CAUSAL_LM",
+)
+model = get_peft_model(model, peft_config)
+print("✅ 표준 LoRA 어댑터 장착 완료! (양자화 없음)")
+
+# ==========================================
+# 4. 데이터셋 로드 및 Train/Eval 분리 (논문 디펜스용 핵심!!!)
+# ==========================================
+dataset = load_dataset("json", data_files=dataset_path, split="train")
+
+# 전체 데이터를 90%는 학습용, 10%는 검증용(Overfitting 확인)으로 나눕니다.
+# 나중에 논문에 "Train/Val split ratio 9:1" 이라고 적으시면 됩니다.
+dataset = dataset.train_test_split(test_size=0.1, seed=42)
+train_dataset = dataset["train"]
+eval_dataset = dataset["test"]
+print(f"📊 데이터 분할 완료 - Train: {len(train_dataset)}개, Eval: {len(eval_dataset)}개")
+
+# ==========================================
+# 5. DPO 학습 설정 (재현성 및 로깅 강화)
+# ==========================================
+training_args = TrainingArguments(
+    output_dir="./temp_router_checkpoints",
+    per_device_train_batch_size=2,
     gradient_accumulation_steps=4,
     learning_rate=5e-5,
     lr_scheduler_type="cosine",
-    max_steps=200, # 600개 데이터 기준 약 1~2 에폭 분량 (과적합 방지)
-    logging_steps=10,
-    optim="adamw_8bit", # 8bit 옵티마이저로 VRAM 추가 절약
-    warmup_ratio=0.1,
-    bf16=True, # RTX 4090은 bfloat16을 완벽 지원
-    beta=0.1, # DPO 패널티 파라미터 (0.1이 국룰)
-    max_prompt_length=512,
-    max_length=1024,
+    num_train_epochs=3,              # max_steps 대신 Epoch(3회독) 사용 (논문 표준)
+    evaluation_strategy="steps",     # 평가(Eval) 수행 방식 지정
+    eval_steps=10,                   # 10 스텝마다 검증셋으로 Loss 측정
+    logging_steps=10,                # 10 스텝마다 로그 기록
+    save_strategy="no",
+    bf16=True,                       # RTX 4090 가속
+    optim="adamw_torch",             # 8bit 옵티마이저 대신 순정 AdamW 사용
+    seed=42,                         # ✨ 재현성을 위한 시드 고정
+    remove_unused_columns=False,
 )
 
-trainer = DPOTrainer(
-    model=model,
-    ref_model=None, # Unsloth에서는 ref_model을 None으로 둬도 내부적으로 자동 처리함
+# 논문 서술 포인트: "We set the KL penalty coefficient (beta) to 0.1..."
+dpo_trainer = DPOTrainer(
+    model,
     args=training_args,
-    train_dataset=dpo_dataset,
+    beta=0.1,
+    train_dataset=train_dataset,
+    eval_dataset=eval_dataset,       # 검증 데이터셋 추가
     tokenizer=tokenizer,
+    max_length=512,
+    max_prompt_length=256,
 )
 
-print("\n🔥 DPO 파인튜닝 시작! (4090 기준 약 10~20분 소요 예정)\n" + "="*50)
-trainer.train()
+# ==========================================
+# 6. 학습 시작 및 저장
+# ==========================================
+print("🔥 논문 품질의 DPO 파인튜닝을 시작합니다!")
+dpo_trainer.train()
 
-# ==========================================
-# 💾 5. 학습된 라우터 모델(LoRA 가중치) 저장
-# ==========================================
-save_path = "hoseo_router_gemma_2b"
 print(f"\n💾 학습 완료! 모델 가중치를 '{save_path}' 폴더에 저장합니다...")
-
-# LoRA 어댑터만 저장 (매우 가볍고 빠름)
 model.save_pretrained(save_path)
 tokenizer.save_pretrained(save_path)
-
-print("🎉 모든 과정이 성공적으로 완료되었습니다!")
+print("🎉 연구용 모델 학습 및 저장이 완료되었습니다!")
