@@ -1,24 +1,46 @@
 # ==========================================
-# 1. Environment & Keys
+# 1. Environment, Keys & OS (보안 및 환경)
 # ==========================================
 .env
+.env.local
+.env.development
+.env.production
+.flaskenv
+*.key
+*.pem
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+env/
 venv/
 .venv/
+pip-log.txt
+pip-delete-this-directory.txt
 .DS_Store
+Thumbs.db
 
 # ==========================================
-# 2. Raw & Processed Data (용량 큼)
+# 2. Raw & Processed Data (대용량 데이터셋)
 # ==========================================
 data/
+raw_data/
+processed_data/
 markdown_parsed/
 chunks/
 .byaldi/
 doc_ids_to_file_names.json.gz
+*.pdf
+*.hwp
+*.docx
+*.xlsx
+*.csv
+*.zip
+*.tar.gz
 
 # ==========================================
-# 3. Evaluation Results & Datasets (HTML 98%의 주범!)
+# 3. Evaluation & Reports (시각화/리포트 결과물)
 # ==========================================
 evaluation/datasets/*.json
 evaluation/results/*.json
@@ -27,19 +49,49 @@ evaluation/results/*.html
 evaluation/results/*.png
 PDIS_Research_Final_Report.csv
 PDIS_Analysis_Graph.html
+ragas_report_*.csv
+evaluation_plot.png
+reverse_evaluation_plot.png
 
 # ==========================================
-# 4. Agentic RAG & Training Data
+# 4. Agentic RAG & Training Artifacts (학습 중간 파일)
 # ==========================================
 AgenticRAG/rl_traning/*.jsonl
 AgenticRAG/rl_traning/*.json
 dpo_dataset.jsonl
+dpo_dataset_balanced_final.jsonl
+sft_dataset.jsonl
+# test_dataset_sft.jsonl  <-- 만약 공유하고 싶다면 이 줄만 주석처리(#) 하세요.
 
 # ==========================================
-# 5. Model Weights & Checkpoints (절대 Push 금지)
+# 5. Model Weights & Checkpoints (절대 Push 금지 - GB 단위)
 # ==========================================
-router_gemma_checkpoints/
+# 가중치 폴더 (SFT, DPO v1, v2 모두 포함)
 hoseo_router_gemma_2b/
+hoseo_router_gemma_2b_v2/
+hoseo_router_gemma_2b_sft/
 
-# Milvus DB Volumes
+# 체크포인트 폴더
+router_gemma_checkpoints/
+temp_router_checkpoints/
+temp_router_checkpoints_v2/
+temp_sft_checkpoints/
+
+# 베이스 모델 캐시 (Huggingface cache 등)
+.cache/
+hub/
+
+# ==========================================
+# 6. Infrastructure & DB (로컬 실행 환경)
+# ==========================================
+# Milvus DB 로컬 볼륨 및 로그
 volumes/
+milvus_data/
+etcd_data/
+minio_data/
+
+# Docker/IDE 설정
+.docker/
+.vscode/
+.idea/
+*.swp

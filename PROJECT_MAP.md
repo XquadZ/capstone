@@ -1,96 +1,173 @@
 # PROJECT MAP - 호서대 학칙/공지사항 멀티모달 RAG
 
-본 문서는 현재 코드베이스를 기준으로, 파일별 역할을 캡스톤 목적(학칙/공지사항 멀티모달 RAG)에 맞춰 분류한 맵입니다.
+본 문서는 **현재 저장소 기준**으로 파일별 역할을 캡스톤 목적(학칙/공지 멀티모달 RAG + **Gemma-2B 동적 라우터**)에 맞춰 분류한 맵입니다.  
+(경로는 리포지토리 루트 `capstone/` 기준)
+
+---
 
 ## 1) Core Engine (`ai_engine/`)
 
 | 파일 | 주요 기능 | 입출력 데이터 |
 |---|---|---|
-| `ai_engine/full_text_extractor.py` | `raw` 공지 폴더를 순회하며 본문/이미지/OCR/PDF/HWP 텍스트를 통합 추출 | 입력: `data/raw/*`(info/images/attachments), 출력: `data/processed/integrated_text/*.txt` |
-| `ai_engine/local_slm_refiner.py` | 통합 텍스트를 GPT로 구조화(JSON+메타데이터+정제 본문) | 입력: `integrated_text/*.txt`, 출력: `data/processed/text/*.json` |
-| `ai_engine/chunker.py` | 정제 JSON을 의미 단위 청크로 분할하고 문서 컨텍스트 태그를 부착 | 입력: `data/processed/text/*.json`, 출력: `data/processed/chunks/*_chunks.json` |
-| `ai_engine/vector_db.py` | 공지 청크를 BGE-M3(dense+sparse) 임베딩 후 Milvus 컬렉션 생성/적재 | 입력: `data/processed/chunks/*_chunks.json`, 출력: Milvus `hoseo_notices` |
-| `ai_engine/search_test.py` | Milvus 하이브리드 검색(dense+sparse+RRF) 단독 테스트 | 입력: 사용자 질의 문자열, 출력: Top-k hit 메타/청크 텍스트 |
-| `ai_engine/rag_pipeline.py` | 공지 텍스트 RAG의 메인 파이프라인(검색+리랭크+LLM 생성) | 입력: 질문 텍스트, 출력: 답변 문자열(근거 문맥 기반) |
-| `ai_engine/sLM_RAG_pipeline.py` | 로컬 sLM(8bit) 기반 RAG 파이프라인(클라우드 LLM 대체) | 입력: 질문 텍스트, 출력: 로컬 생성 답변 |
-| `ai_engine/vision_processor.py` | 공지 이미지/PDF를 비전 LLM으로 요약해 멀티모달 정보 확장 | 입력: `data/raw/{id}` 이미지/PDF, 출력: `data/processed/{id}/ai_extracted_info.json` |
-| `ai_engine/loader.py` | 로더 유틸(텍스트 요약 모드, ColPali 임베딩 모드) 실행 스크립트 | 입력: `data/raw/*`, 출력: `data/processed/text/*.json` 또는 `data/processed/image/*.pt` |
-| `ai_engine/colpali.py` | Byaldi/ColQwen 기반 비전 인덱스 생성 | 입력: `data/byaldi_input`, 출력: `.byaldi/hoseo_vision_index` |
-| `ai_engine/find.py` | Byaldi 인덱스의 문서 ID를 실제 파일/페이지로 역추적 | 입력: `doc_ids_to_file_names.json.gz` + target id, 출력: 파일명/페이지 매핑 로그 |
-| `ai_engine/PDIS.py` | 기존 RAG 검색과 PDIS 단계적 축소 검색의 지연/속도 향상 비교 실험 | 입력: 테스트 질의셋 + Milvus 벡터, 출력: `PDIS_Research_Final_Report.csv`, `PDIS_Analysis_Graph.html` |
+| `full_text_extractor.py` | `raw` 공지 폴더 순회, 본문·이미지 OCR·PDF·HWP 텍스트 통합 추출 | 입력: `data/raw/*`, 출력: `data/processed/integrated_text/*.txt` |
+| `local_slm_refiner.py` | 통합 텍스트를 GPT로 구조화(JSON·메타·정제 본문) | 입력: `integrated_text/*.txt`, 출력: `data/processed/text/*.json` |
+| `chunker.py` | 정제 JSON을 의미 단위 청크로 분할·글로벌 컨텍스트 태그 부착 | 입력: `data/processed/text/*.json`, 출력: `data/processed/chunks/*_chunks.json` |
+| `vector_db.py` | 공지 청크 BGE-M3(dense+sparse) 임베딩 후 Milvus 생성/적재 | 입력: `*_chunks.json`, 출력: Milvus `hoseo_notices` |
+| `search_test.py` | Milvus 하이브리드 검색(dense+sparse+RRF) 단독 테스트 | 입력: 질의 문자열, 출력: Top-k hit |
+| `rag_pipeline.py` | 공지 RAG(검색+리랭크+OpenAI 생성) | 입력: 질문, 출력: 답변 문자열 |
+| `sLM_RAG_pipeline.py` | 로컬 sLM(양자화) 기반 공지 RAG | 입력: 질문, 출력: 로컬 생성 답변 |
+| `vision_processor.py` | 공지 이미지/PDF를 비전 LLM으로 요약·멀티모달 확장 | 입력: `data/raw/{id}`, 출력: `data/processed/{id}/ai_extracted_info.json` |
+| `loader.py` | 텍스트 요약 모드 / ColPali 임베딩 모드 CLI | 입력: `data/raw/*`, 출력: `processed/text` 또는 `processed/image/*.pt` |
+| `colpali.py` | Byaldi/ColQwen 기반 비전 인덱스 생성 | 입력: `data/byaldi_input`, 출력: `.byaldi/hoseo_vision_index` |
+| `find.py` | Byaldi 인덱스 내 doc_id → 파일·페이지 역추적 | 입력: `doc_ids_to_file_names.json.gz`, 출력: 콘솔 매핑 |
+| `chain.py` | **현재 `find.py`와 동일한 Byaldi ID 추적 스크립트**(중복 복사 가능; 정리 시 하나로 통합 권장) | 동일 |
+| `PDIS.py` | 기본 RAG 검색 vs PDIS 단계적 축소 검색 지연 비교 실험 | 입력: 질의셋+Milvus, 출력: CSV·HTML 그래프 |
 
-### 학칙 전용 Core 보강
-
-| 파일 | 주요 기능 | 입출력 데이터 |
-|---|---|---|
-| `ai_engine/md_parser_pdf.py` | 학칙 PDF를 페이지 태그 포함 Markdown으로 변환 | 입력: `data/rules_regulations/raw_pdfs/*.pdf`, 출력: `markdown_parsed/*.md` |
-| `ai_engine/rule_data_chunker.py` | 태그 기반 Markdown을 페이지 메타 포함 청크 JSON으로 변환 | 입력: `markdown_parsed/*.md`, 출력: `chunks/all_rules_chunks.json` |
-| `ai_engine/local_slm_refiner_rule.py` | 학칙 청크 텍스트의 띄어쓰기/줄바꿈 교정(OLLAMA) | 입력: `all_rules_chunks.json`, 출력: `all_rules_chunks_space.json` |
-| `ai_engine/vector_db_rules.py` | 학칙 청크를 Milvus 학칙 컬렉션(`hoseo_rules_v1`)에 임베딩 저장 | 입력: `all_rules_chunks_meta.json`, 출력: Milvus `hoseo_rules_v1` |
-| `ai_engine/rag_pipeline_rules.py` | 학칙 질의용 텍스트 RAG(검색/리랭크/스트리밍 생성) 실행 | 입력: 질문 텍스트, 출력: 학칙 답변 문자열 |
-| `ai_engine/test_force_ocr.py` | 특정 학칙 PDF 페이지에 강제 OCR 품질 점검 | 입력: 단일 PDF+페이지, 출력: OCR 텍스트 콘솔 결과 |
-
-## 2) Pipeline (Text vs Vision RAG 실행 흐름)
-
-### 공지 파이프라인 (일반)
-1. `full_text_extractor.py` -> 원천 텍스트 통합  
-2. `local_slm_refiner.py` -> JSON 정제  
-3. `chunker.py` -> 검색용 청크화  
-4. `vector_db.py` -> Milvus 적재  
-5. `rag_pipeline.py` 또는 `sLM_RAG_pipeline.py` -> 질의응답
-
-### 학칙/규정 파이프라인 (Text vs Vision 비교 실험용)
-1. `md_parser_pdf.py` -> `rule_data_chunker.py` -> `vector_db_rules.py`  
-2. Text 추론: `rag_pipeline_rules.py` 또는 `evaluation/scripts/run_benchmark_rules_text.py`  
-3. Vision 추론: `evaluation/scripts/run_benchmark_rules_pdf.py` (PDF 페이지 이미지 포함 질의)
-
-## 3) Evaluation & Scripts (`evaluation/scripts/`)
+### 학칙 전용
 
 | 파일 | 주요 기능 | 입출력 데이터 |
 |---|---|---|
-| `evaluation/scripts/generate_qa.py` | 공지 청크 기반 RAGAS용 Q&A(약 300) 자동 생성 | 입력: `data/processed/chunks/*.json`, 출력: `evaluation/datasets/ragas_testset_300.json` |
-| `evaluation/scripts/run_benchmark.py` | 공지 RAG 파이프라인 벤치마크 실행(질문별 answer+contexts 저장) | 입력: `ragas_testset_300.json`, 출력: `results/benchmark_gpt4o_mini.json` |
-| `evaluation/scripts/run_eval.py` | 벤치마크 결과를 RAGAS 4지표로 채점 | 입력: `benchmark_gpt4o_mini.json`, 출력: `ragas_evaluation_report.csv` |
-| `evaluation/scripts/plot_results.py` | 단일 RAGAS 결과를 평균 막대그래프로 시각화 | 입력: `ragas_evaluation_report.csv`, 출력: `evaluation_plot.png` |
-| `evaluation/scripts/generate_qa_rules.py` | 학칙 청크 블록 기반 Q&A 생성(추론/조건부/멀티문맥) | 입력: `all_rules_chunks_meta.json`, 출력: `datasets/rules_ragas_testset.json` |
-| `evaluation/scripts/run_benchmark_rules_text.py` | 학칙 Text RAG 벤치마크(Reverse Repacking 포함) | 입력: `rules_ragas_testset.json`, 출력: `benchmark_rules_text.json` |
-| `evaluation/scripts/run_benchmark_rules_pdf.py` | 학칙 Vision RAG 벤치마크(PDF 페이지 이미지 포함) | 입력: `rules_ragas_testset.json`+원본 PDF, 출력: `benchmark_rules_pdf.json` |
-| `evaluation/scripts/run_eval_rules.py` | Text vs Vision 벤치 결과를 10개 단위 체크포인트로 평가 | 입력: `benchmark_rules_text/pdf.json`, 출력: `ragas_report_text.csv`, `ragas_report_pdf.csv` |
-| `evaluation/scripts/plot_results_rules.py` | Text vs Multimodal 성능 비교 그래프 생성 | 입력: `ragas_report_text.csv`, `ragas_report_pdf.csv`, 출력: `evaluation_comparison_plot.png` |
-| `evaluation/scripts/run_eval_reverse.py` | Vision 답변을 Gold로 두고 역평가(정보 유실 정량화) | 입력: `benchmark_rules_text/pdf.json`, 출력: `ragas_reverse_report_*.csv` |
-| `evaluation/scripts/plot_reverse_results.py` | 역평가 결과 시각화 | 입력: `ragas_reverse_report_*.csv`, 출력: `reverse_evaluation_plot.png` |
-
-## 4) Data & Config
-
-| 파일 | 주요 기능 | 입출력 데이터 |
-|---|---|---|
-| `docker-compose.yml` | Milvus 단독 스택(etcd/minio/standalone) 구동 설정 | 입력: Docker compose 실행, 출력: `19530` Milvus 서비스/`volumes/*` |
-| `requirements.txt` | 핵심 파이썬 의존성 최소 정의(일부 모듈) | 입력: `pip install -r`, 출력: 실행환경 패키지 설치 |
-| `evaluation/datasets/ragas_testset_300.json` | 공지 벤치마크용 Q&A 평가셋 | 입력: 생성 스크립트 산출물, 출력: 벤치마크 스크립트 입력 |
-| `evaluation/datasets/rules_ragas_testset.json` | 학칙 벤치마크용 Q&A 평가셋 | 입력: 생성 스크립트 산출물, 출력: Text/Vision 벤치마크 입력 |
-| `evaluation/results/benchmark_gpt4o_mini.json` | 공지 RAG 벤치마크 원시 결과 | 입력: `run_benchmark.py`, 출력: `run_eval.py` 입력 |
-| `evaluation/results/benchmark_rules_text.json` | 학칙 Text RAG 벤치마크 원시 결과 | 입력: `run_benchmark_rules_text.py`, 출력: 평가/역평가 입력 |
-| `evaluation/results/benchmark_rules_pdf.json` | 학칙 Vision RAG 벤치마크 원시 결과 | 입력: `run_benchmark_rules_pdf.py`, 출력: 평가/역평가 입력 |
-| `evaluation/results/*.png` | 최종 비교/역비교 시각화 산출물 | 입력: plot 스크립트, 출력: 보고용 이미지 |
-| `README.md` | 프로젝트 전체 목표/스택/문서 진입점 안내 | 입력: 개발/운영 참조, 출력: 문서 네비게이션 |
-
-## 5) New Agentic (`AgenticRAG/`)
-
-| 파일 | 주요 기능 | 입출력 데이터 |
-|---|---|---|
-| `AgenticRAG/graph/main_agent.py` | LangGraph 상태기계 라우터-리트리버-크리틱 루프의 프로토타입 | 입력: `question` 상태, 출력: `route_decision/context/generation/critic_score` 상태 |
-| `AgenticRAG/nodes/router.py` | (현재 비어 있음) 라우팅 노드 분리 구현 예정 | 입력/출력: 미구현 |
-| `AgenticRAG/nodes/text_rag.py` | (현재 비어 있음) Text RAG 노드 분리 구현 예정 | 입력/출력: 미구현 |
-| `AgenticRAG/nodes/vision_rag.py` | (현재 비어 있음) Vision RAG 노드 분리 구현 예정 | 입력/출력: 미구현 |
-| `AgenticRAG/nodes/critic.py` | (현재 비어 있음) 품질평가/재시도 노드 분리 구현 예정 | 입력/출력: 미구현 |
-| `AgenticRAG/rl_traning/generate_dpo_data.py` | (현재 비어 있음) 라우터/정책 학습용 DPO 데이터 생성 예정 | 입력/출력: 미구현 |
-| `AgenticRAG/rl_traning/train_router.py` | (현재 비어 있음) 라우터 정책 학습 스크립트 예정 | 입력/출력: 미구현 |
-| `AgenticRAG/eval/pareto_plot,py` | (현재 비어 있음, 파일명 오타 가능) 비용-성능 파레토 시각화 예정 | 입력/출력: 미구현 |
+| `md_parser_pdf.py` | 학칙 PDF → 페이지 태그 포함 Markdown | 입력: `data/rules_regulations/raw_pdfs/*.pdf`, 출력: `markdown_parsed/*.md` |
+| `rule_data_chunker.py` | 태그 기반 MD → 페이지 메타 청크 JSON | 입력: `markdown_parsed/*.md`, 출력: `chunks/all_rules_chunks.json` |
+| `local_slm_refiner_rule.py` | 학칙 청크 띄어쓰기·줄바꿈 교정(Ollama) | 입력: `all_rules_chunks.json`, 출력: `all_rules_chunks_space.json` |
+| `vector_db_rules.py` | 학칙 청크 Milvus `hoseo_rules_v1` 적재 | 입력: `all_rules_chunks_meta.json` 등, 출력: Milvus |
+| `rag_pipeline_rules.py` | 학칙 검색·리랭크·스트리밍 생성(embedder/reranker/client 공개) | 입력: 질문, 출력: 답변·청크 |
+| `test_force_ocr.py` | 지정 학칙 PDF 페이지 Tesseract OCR 점검 | 입력: PDF 경로, 출력: OCR 텍스트 |
 
 ---
 
-## 현재 코드베이스 관찰 포인트
+## 2) Pipeline (Text vs Vision 실행 흐름)
 
-- `AgenticRAG`는 `main_agent.py`만 프로토타입 코드가 있으며, 나머지 노드/학습/평가 파일은 빈 스켈레톤 상태입니다.
-- 학칙 파이프라인은 Text RAG와 Vision RAG를 각각 벤치마크한 뒤 `run_eval_rules.py`, `run_eval_reverse.py`로 성능 차이를 검증하도록 설계되어 있습니다.
-- 데이터 폴더(`data/`)는 Git 추적 제외 상태로 보이며, 코드에서 가정하는 경로를 기준으로 전처리/인덱싱/평가 스크립트가 연결됩니다.
+### 공지
+1. `full_text_extractor.py` → `local_slm_refiner.py` → `chunker.py` → `vector_db.py` → `rag_pipeline.py` / `sLM_RAG_pipeline.py`
+
+### 학칙
+1. `md_parser_pdf.py` → `rule_data_chunker.py` → (`local_slm_refiner_rule.py` 선택) → `vector_db_rules.py` → `rag_pipeline_rules.py`
+
+### 벤치(Text vs Vision)
+- Text: `evaluation/scripts/run_benchmark_rules_text.py`
+- Vision(PDF 페이지 이미지): `evaluation/scripts/run_benchmark_rules_pdf.py`
+
+### Agentic 통합 검색(Text 노드)
+- `AgenticRAG/nodes/text_rag.py`가 `hoseo_rules_v1` + (선택) `hoseo_notices` 하이브리드 검색 후 `rag_pipeline_rules.generate_answer` 호출
+
+---
+
+## 3) Crawler (`crawler/`)
+
+| 파일 | 주요 기능 | 입출력 데이터 |
+|---|---|---|
+| `hoseo_spider.py` | 호서대 공지 등 수집 스크립트 | 입력: 타겟 URL/설정, 출력: `data/raw/{notice_id}/` 등 |
+| `rule_spider.py` | 규정/학칙 관련 수집 보조 | 입력: 설정, 출력: raw 데이터 경로 |
+
+---
+
+## 4) Evaluation & Scripts (`evaluation/scripts/`)
+
+| 파일 | 주요 기능 | 입출력 데이터 |
+|---|---|---|
+| `generate_qa.py` | 공지 청크 기반 RAGAS용 Q&A 대량 생성 | 입력: `data/processed/chunks/*.json`, 출력: `datasets/ragas_testset_300.json` |
+| `run_benchmark.py` | 공지 RAG 벤치마크(answer+contexts) | 입력: testset JSON, 출력: `results/benchmark_gpt4o_mini.json` |
+| `run_eval.py` | RAGAS 4지표 채점 | 입력: benchmark JSON, 출력: `ragas_evaluation_report.csv` |
+| `plot_results.py` | RAGAS 평균 막대그래프 | 입력: CSV, 출력: `evaluation_plot.png` |
+| `generate_qa_rules.py` | 학칙 블록 기반 Q&A 생성 | 입력: `all_rules_chunks_meta.json`, 출력: `rules_ragas_testset.json` |
+| `run_benchmark_rules_text.py` | 학칙 Text RAG 벤치(Reverse Repacking) | 입력: rules testset, 출력: `benchmark_rules_text.json` |
+| `run_benchmark_rules_pdf.py` | 학칙 Vision RAG 벤치(PDF→이미지) | 입력: testset+PDF, 출력: `benchmark_rules_pdf.json` |
+| `run_eval_rules.py` | Text vs Vision 10문항 단위 RAGAS | 입력: 위 benchmark JSON, 출력: `ragas_report_*.csv` |
+| `plot_results_rules.py` | Text vs Multimodal 비교 플롯 | 입력: CSV, 출력: `evaluation_comparison_plot.png` |
+| `run_eval_reverse.py` | Vision 답을 Gold로 역평가 | 입력: text/pdf benchmark, 출력: `ragas_reverse_report_*.csv` |
+| `plot_reverse_results.py` | 역평가 플롯 | 입력: reverse CSV, 출력: `reverse_evaluation_plot.png` |
+
+---
+
+## 5) Agentic RAG (`AgenticRAG/`)
+
+### Graph & 상태
+
+| 파일 | 주요 기능 | 입출력 데이터 |
+|---|---|---|
+| `graph/main_agent.py` | LangGraph: Router(룰베이스) → Text/Vision RAG → Critic → 재시도 엣지 | 입력: `question`, `retry_count`, 출력: `AgentState` 갱신 |
+| `graph/state.py` | `AgentState` TypedDict 정의 | 필드: `question`, `route_decision`, `context`, `generation`, `critic_score`, `retry_count` |
+
+### Nodes
+
+| 파일 | 주요 기능 | 입출력 데이터 |
+|---|---|---|
+| `nodes/text_rag.py` | 학칙+공지 Milvus 통합 검색·리랭크·`generate_answer` | 입력: state, 출력: `generation`, `context` |
+| `nodes/vision_rag.py` | Vision RAG 노드(플레이스홀더; 실제 비전 파이프라인 TODO) | 입력: state, 출력: 더미 `generation`/`context` |
+| `nodes/critic.py` | LLM으로 답변 품질 점수(0.5~1.0) 산출·재시도 카운트 | 입력: state, 출력: `critic_score`, `retry_count` |
+| `nodes/router.py` | (현재 빈 파일) Gemma 라우터 연동용 확장 슬롯 | — |
+
+### Training — Gemma-2B 동적 라우터 (TEXT/VISION)
+
+| 파일 | 주요 기능 | 입출력 데이터 |
+|---|---|---|
+| `training/generate_dpo_datav2.py` | DPO JSONL TEXT:VISION 5:5 밸런싱·페르소나 주입 | 입력: `dpo_dataset.jsonl`, 출력: `dpo_dataset_balanced_final.jsonl` (스크립트 내 경로) |
+| `training/prepare_sft_data.py` | DPO `chosen` → SFT `messages`(user/model, 답은 TEXT/VISION) | 입력: balanced JSONL, 출력: `sft_dataset.jsonl` (**`train_router_sft.py`의 `dataset_path`와 경로 통일 권장**) |
+| `training/train_router_sft.py` | `google/gemma-2-2b-it` + LoRA **SFT** → **`hoseo_router_gemma_2b_sft/`** 저장 | 입력: `AgenticRAG/training/sft_dataset.jsonl`, 출력: 루트 어댑터 폴더·`test_dataset_sft.jsonl` |
+| `training/eval_router_sft.py` | SFT 어댑터 혼동 행렬·정확도 | 입력: `hoseo_router_gemma_2b_sft`, `test_dataset_sft.jsonl` |
+| `training/check_raw_answers.py` | 소수 샘플 생성 문구 정성 점검 | 동일 모델·테스트셋 |
+| `training/train_routerv2.py` | **DPO** 학습(별계열) → `hoseo_router_gemma_2b_v2` | 입력: balanced DPO JSONL |
+| `training/debug.py` | 초기 DPO 어댑터 `hoseo_router_gemma_2b` VISION 샘플 디버그 | 입력: `test_dataset.jsonl` |
+| `training/confusion_matrix.py` | DPO 어댑터 `hoseo_router_gemma_2b` 혼동 행렬 | 입력: `test_dataset.jsonl` |
+
+### Training 데이터 산출물(저장소 내)
+
+| 파일 | 설명 |
+|---|---|
+| `training/dpo_dataset.jsonl` | DPO 원본 |
+| `training/dpo_dataset_balanced_final.jsonl` | 밸런싱·페르소나 적용본 |
+| `training/sft_dataset.jsonl` | SFT용 messages JSONL |
+
+### Eval
+
+| 파일 | 주요 기능 | 입출력 데이터 |
+|---|---|---|
+| `eval/pareto_plot,py` | 파일명 쉼표 오타(`.py` 권장); 파레토 플롯용 스크립트 자리 | 구현 상태 확인 필요 |
+
+---
+
+## 6) 루트·기타
+
+| 파일 | 주요 기능 | 입출력 데이터 |
+|---|---|---|
+| `check_raw_data.py` | `data/raw` 공지 폴더 통계(info.json·첨부·이미지 유무) | 입력: `data/raw`, 출력: 콘솔 리포트 |
+| `Reference.txt` | 참고 문헌/링크 메모 | — |
+| `PROJECT_MAP.md` | 본 문서 | — |
+| `README.md` | 프로젝트 개요·Gemma 라우터·폴더 구조 | — |
+
+---
+
+## 7) Models & Checkpoints (로컬 산출물)
+
+| 경로 | 주요 기능 | 비고 |
+|---|---|---|
+| `hoseo_router_gemma_2b_sft/` | **SFT 완료 LoRA** — 호서 RAG **동적 라우터**(TEXT/VISION) | 베이스: `google/gemma-2-2b-it` |
+| `hoseo_router_gemma_2b/` | DPO(초기) 라우터 어댑터 | `debug.py` / `confusion_matrix.py` |
+| `hoseo_router_gemma_2b_v2/` | DPO v2 라우터 어댑터 | `train_routerv2.py` |
+| `temp_sft_checkpoints/`, `temp_router_checkpoints/`, `temp_router_checkpoints_v2/` | 학습 중간 체크포인트 | 용량 큼; Git 제외 권장 |
+
+`.gitignore`에 모델/체크포인트 규칙을 팀 정책에 맞게 유지할 것.
+
+---
+
+## 8) Data & Config
+
+| 파일/경로 | 주요 기능 |
+|---|---|
+| `docker-compose.yml` | Milvus(etcd·minio·standalone, `19530`) |
+| `requirements.txt` | 최소 pip 의존성 |
+| `.gitignore` | 데이터·결과·볼륨·일부 학습 산출물 제외 |
+| `data/` | raw/processed/rules 등 (**통상 Git 제외**) |
+| `volumes/` | Milvus 로컬 볼륨 (**제외**) |
+| `docs/*.md` | `system_arch`, `api_spec`, `infra_setup`, `crawler_logic`, `prompt_rules`, `progress`, `frontend_srs` |
+| `evaluation/datasets/*.json`, `evaluation/results/*` | 평가셋·결과(대부분 제외) |
+
+---
+
+## 9) 관찰 포인트
+
+- **동적 라우터의 “제품” 산출물**은 **`hoseo_router_gemma_2b_sft/`**(SFT); `main_agent.py`의 `router_node`는 아직 룰베이스이며 Gemma 추론으로 교체 예정.
+- `prepare_sft_data.py` 출력 경로와 `train_router_sft.py`의 `dataset_path`가 다르면 학습 전에 **경로 통일 또는 복사** 필요.
+- `chain.py`와 `find.py` 내용이 동일하면 유지보수 시 **한 파일로 통합** 권장.
+- `AgenticRAG/eval/pareto_plot,py`는 확장자명 오타 가능성 있음.

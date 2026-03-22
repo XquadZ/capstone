@@ -11,7 +11,7 @@ from trl import SFTTrainer, SFTConfig
 hf_token = os.environ.get("HUGGING_FACE_HUB_TOKEN")
 model_id = "google/gemma-2-2b-it"
 save_path = "hoseo_router_gemma_2b_sft" # SFT 버전 저장 경로
-dataset_path = "AgenticRAG/rl_training/sft_dataset.jsonl"
+dataset_path = "AgenticRAG/training/sft_dataset.jsonl"
 
 print("🔬 논문용 라우터 SFT(지도학습) 세팅 중...")
 
@@ -66,19 +66,19 @@ test_valid['test'].to_json("test_dataset_sft.jsonl")
 # ==========================================
 training_args = SFTConfig(
     output_dir="./temp_sft_checkpoints",
-    per_device_train_batch_size=2,
-    gradient_accumulation_steps=4,
-    learning_rate=2e-4,              # 주입식 교육을 위한 높은 학습률
+    per_device_train_batch_size=1,   # ✨ [핵심] 2 -> 1로 낮춤 (VRAM 직격탄)
+    gradient_accumulation_steps=8,  # ✨ [보완] 배치를 낮춘 만큼 쌓아서 계산 (학습 퀄리티 유지)
+    learning_rate=2e-4, 
     lr_scheduler_type="cosine",
-    num_train_epochs=4,              # 4 에포크면 충분히 외웁니다.
+    num_train_epochs=4,
     eval_strategy="epoch",
     save_strategy="epoch",
     logging_steps=5,
-    fp16=True,
+    fp16=True,                      # 이미 적용 중
     optim="adamw_torch",
     seed=42,
-    max_seq_length=512,
-    dataset_text_field="text",       # ✨ 미리 만들어둔 완성형 텍스트 컬럼 사용
+    max_seq_length=256,             # ✨ [절약] 512 -> 256 (라우터는 질문이 짧아서 256이면 충분!)
+    dataset_text_field="text",
 )
 
 sft_trainer = SFTTrainer(
