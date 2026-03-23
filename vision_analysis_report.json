@@ -1,0 +1,222 @@
+[
+    {
+        "question": "복수전공으로 변경하면 출석 인정은 어떻게 돼? 기존 전공의 출석도 인정받을 수 있어?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "내가 컴공인데, 25학년도 상반기 미국 해외취업(J-1인턴) 신청하려면 어떤 서류를 제출해야 해?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "나 컴공인데, 봄철 산불 예방 기간에 산림 가까이 가면 안 되는 이유가 뭐야?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "연구 결과물의 귀속이랑 연구비 감사는 어떻게 연결되나? 궁금해.",
+        "actual_label": "TEXT",
+        "is_correct": "❌ 오탐(False Alarm)"
+    },
+    {
+        "question": "조기졸업하려면 몇 학점을 이수해야 하는지랑, 그 조건이 복수전공이랑 연관이 있어?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "장학금 신청할 때 출석 인정 조건이 있던데, 출석 인정이 어떻게 돼? 그리고 장학금 종류에 따라 다르니?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "조기졸업하려면 몇 학점 이상 들어야 해? 그리고 이거 왜 그렇게 정해진 거야?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "호서토익 시험이 11월 13일이고, 성적발표는 11월 21일인데, 입실 완료 시간은 언제까지야?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "컴퓨터공학부에 재학 중인데, 연구실에서 특정 유해 물질을 다룰 때 어떤 추가적인 안전 교육이 필요한가?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "2026년도에 졸업하는 컴공부 학생인데, 복수전공하면 장학금 받을 수 있어?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "장학금 받고 싶은데 출석 인정이 어떻게 되는지, 또 출석 인정 기준이 장학금에 영향을 미치는지 궁금해.",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "출석 인정이 어떻게 되는지랑, 장학금 신청할 때 성적 기준도 알려줘. 내가 컴공 2026학번인데 좀 헷갈려!",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "나 컴공인데, 모바일 신분증 설치할 때 조건 같은 거 있어?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "복수전공 하는데, 혹시 졸업 학점은 어떤 식으로 계산되는 거야?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "복수전공을 하는데 출석 인정 받으려면 어떻게 해야 해? 또, 이거 장학금에 영향 줄 수 있어?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "복수전공을 하고 싶은데, 출석 인정 기준이 따로 있어? 만약 출석을 못 하면 복수전공에 지장 없을까?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "호서토익 시험이 11월 13일이고, 성적발표는 11월 21일인데, 입실 완료 시간은 언제까지야?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "복수전공 하려면 어떤 조건이 필요한데, 출석 인정도 같이 고려해야 해?",
+        "actual_label": "TEXT",
+        "is_correct": "❌ 오탐(False Alarm)"
+    },
+    {
+        "question": "출석 인정 기준이랑 장학금 지급 기준이랑 다르잖아? 둘 다 충족해야 하는 거야?",
+        "actual_label": "TEXT",
+        "is_correct": "❌ 오탐(False Alarm)"
+    },
+    {
+        "question": "디스플레이 채용박람회에서 OMDIA가 어떤 주제로 강의하는지 궁금한데?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "장학금 받고 조기졸업하려면, 어떤 조건과 절차가 필요한지 알고 싶어.",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "내가 조기졸업을 하려고 하는데, 이걸 위해서 꼭 필요한 학점이 몇 점인지 궁금해.",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "충청지역 Design Thinking & Presentation 캠프의 온라인 강의는 언제부터 언제까지 진행돼?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "조기졸업을 하려면 어떤 조건이 필요한지 궁금해. 장학금도 받을 수 있는 건가?",
+        "actual_label": "TEXT",
+        "is_correct": "❌ 오탐(False Alarm)"
+    },
+    {
+        "question": "학칙 개정이 왜 필요한 건지 궁금한데, 주된 이유가 뭐야?",
+        "actual_label": "TEXT",
+        "is_correct": "❌ 오탐(False Alarm)"
+    },
+    {
+        "question": "나 컴공인데, 추석연휴 기간 셔틀버스 이용하려면 특별한 조건 있어?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "장학금 신청할 때 출석 인정이 중요한데, 몇 번 이상 결석하면 안 되지?",
+        "actual_label": "TEXT",
+        "is_correct": "❌ 오탐(False Alarm)"
+    },
+    {
+        "question": "조기졸업하려면 장학금 신청도 같이 해야 하나? 두 가지 조건이 다 연결되는 건지 궁금해.",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "나는 컴퓨터공학부 2026년도 재학 중인데, 조기졸업 하려면 어떤 조건이 필요해?",
+        "actual_label": "TEXT",
+        "is_correct": "❌ 오탐(False Alarm)"
+    },
+    {
+        "question": "나 2026년에 졸업할 컴공인데, 항공서비스학과 교육조교 지원 자격은 뭐야?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "내가 컴퓨터공학부 3학년인데, 연구 비를 청구할 때 어떤 절차를 따라야 해?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "사이버수업은 대면수업으로 운영된 과목만 신청 가능하던데, 그 이유가 뭐야?",
+        "actual_label": "TEXT",
+        "is_correct": "❌ 오탐(False Alarm)"
+    },
+    {
+        "question": "컴퓨터공학부 3학년인데, 조기졸업 하려면 어떤 조건이 필요해?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "내가 컴퓨터공학부 3학년인데, 연구 비를 청구할 때 어떤 절차를 따라야 해?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "충청지역 Design Thinking & Presentation 캠프에서 팀 구성을 위해 어떤 과정이 있는 거야?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "장학금 관련해서, 만약에 내가 사회봉사 많이 하면 추가 장학금 받을 수 있을까?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "나 컴공인데, 모바일 신분증 설치할 때 조건 같은 거 있어?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "차세대디스플레이 서포터즈 모집에 지원하면 어떤 혜택이 있어?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "내가 컴퓨터공학부 3학년인데, 연구 비를 청구할 때 어떤 절차를 따라야 해?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "컴퓨터공학부 3학년인데, 출석 인정 받으려면 몇 시간 결석해야 되는지 알고 싶어.",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "장학금을 받으면서 학부 연구원으로 일할 때, 공간 사용료는 어떻게 처리돼?",
+        "actual_label": "TEXT",
+        "is_correct": "❌ 오탐(False Alarm)"
+    },
+    {
+        "question": "차세대디스플레이 서포터즈 모집에 지원하면 어떤 혜택이 있어?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "나 컴공인데, 모바일 신분증 설치할 때 조건 같은 거 있어?",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    },
+    {
+        "question": "내가 조기졸업을 하려고 하는데, 이걸 위해서 꼭 필요한 학점이 몇 점인지 궁금해.",
+        "actual_label": "VISION",
+        "is_correct": "✅ 정답(Hit)"
+    }
+]
