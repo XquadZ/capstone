@@ -17,9 +17,9 @@ if sys.stderr.encoding.lower() != 'utf-8':
 # ==========================================
 # ⚙️ 1. 설정 및 모델 로드
 # ==========================================
-# ✨ 두 개의 컨테이너 이름 지정 (두 번째 이름은 실제 DB에 맞게 수정하세요!)
+# ✨ 두 개의 컨테이너 이름 지정
 COLLECTION_1_NAME = "hoseo_rules_v1" 
-COLLECTION_2_NAME = "hoseo_notices" # <--- ⚠️ 여기를 두 번째 컬렉션 이름으로 변경하세요!
+COLLECTION_2_NAME = "hoseo_notices"
 
 SAIFEX_API_KEY = os.getenv("SAIFEX_API_KEY")
 if not SAIFEX_API_KEY:
@@ -60,7 +60,7 @@ print("✅ 챗봇 준비 완료!\n" + "="*50)
 # ==========================================
 # 🔍 2. 하이브리드 통합 검색 엔진 (Multi-Collection)
 # ==========================================
-def retrieve_documents(query, top_k_milvus=10, final_top_k=3):
+def retrieve_documents(query, top_k_milvus=10, final_top_k=10):
     query_embs = embedder.encode([query], return_dense=True, return_sparse=True)
     dense_vec = query_embs['dense_vecs'][0].tolist()
     sparse_vec = query_embs['lexical_weights'][0]
@@ -72,12 +72,34 @@ def retrieve_documents(query, top_k_milvus=10, final_top_k=3):
     
     # ✨ 각 컨테이너를 순회하며 각각 하이브리드 검색 수행
     for col in target_collections:
+        if col.name == COLLECTION_1_NAME: # hoseo_rules_v1
+            out_fields = ["doc_id", "page_num", "source", "text"]
+        else: # hoseo_notices
+            # 💡 실제 스키마에 존재하는 필드명으로 요청
+            out_fields = ["chunk_id", "parent_id", "category", "target", "chunk_text"]
+            
         res = col.hybrid_search(
             [req_dense, req_sparse], rerank=RRFRanker(), limit=top_k_milvus,
-            output_fields=["doc_id", "page_num", "source", "text"]
+            output_fields=out_fields
         )
+        
         # 검색된 결과를 마스터 리스트에 병합
-        all_retrieved_chunks.extend([hit.entity.to_dict() for hit in res[0]])
+        for hit in res[0]:
+            chunk_dict = hit.entity.to_dict()
+            
+            # 🚨 핵심: 공지사항 데이터를 LLM이 읽기 좋게 규격 통일 (Mapping)
+            if col.name == COLLECTION_2_NAME:
+                # 'chunk_text'를 'text'로 이름 변경
+                chunk_dict['text'] = chunk_dict.get('chunk_text', '')
+                # 출처를 보기 좋게 조합 (예: [공지사항-장학] notice_1234)
+                cat = chunk_dict.get('category', '일반')
+                pid = chunk_dict.get('parent_id', 'unknown')
+                chunk_dict['source'] = f"[공지사항-{cat}] {pid}"
+                # 없는 필드 강제 생성
+                chunk_dict['page_num'] = 1 
+                chunk_dict['doc_id'] = chunk_dict.get('chunk_id', 'unknown')
+                
+            all_retrieved_chunks.append(chunk_dict)
     
     if not all_retrieved_chunks: 
         return []
@@ -168,7 +190,7 @@ if __name__ == "__main__":
             chunks = retrieve_documents(user_query)
             
             if not chunks:
-                print("🤖 답변: 관련된 학칙을 찾을 수 없습니다.")
+                print("🤖 답변: 관련된 문서를 찾을 수 없습니다.")
                 continue
                 
             generate_answer(user_query, chunks)
