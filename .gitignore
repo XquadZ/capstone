@@ -95,3 +95,17 @@ minio_data/
 .vscode/
 .idea/
 *.swp
+
+# 실험 결과 및 체크포인트 제외
+experience/
+**/checkpoint-*/
+*.bin
+*.pt
+*.safetensors
+
+# 데이터셋 제외
+evaluation/datasets/
+
+# 기타 시스템 파일
+.DS_Store
+__pycache__/

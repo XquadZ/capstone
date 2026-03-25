@@ -47,7 +47,7 @@ class HoseoRAGPipeline:
             reqs=[dense_req, sparse_req],
             rerank=RRFRanker(k=60), 
             limit=retrieve_k,
-            output_fields=["chunk_text", "year", "category", "entity"]
+            output_fields=["chunk_text", "year", "category", "entity", "parent_id"]
         )
         
         if not initial_results[0]:
