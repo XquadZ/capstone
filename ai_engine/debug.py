@@ -1,43 +1,35 @@
-from pymilvus import connections, Collection
+import json
+import os
 
-def check_fields(collection_name="hoseo_notices"):
-    try:
-        # 1. 연결
-        connections.connect("default", host="localhost", port="19530")
-        
-        # 2. 컬렉션 로드
-        col = Collection(collection_name)
-        schema = col.schema
+# 확인하고 싶은 파일 경로
+FILE_PATH = "evaluation/datasets/final_intent_balanced_dataset.json"
 
-        print(f"\n🚀 [{collection_name}] 컬렉션 필드 리스트")
-        print("=" * 60)
-        print(f"{'필드명':<20} | {'데이터 타입':<15} | {'설명'}")
-        print("-" * 60)
+def check_route_counts():
+    if not os.path.exists(FILE_PATH):
+        print(f"❌ 파일을 찾을 수 없습니다: {FILE_PATH}")
+        return
 
-        # 3. 필드 정보만 순회 (데이터는 출력 안 함)
-        for field in schema.fields:
-            # 벡터 필드인지 체크해서 표시해주기
-            field_type = str(field.dtype)
-            desc = field.description if field.description else "-"
-            print(f"{field.name:<20} | {field_type:<15} | {desc}")
-        
-        print("=" * 60)
-        
-        # 4. 데이터 샘플 (벡터 제외하고 텍스트 필드만 1건 확인)
-        col.load()
-        # 출력 필드에서 벡터(dense_vector, sparse_vector)를 제외하고 요청
-        text_fields = [f.name for f in schema.fields if "vector" not in f.name.lower()]
-        res = col.query(expr="", limit=1, output_fields=text_fields)
-        
-        if res:
-            print("\n🧪 [텍스트 데이터 샘플 1건]")
-            import json
-            print(json.dumps(res[0], indent=4, ensure_ascii=False))
-        
-    except Exception as e:
-        print(f"❌ 에러 발생: {e}")
-    finally:
-        connections.disconnect("default")
+    with open(FILE_PATH, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    print(f"📊 총 데이터 개수: {len(data)}개")
+    
+    # route 개수 카운트
+    text_count = sum(1 for item in data if item.get("route") == "TEXT")
+    vision_count = sum(1 for item in data if item.get("route") == "VISION")
+    other_count = len(data) - (text_count + vision_count)
+
+    print("-" * 30)
+    print(f"✅ TEXT   : {text_count}개")
+    print(f"✅ VISION : {vision_count}개")
+    if other_count > 0:
+        print(f"⚠️ 기타(라벨없음): {other_count}개")
+    print("-" * 30)
+    
+    if text_count == vision_count:
+        print("🔥 완벽한 5:5 황금 밸런스입니다! ㄲㄲ!")
+    else:
+        print("💡 비율이 조금 차이가 나네요. 확인이 필요할 수도 있습니다.")
 
 if __name__ == "__main__":
-    check_fields()
+    check_route_counts()
