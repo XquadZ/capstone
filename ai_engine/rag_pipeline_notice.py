@@ -1,4 +1,6 @@
 import os
+from typing import Optional
+
 import numpy as np
 from openai import OpenAI
 from pymilvus import connections, Collection, AnnSearchRequest, RRFRanker
@@ -126,6 +128,17 @@ class HoseoRAGPipeline:
             return response.choices[0].message.content
         except Exception as e:
             return f"❌ 답변 생성 중 오류가 발생했습니다: {e}"
+
+
+_shared_notice_pipeline: Optional["HoseoRAGPipeline"] = None
+
+
+def get_shared_notice_pipeline() -> "HoseoRAGPipeline":
+    """Agentic 노드 등에서 임베딩·Milvus를 한 번만 로드하기 위한 공유 인스턴스."""
+    global _shared_notice_pipeline
+    if _shared_notice_pipeline is None:
+        _shared_notice_pipeline = HoseoRAGPipeline()
+    return _shared_notice_pipeline
 
 
 if __name__ == "__main__":
