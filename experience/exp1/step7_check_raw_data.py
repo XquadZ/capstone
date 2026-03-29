@@ -17,7 +17,7 @@ def main():
     with open(TEST_DATA_PATH, 'r', encoding='utf-8') as f:
         for i, line in enumerate(f):
             test_data.append(json.loads(line))
-            if i == 9: break # 딱 10개만 확인해봅시다.
+            if i == 20: break # 딱 10개만 확인해봅시다.
 
     print("\n🔍 [모델의 실제 생성 텍스트 확인]")
     for i, item in enumerate(test_data):
