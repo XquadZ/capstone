@@ -8,10 +8,11 @@ from FlagEmbedding import BGEM3FlagModel, FlagReranker
 
 class HoseoRAGPipeline:
     def __init__(self, collection_name="hoseo_notices"):
-        # 환경변수에서 OPENAI_API_KEY 가져오기
-        api_key = os.environ.get("OPENAI_API_KEY")
+        # Ahoseo(SAIFEX) 게이트웨이 설정
+        api_key = os.environ.get("SAIFEX_API_KEY")
         if not api_key:
-            raise ValueError("❌ 환경변수 'OPENAI_API_KEY'를 찾을 수 없습니다. 설정 확인이 필요합니다.")
+            raise ValueError("❌ 환경변수 'SAIFEX_API_KEY'를 찾을 수 없습니다. 설정 확인이 필요합니다.")
+        base_url = "https://ahoseo.saifex.ai/v1"
         
         print("🤖 [1/3] 임베딩 & 리랭커 모델 4090 GPU에 로드 중...")
         self.embed_model = BGEM3FlagModel('BAAI/bge-m3', use_fp16=True)
@@ -23,7 +24,11 @@ class HoseoRAGPipeline:
         self.collection.load()
         
         print("🧠 [3/3] GPT-4o-mini 엔진 연결 준비 완료!")
-        self.llm_client = OpenAI(api_key=api_key)
+        self.llm_client = OpenAI(
+            api_key=api_key,
+            base_url=base_url,
+            default_headers={"Content-Type": "application/json; charset=utf-8"},
+        )
         print("\n✅ RAG 파이프라인 구축 완료!\n")
 
     def search_and_rerank(self, query_text, retrieve_k=50, final_k=10):
