@@ -5,6 +5,21 @@ from typing import Any, Dict, List, Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
+# ------------------------------------------------------------------
+# SAIFEX 강제 고정: 서버 경로에서 OpenAI 공식 엔드포인트 호출 방지
+# ------------------------------------------------------------------
+SAIFEX_BASE_URL = "https://ahoseo.saifex.ai/v1"
+SAIFEX_API_KEY = os.getenv("SAIFEX_API_KEY")
+if not SAIFEX_API_KEY:
+    raise RuntimeError(
+        "SAIFEX_API_KEY가 필요합니다. 현재 API 서버는 SAIFEX 전용으로 동작하도록 설정되어 있습니다."
+    )
+
+# text_rag/vision_rag처럼 OpenAI(api_key=OPENAI_API_KEY)로 작성된 코드도
+# 서버에서는 SAIFEX로 강제 라우팅되도록 환경변수를 덮어씀.
+os.environ["OPENAI_API_KEY"] = SAIFEX_API_KEY
+os.environ["OPENAI_BASE_URL"] = SAIFEX_BASE_URL
+
 
 class AskRequest(BaseModel):
     question: str = Field(..., min_length=1, description="사용자 질문")
@@ -83,7 +98,7 @@ def ask(req: AskRequest):
             latency_sec=round(time.time() - started, 4),
             contexts=contexts,
             sources=list(dict.fromkeys(sources)),
-            meta={"pipeline": "rag_pipeline_rules", "chunk_count": len(chunks)},
+            meta={"pipeline": "rag_pipeline_rules", "chunk_count": len(chunks), "provider": "saifex"},
         )
 
     # ---------------- notice domain ----------------
@@ -112,7 +127,7 @@ def ask(req: AskRequest):
             latency_sec=round(time.time() - started, 4),
             contexts=contexts,
             sources=sources,
-            meta={"pipeline": "agentic_notice_tv_rag", "use_tv_rag": True},
+            meta={"pipeline": "agentic_notice_tv_rag", "use_tv_rag": True, "provider": "saifex"},
         )
 
     # notice + 단일 텍스트 RAG (라우터 미사용)
@@ -139,7 +154,7 @@ def ask(req: AskRequest):
         latency_sec=round(time.time() - started, 4),
         contexts=contexts,
         sources=list(dict.fromkeys(sources)),
-        meta={"pipeline": "rag_pipeline_notice", "use_tv_rag": False, "chunk_count": len(hits)},
+        meta={"pipeline": "rag_pipeline_notice", "use_tv_rag": False, "chunk_count": len(hits), "provider": "saifex"},
     )
 
 
