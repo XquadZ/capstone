@@ -16,6 +16,14 @@ class GPTRefiner:
             raise ValueError("❌ 환경변수 'OPENAI_API_KEY'가 설정되지 않았습니다.")
         
         self.client = OpenAI(api_key=api_key)
+        self.fallback_client = None
+        self.using_fallback = False
+        saifex_api_key = os.getenv("SAIFEX_API_KEY")
+        if saifex_api_key:
+            self.fallback_client = OpenAI(
+                api_key=saifex_api_key,
+                base_url="https://ahoseo.saifex.ai/v1"
+            )
         self.model = "gpt-4o-mini"
         
         # GPT 전용 정제 지침
@@ -43,6 +51,19 @@ class GPTRefiner:
   "refined_content": "상세 정제 내용 (마크다운 포맷)"
 }"""
 
+    @staticmethod
+    def _is_openai_quota_error(error) -> bool:
+        msg = str(error).lower()
+        keywords = [
+            "insufficient_quota",
+            "quota",
+            "rate limit",
+            "429",
+            "billing",
+            "exceeded your current quota",
+        ]
+        return any(k in msg for k in keywords)
+
     def refine(self, raw_text, max_retries=3):
         """실패 시 재시도 로직 포함"""
         # GPT-4o-mini의 넉넉한 컨텍스트 활용 (약 15,000자까지 수용)
@@ -50,7 +71,8 @@ class GPTRefiner:
         
         for attempt in range(max_retries):
             try:
-                response = self.client.chat.completions.create(
+                active_client = self.fallback_client if self.using_fallback else self.client
+                response = active_client.chat.completions.create(
                     model=self.model,
                     messages=[
                         {"role": "system", "content": self.system_prompt},
@@ -61,6 +83,10 @@ class GPTRefiner:
                 )
                 return json.loads(response.choices[0].message.content)
             except Exception as e:
+                if (not self.using_fallback) and self.fallback_client and self._is_openai_quota_error(e):
+                    print("\n🚨 OpenAI 비용/한도 이슈 감지 → SAIFEX로 전환하여 재시도합니다.")
+                    self.using_fallback = True
+                    continue
                 wait_time = (attempt + 1) * 2
                 print(f"\n⚠️ {attempt+1}회차 시도 실패 ({e}). {wait_time}초 후 재시도...")
                 time.sleep(wait_time)

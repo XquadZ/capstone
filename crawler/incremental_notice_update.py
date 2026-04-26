@@ -103,12 +103,12 @@ class IncrementalNoticeUpdater:
 
     def collect_new_notices(self, existing_ids: Set[str]) -> List[Dict[str, str]]:
         crawler = HoseoRealCrawler()
-        new_targets: List[Dict[str, str]] = []
-        consecutive_existing = 0
+        scanned_targets: List[Dict[str, str]] = []
 
         try:
             page = 1
-            while page <= self.max_pages:
+            # 최신 일반공지 200개를 먼저 전부 훑은 뒤 DB 대조
+            while len(scanned_targets) < 200:
                 crawler.driver.get(crawler.list_url_template.format(page))
                 crawler.wait.until(
                     lambda d: d.find_elements(By.CSS_SELECTOR, "table tbody tr")
@@ -117,18 +117,19 @@ class IncrementalNoticeUpdater:
                 if not rows:
                     break
 
-                should_break = False
                 for row in rows:
                     try:
-                        num_text = row.find_element(
-                            By.CSS_SELECTOR, "td[data-header='번호']"
-                        ).text.strip()
-                        if not num_text.isdigit():
+                        # 번호: td.pc_view (일반 공지는 숫자)
+                        num_cells = row.find_elements(By.CSS_SELECTOR, "td.pc_view")
+                        if not num_cells:
+                            continue
+                        num_text = num_cells[0].text.strip()
+                        if not num_text.isdigit():  # 고정공지/비정상 행 제외
                             continue
 
-                        date_text = row.find_element(
-                            By.CSS_SELECTOR, "td[data-header='등록일자']"
-                        ).text.strip()
+                        # 날짜: td.txt-center.pc_view
+                        date_cells = row.find_elements(By.CSS_SELECTOR, "td.txt-center.pc_view")
+                        date_text = date_cells[-1].text.strip() if date_cells else ""
                         if len(date_text) <= 5:
                             date_text = f"{datetime.now().year}-{date_text}"
 
@@ -137,42 +138,36 @@ class IncrementalNoticeUpdater:
                         if not notice_id:
                             continue
 
-                        if notice_id in existing_ids:
-                            consecutive_existing += 1
-                            print(
-                                f"⏭️ 기존 ID 감지: {notice_id} "
-                                f"(연속 {consecutive_existing}/{self.consecutive_existing_stop})"
-                            )
-                            if consecutive_existing >= self.consecutive_existing_stop:
-                                print(
-                                    "🛑 조기 종료: 기존 ID를 연속으로 "
-                                    f"{self.consecutive_existing_stop}개 만나 수집 종료"
-                                )
-                                should_break = True
-                                break
-                        else:
-                            consecutive_existing = 0
-                            new_targets.append(
-                                {
-                                    "id": notice_id,
-                                    "title": link_el.text.strip(),
-                                    "date": date_text,
-                                }
-                            )
+                        scanned_targets.append(
+                            {
+                                "id": notice_id,
+                                "title": link_el.text.strip(),
+                                "date": date_text,
+                            }
+                        )
+                        if len(scanned_targets) >= 200:
+                            break
                     except Exception:
                         continue
 
-                if should_break:
+                if len(scanned_targets) >= 200:
                     break
                 page += 1
                 time.sleep(0.8)
         finally:
             crawler.driver.quit()
 
-        dedup = {t["id"]: t for t in new_targets}
-        targets = list(dedup.values())
-        print(f"🆕 신규 후보 공지: {len(targets)}개")
-        return targets
+        # 수집한 200개(또는 그 이하)에서 중복 제거 후 기존 DB와 대조
+        dedup_scanned = {t["id"]: t for t in scanned_targets}
+        scanned_unique = list(dedup_scanned.values())
+        new_targets = [t for t in scanned_unique if t["id"] not in existing_ids]
+
+        print(
+            f"🔎 최신 일반공지 스캔 완료: {len(scanned_targets)}행 / "
+            f"고유 ID {len(scanned_unique)}개"
+        )
+        print(f"🆕 DB 미존재 신규 공지: {len(new_targets)}개")
+        return new_targets
 
     def crawl_targets(self, targets: List[Dict[str, str]]) -> List[str]:
         if not targets:
