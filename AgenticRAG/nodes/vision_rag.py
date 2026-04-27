@@ -38,6 +38,9 @@ PDF_RASTER_DPI = int(os.environ.get("VLM_PDF_DPI", "96"))
 _IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp")
 _PDF_EXT = ".pdf"
 
+# 학칙 원본 PDF (Milvus 규정 청크의 source 필드와 매칭)
+RULES_RAW_PDF_DIR = os.path.join("data", "rules_regulations", "raw_pdfs")
+
 
 def _entity_to_dict(ent):
     if isinstance(ent, dict):
@@ -127,6 +130,109 @@ def _chunk_texts_from_hits(search_hits: list) -> List[str]:
         if t:
             texts.append(t)
     return texts
+
+
+def _resolve_rules_pdf_path(source: str) -> Optional[str]:
+    """Milvus source(예: '1-1-1-1. 학칙.md') → raw_pdfs 내 PDF 경로."""
+    if not source or not str(source).strip():
+        return None
+    base = os.path.basename(str(source).strip())
+    low = base.lower()
+    if low.endswith(".md"):
+        pdf_name = base[:-3] + ".pdf"
+    elif low.endswith(".pdf"):
+        pdf_name = base
+    else:
+        pdf_name = base + ".pdf" if base else ""
+    if not pdf_name:
+        return None
+    cand = os.path.normpath(os.path.join(RULES_RAW_PDF_DIR, pdf_name))
+    try:
+        if os.path.isfile(cand):
+            return cand
+    except OSError:
+        pass
+    return None
+
+
+def _rules_chunks_to_text_context(chunks: list) -> str:
+    parts = []
+    for c in chunks:
+        body = (c.get("text") or "").strip()
+        if not body:
+            continue
+        src = c.get("source", "") or ""
+        pn = c.get("page_num", "")
+        did = c.get("doc_id", "")
+        header = f"[학칙·규정] doc_id={did} | {src}" + (f" (페이지 {pn})" if pn != "" else "")
+        parts.append(f"{header}\n{body}")
+    if not parts:
+        return "(검색된 학칙 본문 없음)"
+    return "\n\n---\n\n".join(parts)
+
+
+def _chunk_texts_from_rules_chunks(chunks: list) -> List[str]:
+    texts: List[str] = []
+    for c in chunks:
+        t = (c.get("text") or "").strip()
+        if t:
+            texts.append(t)
+    return texts
+
+
+def _build_image_contents_from_rules_chunks(chunks: list) -> Tuple[List[dict], List[str]]:
+    """학칙 검색 청크에 대응하는 raw_pdfs PDF 페이지를 VLM 입력으로 수집."""
+    image_contents: List[dict] = []
+    processed_log: List[str] = []
+    seen_page_keys = set()
+
+    if MAX_VLM_IMAGES <= 4:
+        page_num_default = [1]
+    elif MAX_VLM_IMAGES <= 10:
+        page_num_default = [1, 2]
+    else:
+        page_num_default = [1, 2, 3]
+
+    for c in chunks:
+        if len(image_contents) >= MAX_VLM_IMAGES:
+            break
+        src = c.get("source") or ""
+        pdf_path = _resolve_rules_pdf_path(src)
+        if not pdf_path:
+            continue
+        try:
+            if not os.path.isfile(pdf_path):
+                continue
+        except OSError:
+            continue
+
+        pn = int(c.get("page_num") or 0)
+        doc_id = str(c.get("doc_id", ""))
+        label = f"[학칙] {doc_id}"
+
+        if pn > 0:
+            pages_to_try = sorted({pn, max(1, pn - 1), pn + 1})
+        else:
+            pages_to_try = page_num_default
+
+        for p_num in pages_to_try:
+            if len(image_contents) >= MAX_VLM_IMAGES:
+                break
+            if p_num < 1:
+                continue
+            key = (pdf_path, p_num)
+            if key in seen_page_keys:
+                continue
+            seen_page_keys.add(key)
+            new_parts, new_logs = _pdf_page_to_vlm_parts(pdf_path, [p_num], label)
+            for part in new_parts:
+                if len(image_contents) >= MAX_VLM_IMAGES:
+                    break
+                image_contents.append(part)
+            for log in new_logs:
+                processed_log.append(log)
+
+    return image_contents[:MAX_VLM_IMAGES], processed_log
 
 
 def _hits_to_text_context(search_hits: list) -> str:
@@ -321,31 +427,59 @@ def _call_vlm(
     image_contents: List[dict],
     text_context: str,
     attachment_status: str,
+    domain: str = "notice",
 ) -> str:
+    dom = (domain or "notice").strip().lower()
+
     if image_contents:
-        intro = (
-            "당신은 호서대학교 공지·첨부 문서(표, 이미지, 안내문) 분석 전문가입니다. "
-            "아래 이미지와 [검색된 공지 본문]을 함께 참고하세요. 이미지와 본문이 다를 경우 본문을 보조 근거로 사용하세요.\n\n"
-            "### 지시:\n"
-            "1. 표·수치·기한·절차는 가능하면 이미지에 보이는 그대로 인용하세요.\n"
-            "2. 확실하지 않은 내용은 추측하지 마세요.\n"
-            "3. 답변 끝에 '📚 [분석 근거]' 섹션을 두고, 사용한 파일·페이지(또는 본문 출처)를 나열하세요.\n\n"
-            f"[첨부 상태] {attachment_status}\n\n"
-            f"[검색된 공지 본문]\n{text_context}\n\n"
-            f"사용자 질문: {question}"
-        )
+        if dom == "rules":
+            intro = (
+                "당신은 호서대학교 학칙·규정 원문 PDF(표·조문 구조) 분석 전문가입니다. "
+                "아래 이미지와 [검색된 규정 본문]을 함께 참고하세요.\n\n"
+                "### 지시:\n"
+                "1. 조문·표의 숫자·기한은 가능하면 이미지에 보이는 그대로 인용하세요.\n"
+                "2. 확실하지 않은 내용은 추측하지 마세요.\n"
+                "3. 답변 끝에 '📚 [분석 근거]'에 규정 파일명·페이지를 나열하세요.\n\n"
+                f"[첨부 상태] {attachment_status}\n\n"
+                f"[검색된 규정 본문]\n{text_context}\n\n"
+                f"사용자 질문: {question}"
+            )
+        else:
+            intro = (
+                "당신은 호서대학교 공지·첨부 문서(표, 이미지, 안내문) 분석 전문가입니다. "
+                "아래 이미지와 [검색된 공지 본문]을 함께 참고하세요. 이미지와 본문이 다를 경우 본문을 보조 근거로 사용하세요.\n\n"
+                "### 지시:\n"
+                "1. 표·수치·기한·절차는 가능하면 이미지에 보이는 그대로 인용하세요.\n"
+                "2. 확실하지 않은 내용은 추측하지 마세요.\n"
+                "3. 답변 끝에 '📚 [분석 근거]' 섹션을 두고, 사용한 파일·페이지(또는 본문 출처)를 나열하세요.\n\n"
+                f"[첨부 상태] {attachment_status}\n\n"
+                f"[검색된 공지 본문]\n{text_context}\n\n"
+                f"사용자 질문: {question}"
+            )
         user_content: List[dict] = [{"type": "text", "text": intro}, *image_contents]
     else:
-        intro = (
-            "당신은 호서대학교 공지 안내 전문가입니다. "
-            "첨부 PDF/이미지는 없거나 열 수 없어, 아래 [검색된 공지 본문]만 근거로 답하세요.\n\n"
-            "### 지시:\n"
-            "1. 본문에 근거해 답하세요. 없는 내용은 지어내지 마세요.\n"
-            "2. 답변 끝에 '📚 [분석 근거]'에 인용한 공지 출처(parent_id·분류)를 요약해 적으세요.\n\n"
-            f"[첨부 상태] {attachment_status}\n\n"
-            f"[검색된 공지 본문]\n{text_context}\n\n"
-            f"사용자 질문: {question}"
-        )
+        if dom == "rules":
+            intro = (
+                "당신은 호서대학교 학칙·규정 안내 전문가입니다. "
+                "원문 PDF 이미지를 열 수 없어 아래 [검색된 규정 본문]만 근거로 답하세요.\n\n"
+                "### 지시:\n"
+                "1. 제공된 본문만 근거로 하세요.\n"
+                "2. 답변 끝에 '📚 [분석 근거]'에 규정 출처(파일명·페이지)를 적으세요.\n\n"
+                f"[첨부 상태] {attachment_status}\n\n"
+                f"[검색된 규정 본문]\n{text_context}\n\n"
+                f"사용자 질문: {question}"
+            )
+        else:
+            intro = (
+                "당신은 호서대학교 공지 안내 전문가입니다. "
+                "첨부 PDF/이미지는 없거나 열 수 없어, 아래 [검색된 공지 본문]만 근거로 답하세요.\n\n"
+                "### 지시:\n"
+                "1. 본문에 근거해 답하세요. 없는 내용은 지어내지 마세요.\n"
+                "2. 답변 끝에 '📚 [분석 근거]'에 인용한 공지 출처(parent_id·분류)를 요약해 적으세요.\n\n"
+                f"[첨부 상태] {attachment_status}\n\n"
+                f"[검색된 공지 본문]\n{text_context}\n\n"
+                f"사용자 질문: {question}"
+            )
         user_content = [{"type": "text", "text": intro}]
 
     response = client.chat.completions.create(
@@ -359,44 +493,78 @@ def _call_vlm(
 
 def vision_rag_node(state: AgentState) -> dict:
     question = state["question"]
+    domain = str(state.get("domain", "notice") or "notice").strip().lower()
     start_time = time.time()
-    print(f"\n--- [NODE: Vision RAG] 공지·첨부 시각 분석 (gpt-4o-mini, OpenAI) ---")
-
-    if get_shared_notice_pipeline is None:
-        return {
-            "generation": "공지사항 검색 모듈을 불러오지 못했습니다.",
-            "context": [],
-            "retrieved_chunk_texts": [],
-        }
+    label = "학칙·규정" if domain == "rules" else "공지·첨부"
+    print(f"\n--- [NODE: Vision RAG] {label} 시각 분석 (gpt-4o-mini) domain={domain} ---")
 
     search_hits: list = []
-    try:
-        pipe = get_shared_notice_pipeline()
-        search_hits = pipe.search_and_rerank(question, retrieve_k=50, final_k=25)
-    except Exception as e:
-        print(f"❌ [Vision] 공지 검색 실패: {e}")
-        search_hits = []
+    rules_chunks: list = []
 
-    retrieved_chunk_texts = _chunk_texts_from_hits(search_hits)
+    if domain == "rules":
+        try:
+            from ai_engine.rag_pipeline_rules import retrieve_documents
+        except ImportError as e:
+            print(f"⚠️ [Vision] rag_pipeline_rules 로드 실패: {e}")
+            return {
+                "generation": "학칙 검색 모듈을 불러오지 못했습니다.",
+                "context": [],
+                "retrieved_chunk_texts": [],
+            }
+        try:
+            rules_chunks = retrieve_documents(question, top_k_milvus=50, final_top_k=25)
+        except Exception as e:
+            print(f"❌ [Vision] 학칙 검색 실패: {e}")
+            rules_chunks = []
+        retrieved_chunk_texts = _chunk_texts_from_rules_chunks(rules_chunks)
+        if not rules_chunks:
+            return {
+                "generation": "관련 학칙·규정을 찾지 못했습니다.",
+                "context": [],
+                "retrieved_chunk_texts": [],
+            }
+        text_context = _rules_chunks_to_text_context(rules_chunks)
+        try:
+            image_contents, processed_pages_log = _build_image_contents_from_rules_chunks(rules_chunks)
+        except Exception as e:
+            print(f"⚠️ [Vision·Rules] PDF 페이지 수집 예외 (텍스트만 진행): {e}")
+            image_contents = []
+            processed_pages_log = []
+    else:
+        if get_shared_notice_pipeline is None:
+            return {
+                "generation": "공지사항 검색 모듈을 불러오지 못했습니다.",
+                "context": [],
+                "retrieved_chunk_texts": [],
+            }
 
-    if not search_hits:
-        return {
-            "generation": "관련 공지를 찾지 못했습니다.",
-            "context": [],
-            "retrieved_chunk_texts": [],
-        }
+        try:
+            pipe = get_shared_notice_pipeline()
+            search_hits = pipe.search_and_rerank(question, retrieve_k=50, final_k=25)
+        except Exception as e:
+            print(f"❌ [Vision] 공지 검색 실패: {e}")
+            search_hits = []
 
-    text_context = _hits_to_text_context(search_hits)
+        retrieved_chunk_texts = _chunk_texts_from_hits(search_hits)
 
-    image_contents: List[dict] = []
-    processed_pages_log: List[str] = []
+        if not search_hits:
+            return {
+                "generation": "관련 공지를 찾지 못했습니다.",
+                "context": [],
+                "retrieved_chunk_texts": [],
+            }
 
-    try:
-        image_contents, processed_pages_log = _build_image_contents_from_hits(search_hits)
-    except Exception as e:
-        print(f"⚠️ [Vision] 첨부 미디어 수집 중 예외 (텍스트만 진행): {e}")
-        image_contents = []
-        processed_pages_log = []
+        text_context = _hits_to_text_context(search_hits)
+
+        image_contents: List[dict] = []
+        processed_pages_log: List[str] = []
+
+        try:
+            image_contents, processed_pages_log = _build_image_contents_from_hits(search_hits)
+        except Exception as e:
+            print(f"⚠️ [Vision] 첨부 미디어 수집 중 예외 (텍스트만 진행): {e}")
+            image_contents = []
+            processed_pages_log = []
 
     if image_contents:
         attachment_status = f"첨부 미디어 {len(image_contents)}건 로드됨"
@@ -404,14 +572,16 @@ def vision_rag_node(state: AgentState) -> dict:
             f"🚀 [VLM] 이미지 {len(image_contents)}장 (상한 {MAX_VLM_IMAGES}, detail={VLM_IMAGE_DETAIL}) + 본문 → OpenAI"
         )
     else:
-        attachment_status = "첨부파일 없음 (또는 열 수 없음) — 검색된 공지 본문만 사용"
+        attachment_status = "첨부파일 없음 (또는 열 수 없음) — 검색된 본문만 사용"
         print("ℹ️ [Vision] 첨부 PDF/이미지 없음 → 검색 텍스트만으로 VLM에 질의합니다.")
 
     try:
-        generation = _call_vlm(question, image_contents, text_context, attachment_status)
+        generation = _call_vlm(question, image_contents, text_context, attachment_status, domain=domain)
         trace_title = (
             "**TV-RAG Traceability (Notice Vision):**\n"
-            if image_contents
+            if domain != "rules" and image_contents
+            else "**TV-RAG Traceability (Rules Vision):**\n"
+            if domain == "rules" and image_contents
             else "**TV-RAG (텍스트 전용 폴백):**\n"
         )
         source_footer = f"\n\n📍 {trace_title}"
