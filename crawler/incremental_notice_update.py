@@ -31,11 +31,15 @@ from ai_engine.chunker import ContextualChunker
 from ai_engine.vector_db import MilvusIndexer
 
 
+def _log(message: str):
+    print(message, flush=True)
+
+
 class IncrementalNoticeUpdater:
     def __init__(
         self,
         collection_name: str = "hoseo_notices",
-        scan_limit: int = 20, # 최근 20개만 집중 스캔 (고속 테스트용)
+        scan_limit: int = 50  # 고정글을 제외한 일반 공지를 넉넉히 스캔
     ):
         self.collection_name = collection_name
         self.scan_limit = scan_limit
@@ -106,7 +110,12 @@ class IncrementalNoticeUpdater:
 
                 for row in rows:
                     try:
-                        # [핵심 변경] isdigit() 필터 제거: '공지' 등 고정글도 모두 수집
+                        # 고정글('공지')은 제외하고 일반 공지(숫자 번호)만 수집
+                        num_cells = row.find_elements(By.CSS_SELECTOR, "td.txt-center")
+                        row_no = num_cells[0].text.strip() if num_cells else ""
+                        if not row_no.isdigit():
+                            continue
+
                         date_cells = row.find_elements(By.CSS_SELECTOR, "td.txt-center.pc_view")
                         date_text = date_cells[-1].text.strip() if date_cells else ""
                         if len(date_text) <= 5:
@@ -140,7 +149,7 @@ class IncrementalNoticeUpdater:
         scanned_unique = list(dedup_scanned.values())
         new_targets = [t for t in scanned_unique if t["id"] not in existing_ids]
 
-        print(f"🔎 최신 공지 {self.scan_limit}개 스캔 완료 (ID 대조 중...)")
+        print(f"🔎 최신 일반공지 {len(scanned_unique)}개 스캔 완료 (ID 대조 중...)")
         print(f"🆕 DB 미존재 신규 공지 발견: {len(new_targets)}개")
         return new_targets
 
@@ -248,12 +257,12 @@ class IncrementalNoticeUpdater:
         return total
 
     def run_once(self):
-        print(f"\n🕒 실행 시각: {datetime.now().strftime('%H:%M:%S')}")
+        _log(f"\n🕒 실행 시각: {datetime.now().strftime('%H:%M:%S')} (pid={os.getpid()})")
         existing_ids = self.load_existing_parent_ids()
         targets = self.collect_new_notices(existing_ids)
         
         if not targets:
-            print("✨ 모든 데이터가 최신 상태입니다.")
+            _log("✨ 모든 데이터가 최신 상태입니다.")
             return
 
         # 1. 크롤링 및 DB 삽입
@@ -263,7 +272,7 @@ class IncrementalNoticeUpdater:
         chunk_files = self.chunk_refined_json_for_ids(crawled_ids)
         inserted = self.insert_chunk_files(chunk_files)
         
-        print(f"🚀 {len(targets)}개의 새로운 공지사항이 Milvus에 업데이트되었습니다.")
+        _log(f"🚀 {len(targets)}개의 새로운 공지사항이 Milvus에 업데이트되었습니다.")
 
         # ==========================================================
         # 🔥 2. 백엔드(Spring) 서버로 웹훅 알림 쏘기
@@ -288,22 +297,46 @@ class IncrementalNoticeUpdater:
             res = requests.post(webhook_url, headers=headers, json=payload, timeout=5)
             
             if res.status_code in [200, 201]:
-                print(f"🔔 백엔드(Spring) 웹훅 전송 성공! (상태코드: {res.status_code})")
+                _log(f"🔔 백엔드(Spring) 웹훅 전송 성공! (상태코드: {res.status_code})")
             else:
-                print(f"⚠️ 백엔드 웹훅 전송 실패: {res.status_code} - {res.text}")
+                _log(f"⚠️ 백엔드 웹훅 전송 실패: {res.status_code} - {res.text}")
         except Exception as e:
-            print(f"❌ 백엔드 웹훅 연결 에러 (서버/ngrok 주소 확인 필요): {e}")
+            _log(f"❌ 백엔드 웹훅 연결 에러 (서버/ngrok 주소 확인 필요): {e}")
 
 
 def run_scheduler():
     updater = IncrementalNoticeUpdater()
-    # 테스트를 위해 2분 간격으로 설정
-    schedule.every(2).minutes.do(updater.run_once)
+    is_running = False
 
-    print("⏰ [테스트 모드] 스케줄러가 2분 간격으로 작동합니다. (터미널을 유지하세요)")
+    def safe_run_once():
+        nonlocal is_running
+        if is_running:
+            _log("⏭ 이전 run_once가 아직 실행 중이라 이번 스케줄은 건너뜁니다.")
+            return
+        is_running = True
+        try:
+            updater.run_once()
+        finally:
+            is_running = False
+
+    # 운영 스케줄: 매일 10:00 ~ 17:30, 30분 간격
+    run_times = [
+        "10:00", "10:30",
+        "11:00", "11:30",
+        "12:00", "12:30",
+        "13:00", "13:30",
+        "14:00", "14:30",
+        "15:00", "15:30",
+        "16:00", "16:30",
+        "17:00", "17:30",
+    ]
+    for t in run_times:
+        schedule.every().day.at(t).do(safe_run_once)
+
+    _log("⏰ 스케줄러 시작: 매일 10:00~17:30, 30분 간격으로 실행합니다.")
     
     # 시작하자마자 한 번 실행해서 확인
-    updater.run_once()
+    safe_run_once()
 
     while True:
         schedule.run_pending()
@@ -311,6 +344,11 @@ def run_scheduler():
 
 
 if __name__ == "__main__":
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8")
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--once", action="store_true")
     args = parser.parse_args()
