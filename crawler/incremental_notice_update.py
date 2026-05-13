@@ -1,8 +1,16 @@
+import os
+import sys
+import codecs
+
+# 🌟 윈도우 & Conda run 환경 한글 깨짐 초강력 방지 (맨 위에 있어야 함)
+os.environ["PYTHONIOENCODING"] = "utf-8"
+if sys.stdout.encoding.lower() != 'utf-8':
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
 import argparse
 import json
-import os
 import re
-import sys
 import time
 from datetime import datetime
 from pathlib import Path
@@ -39,7 +47,7 @@ class IncrementalNoticeUpdater:
     def __init__(
         self,
         collection_name: str = "hoseo_notices",
-        scan_limit: int = 50  # 고정글을 제외한 일반 공지를 넉넉히 스캔
+        scan_limit: int = 20  # 🔥 무조건 최근 공지 20개만 수집
     ):
         self.collection_name = collection_name
         self.scan_limit = scan_limit
@@ -52,6 +60,50 @@ class IncrementalNoticeUpdater:
         self.integrated_dir.mkdir(parents=True, exist_ok=True)
         self.processed_text_dir.mkdir(parents=True, exist_ok=True)
         self.chunks_dir.mkdir(parents=True, exist_ok=True)
+
+    def _build_notice_event_items(self, notice_ids: List[str]) -> List[Dict[str, str]]:
+        """정제 JSON/RAW info를 기반으로 웹훅 전송용 공지 이벤트 목록 구성."""
+        items: List[Dict[str, str]] = []
+        for notice_id in notice_ids:
+            notice_id = str(notice_id)
+            processed_path = self.processed_text_dir / f"{notice_id}.json"
+            raw_info_path = self.raw_dir / notice_id / "info.json"
+
+            refined: Dict[str, str] = {}
+            raw_info: Dict[str, str] = {}
+
+            if processed_path.exists():
+                try:
+                    with open(processed_path, "r", encoding="utf-8") as f:
+                        refined = json.load(f) or {}
+                except Exception:
+                    refined = {}
+
+            if raw_info_path.exists():
+                try:
+                    with open(raw_info_path, "r", encoding="utf-8") as f:
+                        raw_info = json.load(f) or {}
+                except Exception:
+                    raw_info = {}
+
+            # GPTRefiner 산출물: category·major_category·target·entity·year 는 metadata 안에 있음
+            meta = refined.get("metadata") if isinstance(refined.get("metadata"), dict) else {}
+
+            def _m(key: str) -> str:
+                return str(meta.get(key) or refined.get(key) or "")
+
+            item = {
+                "notice_id": notice_id,
+                "title": str(refined.get("title") or raw_info.get("title") or ""),
+                "date": str(refined.get("date") or raw_info.get("date") or ""),
+                "url": str(refined.get("url") or raw_info.get("url") or ""),
+                "category": _m("category"),
+                "major_category": _m("major_category"),
+                "target": _m("target"),
+                "entity": _m("entity"),
+            }
+            items.append(item)
+        return items
 
     def load_existing_parent_ids(self) -> Set[str]:
         connections.connect("default", host="localhost", port="19530")
@@ -78,7 +130,7 @@ class IncrementalNoticeUpdater:
                 break
             offset += batch_size
 
-        print(f"📦 Milvus 기존 parent_id 로드 완료: {len(result)}개")
+        _log(f"📦 Milvus 기존 parent_id 로드 완료: {len(result)}개")
         return result
 
     @staticmethod
@@ -96,26 +148,27 @@ class IncrementalNoticeUpdater:
     def collect_new_notices(self, existing_ids: Set[str]) -> List[Dict[str, str]]:
         crawler = HoseoRealCrawler()
         scanned_targets: List[Dict[str, str]] = []
+        seen_ids: Set[str] = set()
+        page = 1
 
         try:
-            page = 1
             while len(scanned_targets) < self.scan_limit:
                 crawler.driver.get(crawler.list_url_template.format(page))
-                crawler.wait.until(
-                    lambda d: d.find_elements(By.CSS_SELECTOR, "table tbody tr")
-                )
+                try:
+                    crawler.wait.until(
+                        lambda d: d.find_elements(By.CSS_SELECTOR, "table tbody tr")
+                    )
+                except Exception:
+                    break
+
                 rows = crawler.driver.find_elements(By.CSS_SELECTOR, "table tbody tr")
                 if not rows:
                     break
 
+                added_in_this_page = 0
+
                 for row in rows:
                     try:
-                        # 고정글('공지')은 제외하고 일반 공지(숫자 번호)만 수집
-                        num_cells = row.find_elements(By.CSS_SELECTOR, "td.txt-center")
-                        row_no = num_cells[0].text.strip() if num_cells else ""
-                        if not row_no.isdigit():
-                            continue
-
                         date_cells = row.find_elements(By.CSS_SELECTOR, "td.txt-center.pc_view")
                         date_text = date_cells[-1].text.strip() if date_cells else ""
                         if len(date_text) <= 5:
@@ -126,6 +179,10 @@ class IncrementalNoticeUpdater:
                         if not notice_id:
                             continue
 
+                        if notice_id in seen_ids:
+                            continue
+                        seen_ids.add(notice_id)
+
                         scanned_targets.append(
                             {
                                 "id": notice_id,
@@ -133,24 +190,26 @@ class IncrementalNoticeUpdater:
                                 "date": date_text,
                             }
                         )
+                        added_in_this_page += 1
+
                         if len(scanned_targets) >= self.scan_limit:
                             break
                     except Exception:
                         continue
 
-                if len(scanned_targets) >= self.scan_limit:
+                if added_in_this_page == 0:
                     break
+
                 page += 1
                 time.sleep(0.5)
         finally:
             crawler.driver.quit()
 
-        dedup_scanned = {t["id"]: t for t in scanned_targets}
-        scanned_unique = list(dedup_scanned.values())
-        new_targets = [t for t in scanned_unique if t["id"] not in existing_ids]
+        scanned_recent = scanned_targets[: self.scan_limit]
+        new_targets = [t for t in scanned_recent if t["id"] not in existing_ids]
 
-        print(f"🔎 최신 일반공지 {len(scanned_unique)}개 스캔 완료 (ID 대조 중...)")
-        print(f"🆕 DB 미존재 신규 공지 발견: {len(new_targets)}개")
+        _log(f"🔎 최신 공지 {len(scanned_recent)}개 스캔 완료 (ID 대조 중...)")
+        _log(f"🆕 DB 미존재 신규 공지 발견: {len(new_targets)}개")
         return new_targets
 
     def crawl_targets(self, targets: List[Dict[str, str]]) -> List[str]:
@@ -160,18 +219,19 @@ class IncrementalNoticeUpdater:
         crawler = HoseoRealCrawler()
         crawled_ids: List[str] = []
         try:
+            _log(f"🧪 이번 실행 크롤 처리 대상: {len(targets)}개 (scan_limit={self.scan_limit})")
             for target in targets:
                 notice_id = target["id"]
                 local_dir = self.raw_dir / notice_id
                 
                 if local_dir.exists():
-                    print(f"📁 로컬 데이터 존재 (재사용): {notice_id}")
+                    _log(f"📁 로컬 데이터 존재 (재사용): {notice_id}")
                     crawled_ids.append(notice_id)
                     continue
 
                 ok = crawler.crawl_details(notice_id, target["title"], target["date"])
                 if ok:
-                    print(f"✅ 상세 수집 완료: {notice_id}")
+                    _log(f"✅ 상세 수집 완료: {notice_id}")
                     crawled_ids.append(notice_id)
                 time.sleep(0.5)
         finally:
@@ -265,43 +325,62 @@ class IncrementalNoticeUpdater:
             _log("✨ 모든 데이터가 최신 상태입니다.")
             return
 
-        # 1. 크롤링 및 DB 삽입
         crawled_ids = self.crawl_targets(targets)
         self.build_integrated_text_for_ids(crawled_ids)
         self.refine_integrated_text_for_ids(crawled_ids)
         chunk_files = self.chunk_refined_json_for_ids(crawled_ids)
         inserted = self.insert_chunk_files(chunk_files)
+        event_items = self._build_notice_event_items(crawled_ids)
         
         _log(f"🚀 {len(targets)}개의 새로운 공지사항이 Milvus에 업데이트되었습니다.")
 
         # ==========================================================
         # 🔥 2. 백엔드(Spring) 서버로 웹훅 알림 쏘기
+        # POST /api/notices/new · snake_case 바디 · X-API-Key
+        # 로컬 Spring: NOTICE_EVENT_WEBHOOK_URL=http://localhost:8080/api/notices/new
+        # ngrok 주소는 바뀔 수 있음 → 환경변수로 덮어쓰기 권장
         # ==========================================================
-        # 재화님이 추후 ngrok 주소를 주면 아래 "http://localhost:8080..." 부분을 수정하세요!
-        webhook_url = os.getenv("NOTICE_EVENT_WEBHOOK_URL", "http://localhost:8080/api/notices/new")
+        default_webhook = "https://wrecker-motivator-overall.ngrok-free.dev/api/notices/new"
+        webhook_url = os.getenv("NOTICE_EVENT_WEBHOOK_URL", default_webhook)
         api_key = os.getenv("NOTICE_EVENT_API_KEY", "hoseo-lens-secret-key")
 
         try:
-            # 헤더 구성 (X-API-Key 방식)
             headers = {
                 "X-API-Key": api_key,
                 "Content-Type": "application/json",
             }
-            # 보낼 데이터
+            # ngrok 무료 도메인: 브라우저 경고 페이지 회피(스크립트 호출 시 권장)
+            if "ngrok" in (webhook_url or "").lower():
+                headers["ngrok-skip-browser-warning"] = "true"
+
+            now_iso = datetime.now().isoformat(timespec="seconds")
             payload = {
-                "message": "새 공지사항 업데이트 완료",
-                "new_notice_count": len(targets)
+                "source": "crawler",
+                "generated_at": now_iso,
+                "count": len(event_items),
+                "items": event_items,
             }
-            
-            # 알림 발송!
-            res = requests.post(webhook_url, headers=headers, json=payload, timeout=5)
-            
+
+            res = requests.post(webhook_url, headers=headers, json=payload, timeout=30)
+
             if res.status_code in [200, 201]:
-                _log(f"🔔 백엔드(Spring) 웹훅 전송 성공! (상태코드: {res.status_code})")
+                detail = ""
+                try:
+                    body = res.json()
+                    if isinstance(body, dict):
+                        proc = body.get("processed")
+                        st = body.get("status")
+                        if proc is not None:
+                            detail = f" status={st} processed={proc}"
+                except Exception:
+                    pass
+                _log(f"🔔 백엔드 웹훅 전송 성공! (HTTP {res.status_code}){detail}")
+            elif res.status_code == 401:
+                _log(f"⚠️ 백엔드 웹훅 인증 실패(401): {res.text}")
             else:
                 _log(f"⚠️ 백엔드 웹훅 전송 실패: {res.status_code} - {res.text}")
         except Exception as e:
-            _log(f"❌ 백엔드 웹훅 연결 에러 (서버/ngrok 주소 확인 필요): {e}")
+            _log(f"❌ 백엔드 웹훅 연결 에러: {e}")
 
 
 def run_scheduler():
@@ -335,7 +414,6 @@ def run_scheduler():
 
     _log("⏰ 스케줄러 시작: 매일 10:00~17:30, 30분 간격으로 실행합니다.")
     
-    # 시작하자마자 한 번 실행해서 확인
     safe_run_once()
 
     while True:
@@ -344,11 +422,6 @@ def run_scheduler():
 
 
 if __name__ == "__main__":
-    if hasattr(sys.stdout, "reconfigure"):
-        sys.stdout.reconfigure(encoding="utf-8")
-    if hasattr(sys.stderr, "reconfigure"):
-        sys.stderr.reconfigure(encoding="utf-8")
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--once", action="store_true")
     args = parser.parse_args()

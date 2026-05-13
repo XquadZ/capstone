@@ -46,7 +46,7 @@ def _text_rag_rules(question: str) -> dict:
 
     search_results = []
     try:
-        chunks = retrieve_documents(question, top_k_milvus=10, final_top_k=3)
+        chunks = retrieve_documents(question, top_k_milvus=10, final_top_k=5)
         for c in chunks:
             search_results.append(
                 {
@@ -97,7 +97,9 @@ def _text_rag_rules(question: str) -> dict:
                         "### 답변 규칙 ###\n"
                         "1. 문서에 없는 내용은 추측하지 마세요.\n"
                         "2. 근거가 된 문서명·페이지를 명시하세요.\n"
-                        "3. 마지막에 '📚 [참고 규정]'으로 사용한 출처를 나열하세요."
+                        "3. 마지막에 '📚 [참고 규정]'으로 사용한 출처를 나열하세요.\n"
+                        "4. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
+                        "5. 답변에 마크다운 강조(**)를 사용하지 마세요."
                     ),
                 },
                 {"role": "user", "content": f"사용자 질문: {question}\n\n[참고 문서]\n{context_text}"},
@@ -137,7 +139,7 @@ def text_rag_node(state: AgentState) -> dict:
     search_results = []
     try:
         pipe = get_shared_notice_pipeline()
-        hits = pipe.search_and_rerank(question, retrieve_k=50, final_k=3)
+        hits = pipe.search_and_rerank(question, retrieve_k=50, final_k=5)
         search_results = _notice_hits_as_docs(hits)
     except Exception as e:
         print(f"❌ [Text RAG] 공지 검색 실패: {e}")
@@ -181,7 +183,9 @@ def text_rag_node(state: AgentState) -> dict:
                         "### 답변 원칙 ###\n"
                         "1. 근거가 되는 연도·부서·분류 등 메타 정보와 본문 요지를 명확히 드러내세요.\n"
                         "2. 답변 마지막에 반드시 '📚 [참고 문헌 및 근거 자료]' 섹션을 두고, 사용한 출처 라벨을 중복 없이 나열하세요.\n"
-                        "3. 문서에 없는 내용은 추측하지 말고 '제공된 공지에서 확인이 어렵습니다'라고 답하세요."
+                        "3. 문서에 없는 내용은 추측하지 말고 '제공된 공지에서 확인이 어렵습니다'라고 답하세요.\n"
+                        "4. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
+                        "5. 답변에 마크다운 강조(**)를 사용하지 마세요."
                     ),
                 },
                 {
@@ -196,7 +200,7 @@ def text_rag_node(state: AgentState) -> dict:
         generation = response.choices[0].message.content
 
         if "📚" not in generation:
-            source_footer = "\n\n📚 **[참고 문헌 및 근거 자료]**\n"
+            source_footer = "\n\n📚 [참고 문헌 및 근거 자료]\n"
             source_footer += "\n".join([f"- {s}" for s in set(sources_used)])
             generation += source_footer
 

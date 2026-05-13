@@ -31,8 +31,8 @@ class HoseoRAGPipeline:
         )
         print("\n✅ RAG 파이프라인 구축 완료!\n")
 
-    def search_and_rerank(self, query_text, retrieve_k=50, final_k=10):
-        """1차 50개 넓은 검색 후 -> 2차 리랭커로 정밀 상위 10개 압축"""
+    def search_and_rerank(self, query_text, retrieve_k=50, final_k=5):
+        """1차 50개 넓은 검색 후 -> 2차 리랭커로 정밀 상위 5개 압축"""
         # 1. 쿼리 임베딩
         query_embeddings = self.embed_model.encode([query_text], return_dense=True, return_sparse=True)
         
@@ -75,13 +75,13 @@ class HoseoRAGPipeline:
                 "entity": candidates[i].entity
             })
             
-        # 5. 리랭커 점수 기준으로 정렬 후 Top 10 반환
+        # 5. 리랭커 점수 기준으로 정렬 후 Top K 반환
         sorted_hits = sorted(reranked_list, key=lambda x: x['score'], reverse=True)
         return sorted_hits[:final_k]
 
     def generate_answer(self, query_text):
         """정교한 프롬프팅과 Reverse Repacking이 적용된 GPT-4o-mini 답변 생성"""
-        hits = self.search_and_rerank(query_text, retrieve_k=50, final_k=10)
+        hits = self.search_and_rerank(query_text, retrieve_k=50, final_k=5)
         
         if not hits:
             return "관련된 공지사항을 찾을 수 없습니다."
@@ -112,7 +112,8 @@ class HoseoRAGPipeline:
 2. 정보 부재 처리: 제공된 문서에서 질문에 대한 답을 완전히 찾을 수 없다면, "제공된 공지사항 문서에서는 해당 정보를 찾을 수 없습니다."라고 명확히 안내하세요.
 3. 출처 명시: 텍스트를 요약할 때, 가급적 '[0000년 OO부서 공지 기준]'과 같이 출처 맥락을 덧붙여 신뢰도를 높이세요.
 4. 중요도 우선 반영: 문서는 중요도 역순(1위 문서가 가장 마지막에 위치)으로 제공됩니다. 충돌하는 정보가 있다면 최신 연도와 상위 중요도(1위 쪽에 가까운) 문서를 우선하여 답변하세요.
-5. 가독성: 읽기 쉽게 굵은 글씨(**)와 글머리 기호(-, 1. 등)를 적절히 사용하세요."""
+5. 가독성: 읽기 쉽게 줄바꿈과 글머리 기호를 사용하고, 마크다운 강조(**)는 사용하지 마세요.
+6. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요."""
 
         user_prompt = f"""[검색된 공지사항 문서]
 {context_block}

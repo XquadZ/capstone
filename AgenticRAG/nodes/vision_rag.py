@@ -439,7 +439,9 @@ def _call_vlm(
                 "### 지시:\n"
                 "1. 조문·표의 숫자·기한은 가능하면 이미지에 보이는 그대로 인용하세요.\n"
                 "2. 확실하지 않은 내용은 추측하지 마세요.\n"
-                "3. 답변 끝에 '📚 [분석 근거]'에 규정 파일명·페이지를 나열하세요.\n\n"
+                "3. 답변 끝에 '📚 [분석 근거]'에 규정 파일명·페이지를 나열하세요.\n"
+                "4. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
+                "5. 답변에 마크다운 강조(**)를 사용하지 마세요.\n\n"
                 f"[첨부 상태] {attachment_status}\n\n"
                 f"[검색된 규정 본문]\n{text_context}\n\n"
                 f"사용자 질문: {question}"
@@ -451,7 +453,9 @@ def _call_vlm(
                 "### 지시:\n"
                 "1. 표·수치·기한·절차는 가능하면 이미지에 보이는 그대로 인용하세요.\n"
                 "2. 확실하지 않은 내용은 추측하지 마세요.\n"
-                "3. 답변 끝에 '📚 [분석 근거]' 섹션을 두고, 사용한 파일·페이지(또는 본문 출처)를 나열하세요.\n\n"
+                "3. 답변 끝에 '📚 [분석 근거]' 섹션을 두고, 사용한 파일·페이지(또는 본문 출처)를 나열하세요.\n"
+                "4. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
+                "5. 답변에 마크다운 강조(**)를 사용하지 마세요.\n\n"
                 f"[첨부 상태] {attachment_status}\n\n"
                 f"[검색된 공지 본문]\n{text_context}\n\n"
                 f"사용자 질문: {question}"
@@ -464,7 +468,9 @@ def _call_vlm(
                 "원문 PDF 이미지를 열 수 없어 아래 [검색된 규정 본문]만 근거로 답하세요.\n\n"
                 "### 지시:\n"
                 "1. 제공된 본문만 근거로 하세요.\n"
-                "2. 답변 끝에 '📚 [분석 근거]'에 규정 출처(파일명·페이지)를 적으세요.\n\n"
+                "2. 답변 끝에 '📚 [분석 근거]'에 규정 출처(파일명·페이지)를 적으세요.\n"
+                "3. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
+                "4. 답변에 마크다운 강조(**)를 사용하지 마세요.\n\n"
                 f"[첨부 상태] {attachment_status}\n\n"
                 f"[검색된 규정 본문]\n{text_context}\n\n"
                 f"사용자 질문: {question}"
@@ -475,7 +481,9 @@ def _call_vlm(
                 "첨부 PDF/이미지는 없거나 열 수 없어, 아래 [검색된 공지 본문]만 근거로 답하세요.\n\n"
                 "### 지시:\n"
                 "1. 본문에 근거해 답하세요. 없는 내용은 지어내지 마세요.\n"
-                "2. 답변 끝에 '📚 [분석 근거]'에 인용한 공지 출처(parent_id·분류)를 요약해 적으세요.\n\n"
+                "2. 답변 끝에 '📚 [분석 근거]'에 인용한 공지 출처(parent_id·분류)를 요약해 적으세요.\n"
+                "3. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
+                "4. 답변에 마크다운 강조(**)를 사용하지 마세요.\n\n"
                 f"[첨부 상태] {attachment_status}\n\n"
                 f"[검색된 공지 본문]\n{text_context}\n\n"
                 f"사용자 질문: {question}"
@@ -578,11 +586,11 @@ def vision_rag_node(state: AgentState) -> dict:
     try:
         generation = _call_vlm(question, image_contents, text_context, attachment_status, domain=domain)
         trace_title = (
-            "**TV-RAG Traceability (Notice Vision):**\n"
+            "TV-RAG Traceability (Notice Vision):\n"
             if domain != "rules" and image_contents
-            else "**TV-RAG Traceability (Rules Vision):**\n"
+            else "TV-RAG Traceability (Rules Vision):\n"
             if domain == "rules" and image_contents
-            else "**TV-RAG (텍스트 전용 폴백):**\n"
+            else "TV-RAG (텍스트 전용 폴백):\n"
         )
         source_footer = f"\n\n📍 {trace_title}"
         if processed_pages_log:

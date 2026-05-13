@@ -48,7 +48,7 @@ print("✅ 챗봇 준비 완료!\n" + "="*50)
 # ==========================================
 # 🔍 2. 하이브리드 검색 엔진
 # ==========================================
-def retrieve_documents(query, top_k_milvus=10, final_top_k=3):
+def retrieve_documents(query, top_k_milvus=10, final_top_k=5):
     query_embs = embedder.encode([query], return_dense=True, return_sparse=True)
     dense_vec = query_embs['dense_vecs'][0].tolist()
     sparse_vec = query_embs['lexical_weights'][0]
@@ -91,7 +91,9 @@ def generate_answer(query, retrieved_chunks):
 [답변 규칙]
 1. 문서에 없는 내용은 절대 지어내지 마세요. 판단할 수 없는 경우 "제공된 규정에서는 해당 내용을 찾을 수 없습니다."라고 답변하세요.
 2. 답변 시 반드시 근거가 된 [참고 문서]의 출처(파일명)와 조항 번호를 명시하세요.
-3. 사용자가 읽기 쉽도록 줄바꿈과 글머리 기호를 적절히 사용하세요."""
+3. 사용자가 읽기 쉽도록 줄바꿈과 글머리 기호를 적절히 사용하세요.
+4. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.
+5. 답변에 마크다운 강조(**)를 사용하지 마세요."""
 
     user_prompt = f"{context_text}\n\n[사용자 질문]\n{query}"
 
