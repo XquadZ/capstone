@@ -4,6 +4,7 @@ import time
 import requests
 import re
 import urllib3
+from pathlib import Path
 from datetime import datetime
 from urllib.parse import urljoin
 from selenium import webdriver
@@ -16,13 +17,20 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+
 class HoseoRealCrawler:
-    def __init__(self):
+    DEFAULT_BOARD_ACTION = "MAPP_1708240139"
+    DEFAULT_CATEGORY_CODE = "CTG_17082400011"
+
+    def __init__(self, board_action: str | None = None, sch_categorycode: str | None = None):
         self.base_url = "https://www.hoseo.ac.kr"
-        self.list_url_template = "https://www.hoseo.ac.kr/Home/BBSList.mbz?action=MAPP_1708240139&schCategorycode=CTG_17082400011&pageIndex={}"
-        self.view_url_template = "https://www.hoseo.ac.kr/Home/BBSView.mbz?action=MAPP_1708240139&schCategorycode=CTG_17082400011&schIdx={}"
-        
-        self.save_root = os.path.join(os.getcwd(), "data", "raw")
+        self.board_action = board_action or self.DEFAULT_BOARD_ACTION
+        self.sch_categorycode = sch_categorycode or self.DEFAULT_CATEGORY_CODE
+        self._rebuild_list_view_templates()
+
+        self.save_root = str(_PROJECT_ROOT / "data" / "raw")
         
         # 🎯 목표 기한을 2024년 1월 1일로 연장
         self.target_limit = datetime(2024, 1, 1)
@@ -35,6 +43,24 @@ class HoseoRealCrawler:
         print("🌐 브라우저를 실행 중입니다...")
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
         self.wait = WebDriverWait(self.driver, 15)
+
+    def _rebuild_list_view_templates(self) -> None:
+        self.list_url_template = (
+            f"https://www.hoseo.ac.kr/Home/BBSList.mbz?action={self.board_action}"
+            f"&schCategorycode={self.sch_categorycode}&pageIndex={{}}"
+        )
+        self.view_url_template = (
+            f"https://www.hoseo.ac.kr/Home/BBSView.mbz?action={self.board_action}"
+            f"&schCategorycode={self.sch_categorycode}&schIdx={{}}"
+        )
+
+    def set_board(self, board_action: str | None = None, sch_categorycode: str | None = None) -> None:
+        """목록·상세 URL을 동일 게시판의 다른 카테고리로 전환."""
+        if board_action is not None:
+            self.board_action = board_action
+        if sch_categorycode is not None:
+            self.sch_categorycode = sch_categorycode
+        self._rebuild_list_view_templates()
 
     def download_file(self, url, save_path):
         try:
@@ -50,9 +76,21 @@ class HoseoRealCrawler:
             return False
         except: return False
 
-    def crawl_details(self, notice_id, title, date_str):
+    def crawl_details(
+        self,
+        notice_id,
+        title,
+        date_str,
+        sch_categorycode: str | None = None,
+        board_action: str | None = None,
+    ):
         try:
-            target_url = self.view_url_template.format(notice_id)
+            ba = board_action or self.board_action
+            cat = sch_categorycode or self.sch_categorycode
+            target_url = (
+                f"https://www.hoseo.ac.kr/Home/BBSView.mbz?action={ba}"
+                f"&schCategorycode={cat}&schIdx={notice_id}"
+            )
             self.driver.get(target_url)
             
             # 본문 대기 (스크린샷 기반 ID 사용)

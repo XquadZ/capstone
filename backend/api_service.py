@@ -12,7 +12,7 @@ import time
 from typing import Any, Dict, List, Optional, Tuple
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
 # ---------------------------------------------------------------------------
@@ -27,6 +27,25 @@ if not SAIFEX_API_KEY:
 
 os.environ["OPENAI_API_KEY"] = SAIFEX_API_KEY
 os.environ["OPENAI_BASE_URL"] = SAIFEX_BASE_URL
+
+# 로컬 자가 테스트: /ask 시 서버 터미널에 질문·답변 미리보기 출력 (운영 배포 시 False)
+ASK_LOG_TO_TERMINAL: bool = True
+ASK_LOG_ANSWER_MAX_CHARS: int = 8000
+
+
+def _print_ask_terminal_preview(question: str, route: str, latency_sec: float, answer: str) -> None:
+    if not ASK_LOG_TO_TERMINAL:
+        return
+    body = (answer or "").strip()
+    if len(body) > ASK_LOG_ANSWER_MAX_CHARS:
+        tail = len(answer) - ASK_LOG_ANSWER_MAX_CHARS
+        body = body[:ASK_LOG_ANSWER_MAX_CHARS] + f"\n... ({tail}자 생략)"
+    print("\n" + "=" * 60, flush=True)
+    print(f"[ASK] Q: {question}", flush=True)
+    print(f"[ASK] route={route}  latency_sec={latency_sec}", flush=True)
+    print("[ASK] A:", flush=True)
+    print(body, flush=True)
+    print("=" * 60 + "\n", flush=True)
 
 
 # --- 요청/응답 스키마 ---------------------------------------------------------
@@ -208,6 +227,16 @@ def health():
     return {"status": "ok", "service": "tv-rag-api", "ts": time.time()}
 
 
+@app.get("/ask-preview", response_model=AskResponse)
+def ask_preview(
+    q: str = Query(..., min_length=1, description="질문 (브라우저·curl 자가 테스트용)"),
+    domain: str = Query("notice", description="notice | rules"),
+    use_tv_rag: bool = Query(True),
+):
+    """POST /ask 와 동일 파이프라인. 터미널 미리보기 로그도 동일하게 출력됩니다."""
+    return ask(AskRequest(question=q.strip(), domain=domain, use_tv_rag=use_tv_rag))
+
+
 @app.post("/ask", response_model=AskResponse)
 def ask(req: AskRequest):
     domain = _normalize_domain(req.domain)
@@ -224,6 +253,8 @@ def ask(req: AskRequest):
             answer, contexts, sources, meta = _rules_text_only(q)
 
     latency_sec = round(time.time() - started, 4)
+    _print_ask_terminal_preview(q, route, latency_sec, answer)
+
     return AskResponse(
         domain=domain,
         question=q,
