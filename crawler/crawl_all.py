@@ -2,7 +2,7 @@
 호서대 공지 전체 백필: 게시판의 모든 카테고리·페이지를 순회하며
 Milvus에 없는 schIdx(= parent_id)만 incremental과 동일한 파이프라인으로 등록합니다.
 
-incremental_notice_update.py 는 수정하지 않고, 여기서만 목록 순회·카테고리별 상세 URL을 처리합니다.
+목록/상세 크롬 세션 끊김 시 자동 재시작, 배치마다 BGE-M3·OCR·정제기 재사용으로 장시간 실행을 안정화합니다.
 """
 
 from __future__ import annotations
@@ -27,10 +27,16 @@ if sys.stdout.encoding.lower() != "utf-8":
     sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
 import requests
+from selenium.common.exceptions import InvalidSessionIdException, WebDriverException
 from selenium.webdriver.common.by import By
 
+from ai_engine.chunker import ContextualChunker
+from ai_engine.full_text_extractor import FullTextExtractor
+from ai_engine.local_slm_refiner import GPTRefiner
+from ai_engine.vector_db import MilvusIndexer
 from crawler.hoseo_spider import HoseoRealCrawler
 from crawler.incremental_notice_update import IncrementalNoticeUpdater, _log
+from pymilvus import Collection
 
 
 def _extract_notice_id_from_row(row) -> str:
@@ -92,7 +98,122 @@ def parse_list_row(row, board_action: str, category: str) -> Optional[Dict[str, 
     }
 
 
-def discover_category_codes(crawler: HoseoRealCrawler, board_action: str) -> List[str]:
+def _session_broken(exc: BaseException) -> bool:
+    if isinstance(exc, InvalidSessionIdException):
+        return True
+    msg = str(exc).lower()
+    return "invalid session" in msg or "disconnected" in msg or "not connected to devtools" in msg
+
+
+class _ListBrowser:
+    """목록 전용 크롬. 세션 끊기면 재생성."""
+
+    def __init__(self, board_action: str):
+        self.board_action = board_action
+        self._c = HoseoRealCrawler(board_action=board_action)
+
+    @property
+    def crawler(self) -> HoseoRealCrawler:
+        return self._c
+
+    def recreate(self) -> None:
+        _log("⚠️ 목록용 크롬 세션 끊김 → 재시작")
+        try:
+            self._c.driver.quit()
+        except Exception:
+            pass
+        self._c = HoseoRealCrawler(board_action=self.board_action)
+
+    def close(self) -> None:
+        try:
+            self._c.driver.quit()
+        except Exception:
+            pass
+
+
+class _DetailBrowser:
+    """상세 크롤 전용 크롬(배치 간 재사용)."""
+
+    def __init__(self):
+        self._c: Optional[HoseoRealCrawler] = None
+
+    @property
+    def crawler(self) -> HoseoRealCrawler:
+        if self._c is None:
+            self._c = HoseoRealCrawler()
+        return self._c
+
+    def recreate(self) -> None:
+        _log("⚠️ 상세 크롬 세션 끊김 → 재시작")
+        try:
+            if self._c is not None:
+                self._c.driver.quit()
+        except Exception:
+            pass
+        self._c = HoseoRealCrawler()
+
+    def close(self) -> None:
+        if self._c is not None:
+            try:
+                self._c.driver.quit()
+            except Exception:
+                pass
+            self._c = None
+
+
+class _PipelineReuse:
+    """OCR·정제·청크·BGE-M3 인덱서를 배치마다 재로드하지 않도록 유지."""
+
+    def __init__(self, collection_name: str):
+        self.collection_name = collection_name
+        self._extractor: Optional[FullTextExtractor] = None
+        self._refiner: Optional[GPTRefiner] = None
+        self._chunker: Optional[ContextualChunker] = None
+        self._indexer: Optional[MilvusIndexer] = None
+
+    @property
+    def extractor(self) -> FullTextExtractor:
+        if self._extractor is None:
+            self._extractor = FullTextExtractor()
+        return self._extractor
+
+    @property
+    def refiner(self) -> GPTRefiner:
+        if self._refiner is None:
+            self._refiner = GPTRefiner()
+        return self._refiner
+
+    @property
+    def chunker(self) -> ContextualChunker:
+        if self._chunker is None:
+            self._chunker = ContextualChunker()
+        return self._chunker
+
+    @property
+    def indexer(self) -> MilvusIndexer:
+        if self._indexer is None:
+            self._indexer = MilvusIndexer(collection_name=self.collection_name)
+            self._indexer.collection = Collection(self.collection_name)
+            self._indexer.collection.load()
+        return self._indexer
+
+
+def _retry_list_op(list_browser: _ListBrowser, op, max_tries: int = 4):
+    last_err: Optional[BaseException] = None
+    for _ in range(max_tries):
+        try:
+            return op(list_browser.crawler)
+        except (InvalidSessionIdException, WebDriverException) as e:
+            last_err = e
+            if _session_broken(e):
+                list_browser.recreate()
+                continue
+            raise
+    if last_err:
+        raise last_err
+
+
+def discover_category_codes_on(crawler: HoseoRealCrawler, board_action: str) -> List[str]:
     crawler.set_board(board_action=board_action, sch_categorycode=HoseoRealCrawler.DEFAULT_CATEGORY_CODE)
     crawler.driver.get(crawler.list_url_template.format(1))
     time.sleep(0.8)
@@ -103,6 +224,26 @@ def discover_category_codes(crawler: HoseoRealCrawler, board_action: str) -> Lis
         codes.add(m.group(1))
     codes.add(HoseoRealCrawler.DEFAULT_CATEGORY_CODE)
     return sorted(codes)
+
+
+def discover_category_codes(list_browser: _ListBrowser, board_action: str) -> List[str]:
+    return _retry_list_op(list_browser, lambda c: discover_category_codes_on(c, board_action))
+
+
+def scrape_list_page_safe(
+    list_browser: _ListBrowser,
+    board_action: str,
+    category: str,
+    page: int,
+) -> List[Dict[str, str]]:
+    try:
+        return _retry_list_op(
+            list_browser,
+            lambda c: scrape_list_page(c, board_action, category, page),
+        )
+    except Exception as e:
+        _log(f"⚠️ 목록 페이지 로드 실패 (cat={category} page={page}): {e}")
+        return []
 
 
 def scrape_list_page(
@@ -133,12 +274,16 @@ def scrape_list_page(
 def crawl_targets_with_category(
     updater: IncrementalNoticeUpdater,
     targets: List[Dict[str, str]],
+    detail: Optional[_DetailBrowser] = None,
 ) -> List[str]:
-    """incremental 의 crawl_targets 와 동일하되, 카테고리·action 이 다른 글도 상세 URL에 반영."""
+    """상세 크롤. detail 을 넘기면 배치 간 브라우저 재사용(세션 끊기면 재생성)."""
     if not targets:
         return []
 
-    crawler = HoseoRealCrawler()
+    own_detail = detail is None
+    if own_detail:
+        detail = _DetailBrowser()
+
     crawled_ids: List[str] = []
     try:
         _log(f"🧪 상세 크롤 대상: {len(targets)}개")
@@ -151,19 +296,30 @@ def crawl_targets_with_category(
                 crawled_ids.append(notice_id)
                 continue
 
-            ok = crawler.crawl_details(
-                notice_id,
-                target["title"],
-                target["date"],
-                sch_categorycode=target.get("schCategorycode"),
-                board_action=target.get("board_action"),
-            )
+            ok = False
+            for attempt in range(2):
+                crawler = detail.crawler
+                try:
+                    ok = crawler.crawl_details(
+                        notice_id,
+                        target["title"],
+                        target["date"],
+                        sch_categorycode=target.get("schCategorycode"),
+                        board_action=target.get("board_action"),
+                    )
+                    break
+                except (InvalidSessionIdException, WebDriverException) as e:
+                    if _session_broken(e) and attempt == 0:
+                        detail.recreate()
+                        continue
+                    raise
             if ok:
                 _log(f"✅ 상세 수집 완료: {notice_id}")
                 crawled_ids.append(notice_id)
             time.sleep(0.5)
     finally:
-        crawler.driver.quit()
+        if own_detail:
+            detail.close()
     return crawled_ids
 
 
@@ -172,13 +328,15 @@ def run_pipeline_for_batch(
     targets: List[Dict[str, str]],
     *,
     send_webhook: bool,
+    detail: _DetailBrowser,
+    pipeline: _PipelineReuse,
 ) -> tuple[int, List[str]]:
-    """통합 텍스트 → 정제 → 청크 → Milvus (incremental 의 run_once 중간 단계와 동일)."""
-    crawled_ids = crawl_targets_with_category(updater, targets)
-    updater.build_integrated_text_for_ids(crawled_ids)
-    updater.refine_integrated_text_for_ids(crawled_ids)
-    chunk_files = updater.chunk_refined_json_for_ids(crawled_ids)
-    inserted = updater.insert_chunk_files(chunk_files)
+    """통합 텍스트 → 정제 → 청크 → Milvus (모델·인덱서 재사용)."""
+    crawled_ids = crawl_targets_with_category(updater, targets, detail=detail)
+    updater.build_integrated_text_for_ids(crawled_ids, extractor=pipeline.extractor)
+    updater.refine_integrated_text_for_ids(crawled_ids, refiner=pipeline.refiner)
+    chunk_files = updater.chunk_refined_json_for_ids(crawled_ids, chunker=pipeline.chunker)
+    inserted = updater.insert_chunk_files(chunk_files, indexer=pipeline.indexer)
 
     if send_webhook and crawled_ids:
         event_items = updater._build_notice_event_items(crawled_ids)
@@ -245,13 +403,19 @@ def main() -> None:
     total_new_scanned = 0
     total_inserted = 0
 
-    list_crawler = HoseoRealCrawler(board_action=board_action)
+    list_browser = _ListBrowser(board_action)
+    detail: Optional[_DetailBrowser] = None
+    pipeline: Optional[_PipelineReuse] = None
     try:
         if args.categories.strip():
             categories = [c.strip() for c in args.categories.split(",") if c.strip()]
         else:
-            categories = discover_category_codes(list_crawler, board_action)
+            categories = discover_category_codes(list_browser, board_action)
         _log(f"📂 카테고리 {len(categories)}개: {', '.join(categories[:12])}{' ...' if len(categories) > 12 else ''}")
+
+        if not args.dry_run:
+            detail = _DetailBrowser()
+            pipeline = _PipelineReuse(args.collection)
 
         buffer: List[Dict[str, str]] = []
 
@@ -264,10 +428,14 @@ def main() -> None:
             if args.dry_run:
                 _log(f"🧪 [dry-run] 배치 {len(batch)}건 스킵 (첫 id={batch[0]['id']})")
                 return
+            if detail is None or pipeline is None:
+                raise RuntimeError("내부 오류: detail/pipeline 이 초기화되지 않았습니다.")
             inserted, crawled = run_pipeline_for_batch(
                 updater,
                 batch,
                 send_webhook=not args.no_webhook,
+                detail=detail,
+                pipeline=pipeline,
             )
             total_inserted += inserted
             existing_ids.update(crawled)
@@ -284,7 +452,7 @@ def main() -> None:
                 if args.max_pages and page > args.max_pages:
                     break
 
-                rows = scrape_list_page(list_crawler, board_action, cat, page)
+                rows = scrape_list_page_safe(list_browser, board_action, cat, page)
                 if not rows:
                     _log(f"⏹ 카테고리 {cat} 페이지 {page}: 행 없음 → 다음 카테고리")
                     break
@@ -309,7 +477,9 @@ def main() -> None:
         flush_buffer()
 
     finally:
-        list_crawler.driver.quit()
+        list_browser.close()
+        if detail is not None:
+            detail.close()
 
     _log(
         f"🏁 crawl_all 종료: 스캔한 신규(미등록) 건수={total_new_scanned}, "
