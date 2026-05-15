@@ -14,7 +14,7 @@
 - **동적 라우터**: 매 질문마다 위 두 경로 중 하나를 고르는 **이진 결정(TEXT / VISION)**을 내립니다.  
   **`hoseo_router_gemma_2b_sft`**는 그 결정을 **짧은 프롬프트만으로 빠르게** 내리도록 SFT된 **LoRA 어댑터**(베이스: `google/gemma-2-2b-it`)입니다.
 
-> LangGraph 에이전트(`AgenticRAG/graph/main_agent.py`)의 `router_node`는 현재 **룰베이스 예시**이며, 추후 동일 슬롯에 **학습된 Gemma 라우터 추론**을 연결하는 것을 전제로 합니다.
+> 운영 채팅 API(`backend/api_service.py`)는 **학습된 Gemma 라우터**(`AgenticRAG/nodes/router.py`, LoRA `gemma_router_lora_v4`)를 사용합니다. LangGraph `main_agent.py`는 별도 프로토타입입니다.
 
 ---
 
@@ -28,7 +28,8 @@
 | 생성·평가 LLM | **gpt-4o-mini** 등 (OpenAI / SAIFEX 등 엔드포인트) |
 | 동적 라우터 | **google/gemma-2-2b-it** + **PEFT LoRA** → 산출물 **`hoseo_router_gemma_2b_sft/`** |
 | 에이전트 실험 | **LangGraph** (`AgenticRAG/graph/`) |
-| 프론트(연동 예정) | React + **SSE** 스트리밍 |
+| 백엔드 연동 | Spring Boot → AI **JSON** `/ask` |
+| 프론트(연동) | Flutter + **SSE** (Spring `/api/chat/ask`) |
 | 문서 | `docs/` (아키텍처, API, 인프라, 프론트 SRS 등) |
 
 ---
@@ -37,32 +38,19 @@
 
 ```text
 capstone/
-├── ai_engine/                 # RAG 코어: 전처리, 청킹, Milvus 적재, 파이프라인
-│   ├── rag_pipeline.py        # 공지 Milvus RAG + OpenAI 생성
-│   ├── rag_pipeline_rules.py  # 학칙 Milvus RAG + 스트리밍 생성
-│   ├── vector_db.py / vector_db_rules.py
-│   ├── chunker.py, rule_data_chunker.py, md_parser_pdf.py
-│   ├── full_text_extractor.py, local_slm_refiner.py, vision_processor.py
-│   └── …
-├── evaluation/                # 벤치마크, RAGAS, 플롯
-│   ├── scripts/
-│   └── datasets/ / results/   # 대부분 .gitignore (용량)
-├── AgenticRAG/                # LangGraph + 라우터 학습·평가
-│   ├── graph/
-│   │   ├── main_agent.py      # Router → Text/Vision RAG → Critic 그래프
-│   │   └── state.py
-│   ├── nodes/
-│   │   ├── text_rag.py, vision_rag.py, critic.py
-│   │   └── router.py          # (확장용)
-│   ├── training/              # ⬇︎ SFT·DPO·데이터 스크립트 (아래 상세)
-│   └── eval/
-├── docs/                      # system_arch, api_spec, infra_setup, frontend_srs, …
-├── docker-compose.yml         # Milvus 스택
-├── requirements.txt
-├── PROJECT_MAP.md             # 파일별 역할 맵
-├── hoseo_router_gemma_2b_sft/ # ✅ SFT 완료 LoRA 어댑터 (프로젝트 루트)
-│   # adapter_config.json, adapter_model.safetensors, tokenizer* …
-└── …                          # temp_*_checkpoints, 기타 실험 산출물 (로컬)
+├── backend/
+│   └── api_service.py         # FastAPI TV-RAG — POST /ask (Spring 연동)
+├── ai_engine/                 # RAG 코어: 전처리, 청킹, Milvus, 파이프라인
+├── crawler/                   # hoseo_spider, incremental, crawl_all
+├── AgenticRAG/
+│   ├── nodes/                 # router.py, text_rag.py, vision_rag.py
+│   ├── graph/main_agent.py    # LangGraph 프로토타입
+│   └── training/              # 라우터 SFT·DPO
+├── evaluation/scripts/
+├── docs/
+├── docker-compose.yml
+├── experience/exp1/gemma_router_lora_v4/  # 라우터 LoRA (기본)
+└── PROJECT_MAP.md
 ```
 
 `data/`·`volumes/`·대용량 결과물·일부 체크포인트는 **`.gitignore`** 대상입니다. 모델 폴더 정책은 팀 규칙에 맞게 유지하세요.
@@ -125,11 +113,20 @@ capstone/
 
 ## ▶️ 빠른 시작 (요약)
 
-1. **Milvus**: 저장소 루트에서 `docker compose up -d`  
-2. **의존성**: `pip install -r requirements.txt` 및 Milvus/RAG 스크립트에 필요한 패키지 추가 설치 (`pymilvus`, `FlagEmbedding`, `openai` 등 — [docs/infra_setup.md](docs/infra_setup.md) 참고)  
-3. **공지 RAG**: `ai_engine/` 파이프라인으로 청크 적재 후 `rag_pipeline.py`  
-4. **학칙 RAG**: `md_parser_pdf` → `rule_data_chunker` → `vector_db_rules` → `rag_pipeline_rules.py`  
-5. **라우터 SFT**: `AgenticRAG/training/`에서 데이터 준비 후 `train_router_sft.py` → **`hoseo_router_gemma_2b_sft`** 생성 → `eval_router_sft.py`로 검증  
+### TV-RAG 채팅 API (Spring/ngrok 연동)
+
+1. `docker compose up -d` (Milvus)  
+2. `conda activate capstone_final` + `SAIFEX_API_KEY` 설정  
+3. `python -m backend.api_service` (포트 8000)  
+4. `ngrok http 8000` → Spring `rag.server.url`에 등록  
+5. API 계약: [docs/api_spec.md](docs/api_spec.md)
+
+### 데이터·인덱싱
+
+1. **증분 공지**: `python -m crawler.incremental_notice_update --once`  
+2. **전체 백필**: `python -m crawler.crawl_all --no-webhook`  
+3. **학칙 RAG**: `md_parser_pdf` → `rule_data_chunker` → `vector_db_rules`  
+4. **라우터 SFT**: `AgenticRAG/training/` — [docs/infra_setup.md](docs/infra_setup.md) 참고  
 
 ---
 

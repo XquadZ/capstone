@@ -1,87 +1,137 @@
-# Infrastructure Setup Guide (Current)
+# Infrastructure Setup Guide (2026-05)
 
-본 문서는 현재 저장소에서 실제로 사용 중인 인프라(Milvus + Python 실행 스크립트) 기준으로 정리한다.
+Milvus + TV-RAG API + (선택) ngrok + 크롤러 실행 가이드입니다.
 
 ## 1. 권장 환경
 
-- GPU: RTX 4090 (권장)
-- OS: Windows 10/11 또는 Ubuntu 22.04+
-- Python: 3.10+
-- Docker Desktop 또는 Docker Engine
+- GPU: RTX 4090 (권장, 라우터·BGE-M3·OCR)
+- OS: Windows 10/11
+- Python: 3.10+ (conda `capstone_final` 등)
+- Docker Desktop
+- Chrome (Selenium 크롤)
 
-## 2. Milvus 구동
+## 2. Milvus
 
-저장소 루트에서 아래 명령으로 Milvus 스택을 실행한다.
-
-```bash
+```powershell
+cd C:\Users\DMLAB_Server1\capstone
 docker compose up -d
-```
-
-구성 서비스(`docker-compose.yml`):
-- `milvus-etcd`
-- `milvus-minio`
-- `milvus-standalone` (port `19530`, `9091`)
-
-정상 확인:
-```bash
 docker ps
 ```
 
-## 3. Python 의존성 설치
+- 포트: **19530** (gRPC), **9091** (metrics)
+- 컨테이너: `milvus-etcd`, `milvus-minio`, `milvus-standalone`
 
-`requirements.txt`는 최소 패키지만 포함하므로, 실제 실행 스크립트 기준 추가 설치가 필요할 수 있다.
+## 3. Python 의존성
 
-```bash
+```powershell
 pip install -r requirements.txt
-pip install pymilvus FlagEmbedding openai python-dotenv
+pip install pymilvus FlagEmbedding openai python-dotenv fastapi uvicorn schedule selenium webdriver-manager
 ```
 
-필요 시(파일/비전 처리):
-```bash
-pip install pymupdf easyocr pillow olefile
+비전·첨부 처리:
+
+```powershell
+pip install pymupdf easyocr pillow olefile pdf2image
 ```
 
 ## 4. 환경 변수
 
-실행 시나리오에 따라 아래 키를 사용한다.
+| 변수 | 필수 | 용도 |
+|------|------|------|
+| `SAIFEX_API_KEY` | **TV-RAG API 필수** | `backend/api_service.py` |
+| `OPENAI_API_KEY` | 일부 스크립트 | 정제·평가 등 |
+| `NOTICE_EVENT_WEBHOOK_URL` | 선택 | 증분 크롤 → Spring 웹훅 |
+| `NOTICE_EVENT_API_KEY` | 선택 | 웹훅 인증 |
 
-- `OPENAI_API_KEY` : OpenAI 직접 호출 스크립트
-- `SAIFEX_API_KEY` : SAIFEX endpoint 호출 스크립트
+PowerShell:
 
-PowerShell 예시:
 ```powershell
-$env:OPENAI_API_KEY="..."
-$env:SAIFEX_API_KEY="..."
+$env:SAIFEX_API_KEY = "..."
 ```
 
-## 5. 데이터 경로 전제
+`.env`를 프로젝트 루트에 두면 `GPTRefiner` 등이 로드합니다.
 
-코드가 기대하는 기본 경로:
-- `data/raw/`
-- `data/processed/`
-- `data/rules_regulations/raw_pdfs/`
-- `data/rules_regulations/markdown_parsed/`
-- `data/rules_regulations/chunks/`
+## 5. TV-RAG 서버 실행 (3터미널)
 
-`data/`는 보통 Git 추적 제외이므로 별도 준비가 필요하다.
+### 터미널 1 — Milvus
 
-## 6. 실행 순서 (권장)
+```powershell
+cd C:\Users\DMLAB_Server1\capstone
+docker compose up -d
+```
 
-### 공지 파이프라인
-1. `python ai_engine/full_text_extractor.py`
-2. `python ai_engine/local_slm_refiner.py`
-3. `python ai_engine/chunker.py`
-4. `python ai_engine/vector_db.py`
-5. `python ai_engine/rag_pipeline.py`
+### 터미널 2 — AI API
 
-### 학칙 파이프라인
-1. `python ai_engine/md_parser_pdf.py`
-2. `python ai_engine/rule_data_chunker.py`
-3. `python ai_engine/vector_db_rules.py`
-4. `python ai_engine/rag_pipeline_rules.py`
+```powershell
+cd C:\Users\DMLAB_Server1\capstone
+conda activate capstone_final
+python -m backend.api_service
+```
 
-## 7. 트러블슈팅
+- 워밍업: BGE-M3 + Gemma 라우터 + (첫 추론) — 수 분 소요 가능
+- 확인: `http://localhost:8000/health`
 
-- Milvus 연결 실패: `localhost:19530` 포트 점유/컨테이너 상태 확인
-- 인코딩 깨짐(Windows): 스크립트 내 UTF-8 래핑 사용 또는 터미널 UTF-8 설정
-- OOM: batch size 축소, retrieve_k/top_k 축소, 비전 모델 동시 실행 지양
+### 터미널 3 — ngrok (Spring 연동 시)
+
+```powershell
+ngrok http 8000
+```
+
+Spring `rag.server.url` = `https://xxxx.ngrok-free.dev` (경로 `/ask` 제외)
+
+### 로컬 테스트
+
+```powershell
+curl http://localhost:8000/health
+curl -X POST http://localhost:8000/ask -H "Content-Type: application/json" -d "{\"question\":\"테스트\",\"domain\":\"notice\",\"use_tv_rag\":true}"
+```
+
+## 6. 크롤러·증분 업데이트
+
+```powershell
+conda activate capstone_final
+cd C:\Users\DMLAB_Server1\capstone
+
+# 최신 공지만 (1회)
+python -m crawler.incremental_notice_update --once
+
+# 스케줄 (10:00~17:30, 30분 간격)
+python -m crawler.incremental_notice_update
+
+# 전체 백필 (미등록 schIdx만)
+python -m crawler.crawl_all --no-webhook
+```
+
+## 7. 데이터 경로
+
+```text
+data/raw/{notice_id}/
+data/processed/integrated_text/
+data/processed/text/
+data/processed/chunks/
+data/rules_regulations/   # 학칙 PDF·청크
+```
+
+`data/`, `volumes/` — Git 미추적.
+
+## 8. 라우터 어댑터
+
+기본 경로: `experience/exp1/gemma_router_lora_v4/`  
+(`AgenticRAG/nodes/router.py`의 `ADAPTER_PATH`)
+
+## 9. 트러블슈팅
+
+| 증상 | 조치 |
+|------|------|
+| Milvus 연결 실패 | `docker compose ps`, 19530 |
+| `SAIFEX_API_KEY` 없음 | API 서버 기동 실패 |
+| `domain은 notice 또는 rules만` | Spring에서 `category` 매핑 |
+| Milvus `offset+limit` 16384 | `query_iterator` 사용 (이미 반영) |
+| 크롬 `InvalidSessionId` | `crawl_all` 세션 재시작 로직 |
+| ngrok HTML 응답 | `ngrok-skip-browser-warning` 헤더 |
+
+## 10. 관련 문서
+
+- [api_spec.md](api_spec.md)
+- [crawler_logic.md](crawler_logic.md)
+- [system_arch.md](system_arch.md)

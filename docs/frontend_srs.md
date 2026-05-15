@@ -1,9 +1,12 @@
 # Software Requirements Specification (SRS)
 ## 호서대 학칙/공지사항 멀티모달 RAG - 프론트엔드 명세서
 
-문서 버전: v1.1  
-작성일: 2026-03-21  
-대상: 프론트엔드(React) 개발팀, 백엔드 연동 담당, QA
+문서 버전: v1.2  
+작성일: 2026-05-15  
+대상: Flutter 앱, Spring 백엔드 연동, QA
+
+> **연동 구조:** Flutter → **Spring** `POST /api/chat/ask` (SSE) → AI `POST /ask` (JSON).  
+> 프론트는 **AI 서버 URL을 직접 호출하지 않습니다.** 상세: [api_spec.md](api_spec.md)
 
 ---
 
@@ -12,7 +15,7 @@
 이 문서는 호서대학교 공지사항/학칙 질의응답 서비스의 웹 프론트엔드 요구사항을 정의한다.  
 프론트엔드는 사용자 질문 입력, SSE 기반 스트리밍 답변 렌더링, 세션별 대화 이력, 출처 표시, 오류 복구 UX를 제공해야 한다.
 
-본 문서는 **웹 클라이언트(React)** 범위만 다루며, RAG 검색/생성 내부 알고리즘 자체는 백엔드 범위로 본다.
+본 문서는 **모바일 클라이언트(Flutter)** 범위를 다루며, RAG 검색/생성은 Spring·AI 서버 범위로 본다.
 
 ---
 
@@ -48,7 +51,7 @@
 - 빈 문자열/공백만 입력은 전송하지 않는다.
 
 ### FR-02. 스트리밍 응답 렌더링
-- `/chat/stream` 호출 후 SSE 데이터(`data: {...}`)를 실시간 파싱한다.
+- `/api/chat/ask` 호출 후 SSE 데이터(`data: {...}`)를 실시간 파싱한다.
 - `chunk` 텍스트를 순서대로 누적 렌더링한다.
 - 스트리밍 중에는 "생성 중" 상태를 표시한다.
 
@@ -117,21 +120,29 @@
 
 ## 6. 외부 인터페이스 요구사항
 
-본 장의 API 내용은 `docs/api_spec.md`의 최신 표준과 동일한 기준으로 유지한다.
+상세 계약: **[api_spec.md](api_spec.md)** (AI `/ask` + Spring SSE)
 
-## 6.1 API 연동 (요약)
-- Base URL: `http://<AI_ENGINE_HOST>:8000/api/v1`
+## 6.1 Flutter → Spring (SSE)
+
+- Method: `POST`
+- Path: `/api/chat/ask` (Spring, ngrok 등)
 - Content-Type: `application/json`
-- Endpoint: `POST /chat/stream`
+- Response: `text/event-stream`
 
 요청 예시:
 ```json
 {
-  "user_id": "student_123",
-  "session_id": "session_abc998",
-  "question": "이번 2026학년도 장학금 신청 기한이 언제야?"
+  "user_id": "deviceId",
+  "session_id": "sessionId",
+  "question": "이번 2026학년도 장학금 신청 기한이 언제야?",
+  "category": "일반"
 }
 ```
+
+| `category` (앱) | Spring → AI `domain` |
+|-------------------|----------------------|
+| `학칙`, `rules` | `rules` |
+| 그 외 | `notice` |
 
 SSE 응답 예시:
 ```text

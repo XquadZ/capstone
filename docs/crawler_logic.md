@@ -1,68 +1,91 @@
-# Crawler & Ingestion Logic (Current)
+# Crawler & Ingestion Logic (2026-05)
 
-이 문서는 현재 저장소의 전처리 흐름을 기준으로 작성되었다.  
-실제 크롤러 코드(`crawler/`)는 저장소에 포함되지 않았고, 수집 완료된 데이터가 `data/raw/`에 있다고 가정한다.
+공지 수집·증분·Milvus 적재 흐름입니다.
 
-## 1. 입력 데이터 전제
+## 1. 크롤러 스크립트 (`crawler/`)
 
-`data/raw/{notice_id}/` 구조를 기본으로 사용한다.
+| 파일 | 역할 |
+|------|------|
+| `hoseo_spider.py` | Selenium 목록·상세 크롤 → `data/raw/{notice_id}/` |
+| `incremental_notice_update.py` | 최신 N건 스캔 → Milvus 없는 것만 파이프라인 + 웹훅 |
+| `crawl_all.py` | 전 카테고리·전 페이지 백필 (미등록만) |
+| `delete_latest_notice_milvus.py` | 최근 청크 파일 기준 Milvus 삭제 (테스트) |
+| `delete_for_test.py` | parent_id 지정 삭제 |
+| `rule_spider.py` | 학칙·규정 수집 보조 |
+
+## 2. Raw 데이터 구조
 
 ```text
-data/raw/
-└── {notice_id}/
-    ├── info.json
-    ├── images/
-    └── attachments/
+data/raw/{notice_id}/
+├── info.json          # title, date, url, content, attachments, images
+├── images/
+└── attachments/
 ```
 
-`info.json`에는 제목/날짜/본문/저장된 첨부 경로가 포함된다고 가정한다.
+`hoseo_spider`는 `schCategorycode`·`board_action`별 상세 URL 지원.
 
-## 2. 공지사항 텍스트 통합 파이프라인
+## 3. 공지 파이프라인 (오프라인 / 증분 공통)
 
-### Step 1) 통합 추출
-- 스크립트: `ai_engine/full_text_extractor.py`
-- 처리:
-  - `info.json` 본문 결합
-  - 이미지 OCR (`easyocr`)
-  - 첨부파일 텍스트 추출 (`pdf`, `hwp`)
-- 출력: `data/processed/integrated_text/{notice_id}.txt`
+```text
+1. full_text_extractor.py
+   raw → data/processed/integrated_text/{id}.txt
+   (본문 + OCR + PDF/HWP)
 
-### Step 2) 구조화 정제
-- 스크립트: `ai_engine/local_slm_refiner.py`
-- 처리:
-  - 통합 txt를 LLM으로 정제
-  - 메타데이터(`year`, `category`, `target`, `entity`) 추출
-- 출력: `data/processed/text/{notice_id}.json`
+2. local_slm_refiner.py (GPTRefiner)
+   → data/processed/text/{id}.json
+   metadata: year, category, major_category, target, entity
 
-### Step 3) 청킹
-- 스크립트: `ai_engine/chunker.py`
-- 처리:
-  - 문단 단위 분할
-  - 문서 글로벌 컨텍스트 태깅
-- 출력: `data/processed/chunks/{notice_id}_chunks.json`
+3. chunker.py (ContextualChunker)
+   → data/processed/chunks/{id}_chunks.json
 
-### Step 4) 벡터 적재
-- 스크립트: `ai_engine/vector_db.py`
-- 처리:
-  - BGE-M3 dense+sparse 임베딩 생성
-  - Milvus 컬렉션(`hoseo_notices`) 인덱싱
+4. vector_db.py / MilvusIndexer
+   → hoseo_notices (BGE-M3 dense+sparse)
+```
 
-## 3. 학칙/규정 파이프라인
+## 4. 증분 업데이트 (`incremental_notice_update.py`)
 
-### Step 1) PDF -> Markdown(+page tag)
-- `ai_engine/md_parser_pdf.py`
+- Milvus `parent_id` 집합 로드 (`query_iterator`)
+- 목록 최신 **20건** 스캔 (기본 `scan_limit=20`)
+- 미등록만: 크롤 → 정제 → 청크 → insert
+- (선택) Spring 웹훅 `POST /api/notices/new`
 
-### Step 2) Markdown -> Chunk JSON
-- `ai_engine/rule_data_chunker.py`
+```powershell
+python -m crawler.incremental_notice_update --once
+python -m crawler.incremental_notice_update   # 스케줄러
+```
 
-### Step 3) 텍스트 교정(옵션)
-- `ai_engine/local_slm_refiner_rule.py`
+## 5. 전체 백필 (`crawl_all.py`)
 
-### Step 4) Milvus 적재
-- `ai_engine/vector_db_rules.py` -> `hoseo_rules_v1`
+- 카테고리 탭 `CTG_*` 자동 수집 또는 `--categories` 지정
+- 페이지 순회, Milvus에 없는 `schIdx`만 배치 처리
+- 크롬 세션 끊김 시 재시작, BGE-M3·OCR 배치 간 재사용
 
-## 4. 운영 시 주의사항
+```powershell
+python -m crawler.crawl_all --no-webhook
+python -m crawler.crawl_all --max-new 100 --batch-size 10
+```
 
-- `data/`는 Git 미추적이므로 백업/동기화 정책이 필요하다.
-- OCR/LLM 단계는 비용과 시간이 큰 구간이므로 배치 실행을 권장한다.
-- 전처리 중단 대비를 위해 스크립트별 산출물을 단계적으로 저장한다.
+## 6. LLM 정제 category (웹 탭 ≠ DB category)
+
+게시판 탭(`CTG_...`)과 별개로, **GPTRefiner**가 허용 목록 중 하나를 `metadata.category`에 부여합니다.
+
+- 허용 목록: 기존 `data/processed/text/*.json`에서 수집, 없으면 기본값  
+  `공지사항, 학사, 장학, 취업, …`
+- 채팅 `domain`(notice/rules)과는 **다른 축**입니다.
+
+## 7. 학칙 파이프라인
+
+```text
+md_parser_pdf → rule_data_chunker → (local_slm_refiner_rule) → vector_db_rules → hoseo_rules_v1
+```
+
+## 8. 운영 주의
+
+- `data/` Git 미추적 — 백업 필요
+- OCR·LLM·임베딩은 GPU·API 비용 큼
+- `crawl_all`은 장시간 실행 (재실행 시 Milvus 스킵)
+
+## 9. 관련 문서
+
+- [infra_setup.md](infra_setup.md)
+- [system_arch.md](system_arch.md)

@@ -1,75 +1,110 @@
-# System Architecture (2026-03)
+# System Architecture (2026-05)
 
-현재 저장소의 실제 코드 기준 아키텍처 요약 문서입니다.
+현재 저장소(`capstone/`) 코드 기준 아키텍처 요약입니다.
 
-## 1. 핵심 구성
-
-| 레이어 | 기술 | 역할 |
-|---|---|---|
-| Frontend | React (예정/연동) | SSE 스트리밍 답변 렌더링 |
-| Backend/API | FastAPI (문서 기준), Python 스크립트 기반 실행 | 질의 수신, RAG 호출, 스트리밍 응답 |
-| Vector DB | Milvus 2.4 (`docker-compose.yml`) | Dense/Sparse 하이브리드 검색 저장소 |
-| Embedding | `BAAI/bge-m3` | 쿼리/문서 임베딩(dense+sparse) |
-| Reranker | `BAAI/bge-reranker-v2-m3` | Cross-Encoder 재정렬 |
-| LLM | `gpt-4o-mini` / 로컬 sLM | 최종 답변 생성 |
-| Vision | GPT-4o Vision, ColPali/Byaldi 인덱스 실험 | 이미지/PDF 페이지 기반 보강 |
-
-## 2. 데이터 파이프라인
-
-### 2.1 공지사항 트랙
-1. `ai_engine/full_text_extractor.py`  
-   `data/raw/*`에서 본문/이미지/OCR/PDF/HWP 텍스트 통합
-2. `ai_engine/local_slm_refiner.py`  
-   통합 텍스트를 구조화 JSON으로 정제
-3. `ai_engine/chunker.py`  
-   검색용 청크 생성
-4. `ai_engine/vector_db.py`  
-   Milvus `hoseo_notices` 컬렉션 생성/적재
-5. `ai_engine/rag_pipeline.py`  
-   검색 + 리랭킹 + 생성
-
-### 2.2 학칙/규정 트랙
-1. `ai_engine/md_parser_pdf.py`  
-   PDF -> markdown(+page tag)
-2. `ai_engine/rule_data_chunker.py`  
-   markdown -> chunk JSON
-3. `ai_engine/vector_db_rules.py`  
-   Milvus `hoseo_rules_v1` 적재
-4. `ai_engine/rag_pipeline_rules.py`  
-   학칙 질의응답
-
-## 3. 검색/생성 흐름
-
-1. 사용자 질문 입력
-2. BGE-M3로 쿼리 dense/sparse 임베딩 생성
-3. Milvus hybrid search (`RRFRanker`)로 후보 추출
-4. BGE reranker로 상위 컨텍스트 재정렬
-5. 컨텍스트 기반으로 LLM 답변 생성
-6. (평가 스크립트에서) `contexts`를 함께 저장해 RAGAS 평가
-
-## 4. 멀티모달/에이전틱 확장
-
-- Vision 벤치마크: `evaluation/scripts/run_benchmark_rules_pdf.py`
-- ColPali 인덱싱 실험: `ai_engine/colpali.py`, `ai_engine/find.py`
-- AgenticRAG 프로토타입: `AgenticRAG/graph/main_agent.py`
-  - Router -> Text/Vision -> Critic 루프 구조
-  - 일부 노드 파일은 아직 스켈레톤 상태
-
-## 5. 인프라 구성
-
-Milvus는 `docker-compose.yml`로 관리:
-- `etcd`
-- `minio`
-- `milvus-standalone` (`19530`, `9091`)
-
-## 6. 디렉토리 스냅샷
+## 1. 전체 연동 구조 (운영)
 
 ```text
-CAPSTONE/
-├── ai_engine/                 # 전처리/인덱싱/RAG 코어
-├── evaluation/                # QA 생성/벤치마크/RAGAS/플롯
-├── AgenticRAG/                # LangGraph 기반 확장 실험
-├── docs/                      # 프로젝트 문서
-├── docker-compose.yml         # Milvus 스택
-└── requirements.txt           # 최소 의존성
+[Flutter 앱]
+    │  SSE   POST /api/chat/ask
+    │        body: user_id, session_id, question, category
+    ▼
+[Spring 백엔드]  (hoseo-chatbot)
+    │  JSON  POST {rag.server.url}/ask
+    │        body: question, domain, use_tv_rag
+    ▼
+[AI 서버]  backend/api_service.py  (FastAPI, port 8000)
+    │  TV-RAG: Gemma 라우터 → TEXT | VISION 노드
+    ▼
+[Milvus]  hoseo_notices | hoseo_rules_v1
 ```
+
+| 구간 | 프로토콜 | 비고 |
+|------|----------|------|
+| 앱 ↔ Spring | **SSE** (`chunk`, `sources`, `[DONE]`) | ngrok 등으로 Spring 노출 |
+| Spring ↔ AI | **JSON** (비스트리밍) | AI는 `answer` 한 번에 반환 |
+| AI 내부 | 동기 RAG + LLM | Spring이 단어 단위로 SSE 재조립 |
+
+## 2. 핵심 구성
+
+| 레이어 | 기술 | 역할 |
+|--------|------|------|
+| Frontend | Flutter (연동) | SSE 채팅 UI |
+| Backend | Spring Boot | 세션·DB·SSE 브릿지 |
+| AI API | **FastAPI** `backend/api_service.py` | `/ask`, `/health` |
+| Vector DB | Milvus 2.4 (`docker-compose.yml`) | BGE-M3 hybrid |
+| Embedding | `BAAI/bge-m3` | dense + sparse |
+| Reranker | `BAAI/bge-reranker-v2-m3` | 재정렬 |
+| Router | Gemma-2B + LoRA (`AgenticRAG/nodes/router.py`) | TEXT / VISION |
+| LLM | gpt-4o-mini (SAIFEX 게이트웨이) | 생성·Vision |
+
+## 3. TV-RAG (`POST /ask`, `use_tv_rag: true`)
+
+1. `domain` 정규화: `notice` | `rules` 만 허용
+2. `slm_router_node` → `TEXT` 또는 `VISION`
+3. **TEXT** (`AgenticRAG/nodes/text_rag.py`)
+   - `domain=notice` → `hoseo_notices` (`rag_pipeline_notice`)
+   - `domain=rules` → `hoseo_rules_v1` (`rag_pipeline_rules`)
+4. **VISION** (`AgenticRAG/nodes/vision_rag.py`)
+   - 동일 `domain` 분기, PDF/공지 이미지 + VLM
+5. JSON 응답: `answer`, `route`, `contexts`, `sources`, `latency_sec`, `meta`
+
+`use_tv_rag: false` 시 라우터 없이 단일 텍스트 RAG만 (`notice` / `rules` 각각).
+
+## 4. 데이터 파이프라인
+
+### 4.1 공지 (Notice)
+
+```text
+crawler/hoseo_spider.py
+  → data/raw/{notice_id}/
+  → full_text_extractor → integrated_text
+  → local_slm_refiner (GPT) → processed/text
+  → chunker → processed/chunks
+  → vector_db.py → Milvus hoseo_notices
+```
+
+**증분 운영:** `crawler/incremental_notice_update.py` (스케줄 또는 `--once`)  
+**전체 백필:** `crawler/crawl_all.py` (카테고리·페이지 순회, Milvus 미등록만)
+
+### 4.2 학칙 (Rules)
+
+```text
+md_parser_pdf → rule_data_chunker → vector_db_rules → hoseo_rules_v1
+```
+
+## 5. Milvus 컬렉션
+
+| 컬렉션 | 용도 | 적재 |
+|--------|------|------|
+| `hoseo_notices` | 공지 청크 | `vector_db.py` |
+| `hoseo_rules_v1` | 학칙 청크 | `vector_db_rules.py` |
+
+대량 `parent_id` 조회 시 `query_iterator` 사용 (`incremental_notice_update.load_existing_parent_ids`).
+
+## 6. 디렉터리 스냅샷
+
+```text
+capstone/
+├── backend/api_service.py      # FastAPI TV-RAG (Spring 연동)
+├── ai_engine/                  # RAG·전처리·인덱싱
+├── crawler/                    # hoseo_spider, incremental, crawl_all
+├── AgenticRAG/                 # router, text_rag, vision_rag
+├── evaluation/                 # 벤치마크·RAGAS
+├── docs/                       # 본 문서군
+├── docker-compose.yml
+└── experience/exp1/gemma_router_lora_v4/  # 라우터 LoRA (기본)
+```
+
+## 7. 레거시·실험
+
+- `ai_engine/rag_pipeline.py` — 공지+학칙 **단일 검색** (혼재 실험용, 운영 TV-RAG와 별도)
+- `ai_engine/colpali.py`, `sLM_RAG_pipeline.py` — 대안 스택
+- `AgenticRAG/graph/main_agent.py` — LangGraph 프로토타입
+
+## 8. 관련 문서
+
+- [api_spec.md](api_spec.md) — AI `/ask` + Spring SSE 계약
+- [infra_setup.md](infra_setup.md) — 실행·환경변수
+- [crawler_logic.md](crawler_logic.md) — 수집·증분
+- [PROJECT_MAP.md](../PROJECT_MAP.md) — 파일 맵

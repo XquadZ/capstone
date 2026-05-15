@@ -1,107 +1,143 @@
-# API Spec (Current Baseline)
+# API Spec (2026-05)
 
-이 문서는 현재 저장소 기준으로 프론트엔드/백엔드 연동 시 사용할 최소 API 계약을 정의한다.  
-현재 코드에는 API 서버 구현 파일이 포함되어 있지 않으므로, 아래는 `docs/frontend_srs.md`와 평가 스크립트에서 사용한 포맷을 기준으로 한 **권장 표준**이다.
+프론트·Spring·AI 팀 연동용 API 계약입니다.
 
-## 1. 기본 정책
+---
 
-- Base URL: `http://<AI_ENGINE_HOST>:8000/api/v1`
+## A. AI 서버 (FastAPI) — `backend/api_service.py`
+
+Spring이 **직접** 호출하는 엔드포인트입니다. (Flutter는 Spring만 호출)
+
+### A.1 기본
+
+- Base URL 예: `https://{ngrok-host}` (**끝에 `/ask` 없이**)
+- Path: `POST /ask`
 - Content-Type: `application/json`
-- 인증: 운영 환경에서는 `Authorization` 또는 `X-API-Key` 중 1개 표준화 필요
+- ngrok 무료 도메인: 요청 헤더 `ngrok-skip-browser-warning: true` 권장
 
-## 2. 스트리밍 채팅 API
+### A.2 Request
 
-### 2.1 Request
-- Method: `POST`
-- Path: `/chat/stream`
-
-요청 바디:
 ```json
 {
-  "user_id": "student_123",
-  "session_id": "session_abc998",
-  "question": "이번 2026학년도 장학금 신청 기한이 언제야?"
+  "question": "사용자 질문",
+  "domain": "notice",
+  "use_tv_rag": true
 }
 ```
 
-### 2.2 Response (SSE)
-응답은 `text/event-stream`으로 내려가며, `data:` 라인 단위로 파싱한다.
+| 필드 | 타입 | 필수 | 기본값 | 설명 |
+|------|------|------|--------|------|
+| `question` | string | O | - | 1자 이상 |
+| `domain` | string | X | `notice` | **`notice`** \| **`rules`** 만 |
+| `use_tv_rag` | boolean | X | `true` | TV-RAG(라우터+TEXT/VISION) vs 단일 텍스트 RAG |
+
+**Spring `category` → AI `domain` 매핑 (권장)**
+
+| 프론트/백 `category` | AI `domain` |
+|---------------------|-------------|
+| `rules`, `학칙` | `rules` |
+| 그 외 (`일반`, 공지 등) | `notice` |
+
+### A.3 Response (200)
+
+```json
+{
+  "domain": "notice",
+  "question": "...",
+  "answer": "최종 답변 전문",
+  "route": "TEXT",
+  "latency_sec": 12.34,
+  "contexts": ["..."],
+  "sources": ["[공지-학사] 97080"],
+  "meta": {
+    "pipeline": "agentic_tv_rag",
+    "domain": "notice",
+    "use_tv_rag": true,
+    "provider": "saifex",
+    "router_raw": "TEXT"
+  }
+}
+```
+
+### A.4 Errors
+
+| HTTP | 내용 |
+|------|------|
+| 400 | `domain`이 `notice`/`rules`가 아님 |
+| 422 | `question` 누락 등 |
+| 500 | Milvus/LLM/RAG 내부 오류 |
+
+### A.5 Health
+
+- `GET /health` → `{"status":"ok","service":"tv-rag-api","ts":...}`
+
+### A.6 Preview (개발용)
+
+- `GET /ask-preview?q=...&domain=notice&use_tv_rag=true`
+
+---
+
+## B. Spring 백엔드 — Flutter 연동
+
+### B.1 Request (앱 → Spring)
+
+`POST /api/chat/ask` (SSE)
+
+```json
+{
+  "user_id": "deviceId",
+  "session_id": "sessionId",
+  "question": "질문",
+  "category": "일반"
+}
+```
+
+### B.2 Response (Spring → 앱, SSE)
 
 ```text
-data: {"chunk":"2026학년도 "}
-data: {"chunk":"1학기 장학금 신청 기한은 ..."}
-data: {"chunk":"", "sources":[{"doc_id":"notice_123","title":"2026 장학금 안내","file_url":"https://..."}]}
+data: {"chunk":"단어 "}
+data: {"chunk":"", "sources":["..."]}
 data: [DONE]
 ```
 
-### 2.3 SSE 이벤트 규칙
+- 3초마다 comment `ping` (heartbeat) 가능
+- 실패 시: `{"error":{"code":"CONNECTION_FAILED","message":"..."}}`
 
-- `chunk`는 누적 가능한 문자열 조각이어야 한다.
-- 마지막 이벤트 전후로 `sources`를 1회 이상 제공한다.
-- 종료는 `data: [DONE]`으로 명시한다.
-- 오류 발생 시 표준 JSON 이벤트 제공을 권장:
+### B.3 Spring → AI 내부 호출
 
-```text
-data: {"error":{"code":"UPSTREAM_TIMEOUT","message":"LLM 응답 지연"}}
-data: [DONE]
-```
+위 **A절** `POST /ask` 사용. `answer`를 받은 뒤 단어 단위로 SSE 분할(약 30ms 간격).
 
-## 3. 세션 API (권장)
+---
 
-현재 저장소에는 세션 API 구현이 없으므로 아래 엔드포인트를 권장 표준으로 정의한다.
+## C. 환경 변수 (AI)
 
-### 3.1 대화 이력 조회
-- Method: `GET`
-- Path: `/chat/history/{session_id}`
+| 변수 | 용도 |
+|------|------|
+| `SAIFEX_API_KEY` | **필수** — `api_service` 부팅 시 설정 |
+| `API_HOST` / `API_PORT` | 기본 `0.0.0.0:8000` |
+| `NOTICE_EVENT_WEBHOOK_URL` | 증분 크롤 후 Spring 알림 (선택) |
 
-응답 예시:
-```json
-{
-  "status": "success",
-  "session_id": "session_abc998",
-  "history": [
-    {
-      "role": "user",
-      "content": "성적장학금 기준이 뭐야?",
-      "timestamp": "2026-03-21T12:00:00Z"
-    },
-    {
-      "role": "assistant",
-      "content": "직전 학기 평점 3.5 이상입니다.",
-      "timestamp": "2026-03-21T12:00:02Z"
-    }
-  ]
-}
-```
+---
 
-### 3.2 세션 초기화
-- Method: `POST`
-- Path: `/chat/session/new`
+## D. 프론트 체크리스트
 
-응답 예시:
-```json
-{
-  "status": "success",
-  "session_id": "session_new_001"
-}
-```
+- SSE URL은 **Spring** (`/api/chat/ask`), AI ngrok URL 아님
+- `[DONE]` 및 `{"chunk":...}` JSON 파싱
+- `sources` 이벤트 형식 처리
+- 긴 SSE 시 타임아웃·백그라운드 연결 유지
 
-## 4. 헬스체크 API (권장)
+## E. 장애 구간 판별
 
-- Method: `GET`
-- Path: `/health`
+| Spring 로그 | 구간 |
+|-------------|------|
+| `RAG 서버 오류` | Spring → AI |
+| `RAG 응답 수신` + `청크 전송 중 클라이언트 연결 끊김` | AI OK, 앱/SSE |
+| AI 터미널 `[ASK] A:` | AI 답변 생성 완료 |
 
-응답 예시:
-```json
-{
-  "status": "healthy",
-  "milvus_connected": true,
-  "llm_available": true
-}
-```
+---
 
-## 5. 프론트엔드 구현 체크포인트
+## F. 관련 문서
 
-- SSE 파서에서 `[DONE]`와 오류 이벤트를 모두 처리할 것
-- 스트리밍 중단 시 부분 응답을 보존할 것
-- `sources`가 누락될 수 있는 상황을 UI에서 허용할 것
+- [frontend_srs.md](frontend_srs.md) — UI 요구사항
+- [system_arch.md](system_arch.md) — 아키텍처
+- [infra_setup.md](infra_setup.md) — TV-RAG 3터미널 실행
