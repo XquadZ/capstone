@@ -15,7 +15,8 @@ from typing import Any, Dict, List, Optional, Set
 from dotenv import load_dotenv
 from openai import OpenAI
 
-load_dotenv()
+_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(_PROJECT_ROOT / ".env", override=True)
 
 DATE_FILE_PATTERN = re.compile(r"^(\d{4}-\d{2}-\d{2})\.json$")
 MAX_RETENTION_DAYS = 7
@@ -305,7 +306,7 @@ def _default_dday_webhook_url() -> str:
         return explicit
     base = os.getenv(
         "NOTICE_EVENT_WEBHOOK_URL",
-        "https://wrecker-motivator-overall.ngrok-free.dev/api/notices/new",
+        "http://101.79.20.120/api/notices/new",
     ).strip()
     if base.endswith("/new"):
         return base[: -len("/new")] + "/dday"

@@ -341,7 +341,7 @@ def run_pipeline_for_batch(
     if send_webhook and crawled_ids:
         event_items = updater._build_notice_event_items(crawled_ids)
         if event_items:
-            default_webhook = "https://wrecker-motivator-overall.ngrok-free.dev/api/notices/new"
+            default_webhook = "http://101.79.20.120/api/notices/new"
             webhook_url = os.getenv("NOTICE_EVENT_WEBHOOK_URL", default_webhook)
             api_key = os.getenv("NOTICE_EVENT_API_KEY", "hoseo-lens-secret-key")
             try:

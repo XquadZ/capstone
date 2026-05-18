@@ -32,6 +32,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from dotenv import load_dotenv
+
+load_dotenv(PROJECT_ROOT / ".env", override=True)
+
 from crawler.hoseo_spider import HoseoRealCrawler
 from ai_engine.full_text_extractor import FullTextExtractor
 from ai_engine.local_slm_refiner import GPTRefiner
@@ -470,9 +474,10 @@ class IncrementalNoticeUpdater:
         # 로컬 Spring: NOTICE_EVENT_WEBHOOK_URL=http://localhost:8080/api/notices/new
         # ngrok 주소는 바뀔 수 있음 → 환경변수로 덮어쓰기 권장
         # ==========================================================
-        default_webhook = "https://wrecker-motivator-overall.ngrok-free.dev/api/notices/new"
+        default_webhook = "http://101.79.20.120/api/notices/new"
         webhook_url = os.getenv("NOTICE_EVENT_WEBHOOK_URL", default_webhook)
         api_key = os.getenv("NOTICE_EVENT_API_KEY", "hoseo-lens-secret-key")
+        _log(f"🔗 웹훅 URL: {webhook_url}")
 
         try:
             headers = {
