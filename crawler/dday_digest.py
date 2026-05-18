@@ -291,7 +291,81 @@ def refresh_dday_for_post_date(
 
     out_path = write_dday_file(dday_dir, post_date, payload)
     _log(f"📋 dday_data 저장: {out_path.name} ({len(notices)}건)")
+
+    today = datetime.now().strftime("%Y-%m-%d")
+    if post_date == today:
+        send_dday_digest_webhook(post_date, dday_dir)
+
     return out_path
+
+
+def _default_dday_webhook_url() -> str:
+    explicit = os.getenv("NOTICE_DDAY_WEBHOOK_URL", "").strip()
+    if explicit:
+        return explicit
+    base = os.getenv(
+        "NOTICE_EVENT_WEBHOOK_URL",
+        "https://wrecker-motivator-overall.ngrok-free.dev/api/notices/new",
+    ).strip()
+    if base.endswith("/new"):
+        return base[: -len("/new")] + "/dday"
+    return base.rstrip("/") + "/dday"
+
+
+def send_dday_digest_webhook(post_date: str, dday_dir: Path) -> bool:
+    """
+    달력 '오늘'과 동일한 게시일 요약(JSON)만 Spring으로 전송.
+  POST /api/notices/dday · X-API-Key (공지 웹훅과 동일)
+    """
+    today = datetime.now().strftime("%Y-%m-%d")
+    if post_date != today:
+        return False
+
+    json_path = Path(dday_dir) / f"{post_date}.json"
+    if not json_path.exists():
+        _log(f"⚠️ dday 웹훅 건너뜀: {json_path.name} 없음")
+        return False
+
+    try:
+        payload = json.loads(json_path.read_text(encoding="utf-8"))
+    except Exception as e:
+        _log(f"⚠️ dday 웹훅 건너뜀: JSON 읽기 실패 ({e})")
+        return False
+
+    webhook_url = _default_dday_webhook_url()
+    api_key = os.getenv("NOTICE_EVENT_API_KEY", "hoseo-lens-secret-key")
+
+    try:
+        import requests
+
+        headers = {
+            "X-API-Key": api_key,
+            "Content-Type": "application/json",
+        }
+        if "ngrok" in webhook_url.lower():
+            headers["ngrok-skip-browser-warning"] = "true"
+
+        body = {
+            "source": "crawler",
+            "date": payload.get("date", post_date),
+            "generated_at": payload.get("generated_at"),
+            "notice_count": payload.get("notice_count", 0),
+            "notices": payload.get("notices") or [],
+            "digest_text": payload.get("digest_text") or "",
+            "source_notice_ids": payload.get("source_notice_ids") or [],
+        }
+
+        res = requests.post(webhook_url, headers=headers, json=body, timeout=30)
+        if res.status_code in (200, 201):
+            _log(f"🔔 dday_data 웹훅 전송 성공 ({post_date}, HTTP {res.status_code})")
+            return True
+        if res.status_code == 401:
+            _log(f"⚠️ dday_data 웹훅 인증 실패(401)")
+        else:
+            _log(f"⚠️ dday_data 웹훅 실패: HTTP {res.status_code} - {res.text[:200]}")
+    except Exception as e:
+        _log(f"❌ dday_data 웹훅 연결 오류: {e}")
+    return False
 
 
 def update_dday_digests_for_crawl(
