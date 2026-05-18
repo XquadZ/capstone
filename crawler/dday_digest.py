@@ -20,6 +20,7 @@ load_dotenv()
 DATE_FILE_PATTERN = re.compile(r"^(\d{4}-\d{2}-\d{2})\.json$")
 MAX_RETENTION_DAYS = 7
 CONTENT_PREVIEW_CHARS = 2500
+SAIFEX_BASE_URL = "https://ahoseo.saifex.ai/v1"
 
 
 def _log(message: str) -> None:
@@ -45,12 +46,16 @@ def _normalize_post_date(raw: str) -> Optional[str]:
 
 
 def _openai_client() -> OpenAI:
-    api_key = os.getenv("OPENAI_API_KEY") or os.getenv("SAIFEX_API_KEY")
+    """dday 요약은 SAIFEX 우선 (OpenAI quota 이슈 회피)."""
+    saifex_key = os.getenv("SAIFEX_API_KEY")
+    if saifex_key:
+        return OpenAI(api_key=saifex_key, base_url=SAIFEX_BASE_URL)
+
+    api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        raise ValueError("OPENAI_API_KEY 또는 SAIFEX_API_KEY 가 필요합니다.")
+        raise ValueError("SAIFEX_API_KEY 또는 OPENAI_API_KEY 가 필요합니다.")
+
     base_url = os.getenv("OPENAI_BASE_URL")
-    if not base_url and os.getenv("SAIFEX_API_KEY") and api_key == os.getenv("SAIFEX_API_KEY"):
-        base_url = "https://ahoseo.saifex.ai/v1"
     if base_url:
         return OpenAI(api_key=api_key, base_url=base_url)
     return OpenAI(api_key=api_key)
@@ -140,7 +145,10 @@ def _dates_for_notice_ids(
 
 
 def _generate_digest_with_llm(post_date: str, notices: List[Dict[str, Any]]) -> Dict[str, Any]:
+    using_saifex = bool(os.getenv("SAIFEX_API_KEY"))
     client = _openai_client()
+    if using_saifex:
+        _log("[dday_data] SAIFEX(gpt-4o-mini) 요약 생성 중...")
     model = os.getenv("DDAY_DIGEST_MODEL", "gpt-4o-mini")
 
     catalog = []
@@ -292,7 +300,7 @@ def update_dday_digests_for_crawl(
     raw_dir: Path,
     dday_dir: Path,
 ) -> None:
-    """이번 증분 크롤에 포함된 공지의 게시일 기준으로 당일 전체 요약을 갱신합니다."""
+    """신규 공지가 처리된 경우에만, 해당 게시일 전체 요약을 LLM으로 갱신합니다."""
     if not crawled_ids:
         return
 
@@ -302,10 +310,12 @@ def update_dday_digests_for_crawl(
         _log("⚠️ dday_data: 게시일을 확인할 수 있는 공지가 없어 요약을 건너뜁니다.")
         return
 
-    _log(f"📅 dday_data 갱신 대상 게시일: {', '.join(sorted(dates))}")
+    _log(f"📅 dday_data (신규 공지): 갱신 게시일 {', '.join(sorted(dates))}")
     for post_date in sorted(dates):
         refresh_dday_for_post_date(post_date, processed_text_dir, raw_dir, dday_dir)
 
     removed = prune_old_dday_files(dday_dir, MAX_RETENTION_DAYS)
     if removed:
         _log(f"🗑️ dday_data: {MAX_RETENTION_DAYS}일 초과 파일 {removed}개 삭제")
+
+

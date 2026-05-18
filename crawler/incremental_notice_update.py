@@ -43,11 +43,89 @@ def _log(message: str):
     print(message, flush=True)
 
 
+def _discover_category_codes(crawler: HoseoRealCrawler, board_action: str) -> List[str]:
+    """목록 페이지 fn_selectCategory / schCategorycode 수집 (crawl_all과 동일 방식)."""
+    crawler.set_board(
+        board_action=board_action,
+        sch_categorycode=HoseoRealCrawler.DEFAULT_CATEGORY_CODE,
+    )
+    crawler.driver.get(crawler.list_url_template.format(1))
+    time.sleep(0.8)
+    html = crawler.driver.page_source or ""
+    codes: Set[str] = set(re.findall(r"fn_selectCategory\('(CTG_[^']+)'\)", html))
+    codes.update(re.findall(r'fn_selectCategory\("(CTG_[^"]+)"\)', html))
+    for m in re.finditer(r"schCategorycode=([A-Za-z0-9_]+)", html):
+        codes.add(m.group(1))
+    codes.add(HoseoRealCrawler.DEFAULT_CATEGORY_CODE)
+    return sorted(codes)
+
+
+def _extract_notice_id_from_row(row) -> str:
+    for sel in ("td.board-list-title a", "td[data-header='제목'] a"):
+        try:
+            link_el = row.find_element(By.CSS_SELECTOR, sel)
+            href_val = link_el.get_attribute("href") or ""
+            match = re.search(r"fn_viewData\('(\d+)'\)", href_val)
+            if match:
+                return match.group(1)
+        except Exception:
+            continue
+    return ""
+
+
+def _row_date_text(row) -> str:
+    for sel in ("td[data-header='등록일자']", "td[data-header='등록일시']"):
+        try:
+            t = row.find_element(By.CSS_SELECTOR, sel).text.strip()
+            if t:
+                return t
+        except Exception:
+            pass
+    try:
+        cells = row.find_elements(By.CSS_SELECTOR, "td.txt-center.pc_view")
+        if cells:
+            return cells[-1].text.strip()
+    except Exception:
+        pass
+    return ""
+
+
+def _parse_list_row(
+    row,
+    board_action: str,
+    category: str,
+) -> Optional[Dict[str, str]]:
+    notice_id = _extract_notice_id_from_row(row)
+    if not notice_id:
+        return None
+    link_el = None
+    title = ""
+    for sel in ("td.board-list-title a", "td[data-header='제목'] a"):
+        try:
+            link_el = row.find_element(By.CSS_SELECTOR, sel)
+            title = link_el.text.strip()
+            break
+        except Exception:
+            continue
+    if not link_el or not title:
+        return None
+    date_text = _row_date_text(row)
+    if len(date_text) <= 5 and date_text:
+        date_text = f"{datetime.now().year}-{date_text}"
+    return {
+        "id": notice_id,
+        "title": title,
+        "date": date_text,
+        "schCategorycode": category,
+        "board_action": board_action,
+    }
+
+
 class IncrementalNoticeUpdater:
     def __init__(
         self,
         collection_name: str = "hoseo_notices",
-        scan_limit: int = 20  # 🔥 무조건 최근 공지 20개만 수집
+        scan_limit: int = 20  # 카테고리 탭마다 최근 N개(기본 20) 스캔
     ):
         self.collection_name = collection_name
         self.scan_limit = scan_limit
@@ -60,6 +138,55 @@ class IncrementalNoticeUpdater:
         self.integrated_dir.mkdir(parents=True, exist_ok=True)
         self.processed_text_dir.mkdir(parents=True, exist_ok=True)
         self.chunks_dir.mkdir(parents=True, exist_ok=True)
+        self.dday_dir = PROJECT_ROOT / "data" / "dday_data"
+        self._dday_last_calendar_date: Optional[str] = None
+
+    def _try_dday_calendar_today(self) -> None:
+        """달력 '오늘'이 바뀌었거나 아직 오늘 요약을 안 했으면, 게시일=오늘 공지만 LLM 요약."""
+        today = datetime.now().strftime("%Y-%m-%d")
+        if self._dday_last_calendar_date == today:
+            return
+        try:
+            from crawler.dday_digest import refresh_dday_for_post_date, prune_old_dday_files
+
+            _log(f"📅 dday_data: 달력 기준 오늘({today}) 게시 공지 요약")
+            refresh_dday_for_post_date(
+                today,
+                self.processed_text_dir,
+                self.raw_dir,
+                self.dday_dir,
+            )
+            prune_old_dday_files(self.dday_dir)
+            self._dday_last_calendar_date = today
+        except Exception as e:
+            _log(f"⚠️ dday_data 오늘 요약 실패: {e}")
+
+    def _try_dday_for_new_notices(self, crawled_ids: List[str]) -> None:
+        if not crawled_ids:
+            return
+        try:
+            from crawler.dday_digest import (
+                _dates_for_notice_ids,
+                prune_old_dday_files,
+                update_dday_digests_for_crawl,
+            )
+
+            update_dday_digests_for_crawl(
+                crawled_ids=crawled_ids,
+                processed_text_dir=self.processed_text_dir,
+                raw_dir=self.raw_dir,
+                dday_dir=self.dday_dir,
+            )
+            today = datetime.now().strftime("%Y-%m-%d")
+            dates = _dates_for_notice_ids(
+                crawled_ids, self.processed_text_dir, self.raw_dir
+            )
+            if today in dates:
+                self._dday_last_calendar_date = today
+            else:
+                prune_old_dday_files(self.dday_dir)
+        except Exception as e:
+            _log(f"⚠️ dday_data 요약 갱신 실패: {e}")
 
     def _build_notice_event_items(self, notice_ids: List[str]) -> List[Dict[str, str]]:
         """정제 JSON/RAW info를 기반으로 웹훅 전송용 공지 이벤트 목록 구성."""
@@ -137,82 +264,71 @@ class IncrementalNoticeUpdater:
         _log(f"📦 Milvus 기존 parent_id 로드 완료: {len(result)}개")
         return result
 
-    @staticmethod
-    def _extract_notice_id_from_row(row) -> str:
-        try:
-            link_el = row.find_element(By.CSS_SELECTOR, "td.board-list-title a")
-            href_val = link_el.get_attribute("href") or ""
-            match = re.search(r"fn_viewData\('(\d+)'\)", href_val)
-            if match:
-                return match.group(1)
-        except Exception:
-            return ""
-        return ""
-
     def collect_new_notices(self, existing_ids: Set[str]) -> List[Dict[str, str]]:
+        """공지사항·학사공지·장학공지 등 모든 카테고리 탭에서 각각 최근 scan_limit개 스캔."""
         crawler = HoseoRealCrawler()
         scanned_targets: List[Dict[str, str]] = []
         seen_ids: Set[str] = set()
-        page = 1
+        board_action = HoseoRealCrawler.DEFAULT_BOARD_ACTION
 
         try:
-            while len(scanned_targets) < self.scan_limit:
-                crawler.driver.get(crawler.list_url_template.format(page))
-                try:
-                    crawler.wait.until(
-                        lambda d: d.find_elements(By.CSS_SELECTOR, "table tbody tr")
-                    )
-                except Exception:
-                    break
+            categories = _discover_category_codes(crawler, board_action)
+            _log(
+                f"📂 카테고리 {len(categories)}개 × 최근 {self.scan_limit}개씩 목록 스캔"
+            )
 
-                rows = crawler.driver.find_elements(By.CSS_SELECTOR, "table tbody tr")
-                if not rows:
-                    break
+            for cat in categories:
+                cat_count = 0
+                page = 1
+                crawler.set_board(board_action=board_action, sch_categorycode=cat)
 
-                added_in_this_page = 0
-
-                for row in rows:
+                while cat_count < self.scan_limit:
+                    crawler.driver.get(crawler.list_url_template.format(page))
                     try:
-                        date_cells = row.find_elements(By.CSS_SELECTOR, "td.txt-center.pc_view")
-                        date_text = date_cells[-1].text.strip() if date_cells else ""
-                        if len(date_text) <= 5:
-                            date_text = f"{datetime.now().year}-{date_text}"
-
-                        link_el = row.find_element(By.CSS_SELECTOR, "td.board-list-title a")
-                        notice_id = self._extract_notice_id_from_row(row)
-                        if not notice_id:
-                            continue
-
-                        if notice_id in seen_ids:
-                            continue
-                        seen_ids.add(notice_id)
-
-                        scanned_targets.append(
-                            {
-                                "id": notice_id,
-                                "title": link_el.text.strip(),
-                                "date": date_text,
-                            }
+                        crawler.wait.until(
+                            lambda d: d.find_elements(
+                                By.CSS_SELECTOR, "table tbody tr"
+                            )
                         )
-                        added_in_this_page += 1
-
-                        if len(scanned_targets) >= self.scan_limit:
-                            break
                     except Exception:
-                        continue
+                        break
 
-                if added_in_this_page == 0:
-                    break
+                    rows = crawler.driver.find_elements(
+                        By.CSS_SELECTOR, "table tbody tr"
+                    )
+                    if not rows:
+                        break
 
-                page += 1
-                time.sleep(0.5)
+                    added_in_this_page = 0
+                    for row in rows:
+                        try:
+                            item = _parse_list_row(row, board_action, cat)
+                            if not item:
+                                continue
+                            notice_id = item["id"]
+                            if notice_id in seen_ids:
+                                continue
+                            seen_ids.add(notice_id)
+                            scanned_targets.append(item)
+                            cat_count += 1
+                            added_in_this_page += 1
+                            if cat_count >= self.scan_limit:
+                                break
+                        except Exception:
+                            continue
+
+                    if added_in_this_page == 0:
+                        break
+                    page += 1
+                    time.sleep(0.4)
+
+                _log(f"   · {cat}: {cat_count}건 수집")
         finally:
             crawler.driver.quit()
 
-        scanned_recent = scanned_targets[: self.scan_limit]
-        new_targets = [t for t in scanned_recent if t["id"] not in existing_ids]
+        new_targets = [t for t in scanned_targets if t["id"] not in existing_ids]
 
-        _log(f"🔎 최신 공지 {len(scanned_recent)}개 스캔 완료 (ID 대조 중...)")
+        _log(f"🔎 전체 스캔 {len(scanned_targets)}개 (중복 제거 후 ID 대조)")
         _log(f"🆕 DB 미존재 신규 공지 발견: {len(new_targets)}개")
         return new_targets
 
@@ -233,7 +349,13 @@ class IncrementalNoticeUpdater:
                     crawled_ids.append(notice_id)
                     continue
 
-                ok = crawler.crawl_details(notice_id, target["title"], target["date"])
+                ok = crawler.crawl_details(
+                    notice_id,
+                    target["title"],
+                    target["date"],
+                    sch_categorycode=target.get("schCategorycode"),
+                    board_action=target.get("board_action"),
+                )
                 if ok:
                     _log(f"✅ 상세 수집 완료: {notice_id}")
                     crawled_ids.append(notice_id)
@@ -330,6 +452,7 @@ class IncrementalNoticeUpdater:
         
         if not targets:
             _log("✨ 모든 데이터가 최신 상태입니다.")
+            self._try_dday_calendar_today()
             return
 
         crawled_ids = self.crawl_targets(targets)
@@ -389,18 +512,8 @@ class IncrementalNoticeUpdater:
         except Exception as e:
             _log(f"❌ 백엔드 웹훅 연결 에러: {e}")
 
-        # 게시일별 공지 요약 (dday_data, 최대 7일 보관) — 기존 파이프라인과 독립
-        try:
-            from crawler.dday_digest import update_dday_digests_for_crawl
-
-            update_dday_digests_for_crawl(
-                crawled_ids=crawled_ids,
-                processed_text_dir=self.processed_text_dir,
-                raw_dir=self.raw_dir,
-                dday_dir=PROJECT_ROOT / "data" / "dday_data",
-            )
-        except Exception as e:
-            _log(f"⚠️ dday_data 요약 갱신 실패: {e}")
+        self._try_dday_for_new_notices(crawled_ids)
+        self._try_dday_calendar_today()
 
 
 def run_scheduler():
