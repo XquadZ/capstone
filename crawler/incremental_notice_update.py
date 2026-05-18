@@ -389,6 +389,19 @@ class IncrementalNoticeUpdater:
         except Exception as e:
             _log(f"❌ 백엔드 웹훅 연결 에러: {e}")
 
+        # 게시일별 공지 요약 (dday_data, 최대 7일 보관) — 기존 파이프라인과 독립
+        try:
+            from crawler.dday_digest import update_dday_digests_for_crawl
+
+            update_dday_digests_for_crawl(
+                crawled_ids=crawled_ids,
+                processed_text_dir=self.processed_text_dir,
+                raw_dir=self.raw_dir,
+                dday_dir=PROJECT_ROOT / "data" / "dday_data",
+            )
+        except Exception as e:
+            _log(f"⚠️ dday_data 요약 갱신 실패: {e}")
+
 
 def run_scheduler():
     updater = IncrementalNoticeUpdater()
