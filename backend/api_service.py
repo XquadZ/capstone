@@ -59,6 +59,15 @@ class AskRequest(BaseModel):
     )
 
 
+class SourceItem(BaseModel):
+    doc_id: str = ""
+    title: str = ""
+    file_url: str = ""
+    category: str = ""
+    page: Optional[int] = None
+    source_type: str = "notice"
+
+
 class AskResponse(BaseModel):
     domain: str
     question: str
@@ -66,7 +75,7 @@ class AskResponse(BaseModel):
     route: str
     latency_sec: float
     contexts: List[str]
-    sources: List[str]
+    sources: List[SourceItem] = Field(default_factory=list)
     meta: Dict[str, Any]
 
 
@@ -144,7 +153,46 @@ def _normalize_domain(raw: str) -> str:
     return d
 
 
-def _tv_rag_answer_and_meta(domain: str, question: str) -> Tuple[str, str, List[str], List[str], Dict[str, Any]]:
+def _sources_from_node(node_result: Dict[str, Any]) -> List[Dict[str, Any]]:
+    raw = node_result.get("sources_structured")
+    if not isinstance(raw, list):
+        return []
+    out: List[Dict[str, Any]] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        url = str(item.get("file_url") or item.get("url") or "").strip()
+        title = str(item.get("title") or "").strip()
+        if not title and not url:
+            continue
+        out.append(
+            {
+                "doc_id": str(item.get("doc_id") or item.get("notice_id") or "").strip(),
+                "title": title,
+                "file_url": url,
+                "category": str(item.get("category") or "").strip(),
+                "page": item.get("page"),
+                "source_type": str(item.get("source_type") or "notice").strip(),
+            }
+        )
+    return out
+
+
+def _dedupe_sources(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    seen: set[str] = set()
+    out: List[Dict[str, Any]] = []
+    for it in items:
+        key = it.get("file_url") or f"{it.get('source_type')}:{it.get('doc_id')}:{it.get('title')}"
+        if key in seen:
+            continue
+        seen.add(str(key))
+        out.append(it)
+    return out
+
+
+def _tv_rag_answer_and_meta(
+    domain: str, question: str
+) -> Tuple[str, str, List[str], List[Dict[str, Any]], Dict[str, Any]]:
     """
     공통 TV-RAG: Gemma 라우터 → text_rag_node | vision_rag_node.
     노드는 state['domain']으로 hoseo_notices vs hoseo_rules_v1 및 RAW 경로를 선택합니다.
@@ -164,7 +212,7 @@ def _tv_rag_answer_and_meta(domain: str, question: str) -> Tuple[str, str, List[
     if not contexts:
         contexts = _safe_list_str(node_result.get("context", []))
 
-    sources = _safe_list_str(node_result.get("context", []))
+    sources = _dedupe_sources(_sources_from_node(node_result))
 
     meta = {
         "pipeline": "agentic_tv_rag",
@@ -176,23 +224,29 @@ def _tv_rag_answer_and_meta(domain: str, question: str) -> Tuple[str, str, List[
     return answer, route, contexts, sources, meta
 
 
-def _notice_text_only(question: str) -> Tuple[str, List[str], List[str], Dict[str, Any]]:
+def _notice_text_only(question: str) -> Tuple[str, List[str], List[Dict[str, Any]], Dict[str, Any]]:
     """라우터 미사용: 공지 단일 텍스트 RAG (HoseoRAGPipeline)."""
+    from ai_engine.notice_source_resolver import notice_sources_from_parent_ids
+
     pipeline = _get_notice_pipeline()
     hits = pipeline.search_and_rerank(question, retrieve_k=50, final_k=5)
     answer = pipeline.generate_answer(question)
 
     contexts: List[str] = []
-    sources: List[str] = []
+    parent_ids: List[str] = []
     for h in hits:
         ent = h.get("entity", {})
         txt = str(ent.get("chunk_text", "")).strip()
         if txt:
             contexts.append(txt)
         pid = str(ent.get("parent_id", "")).strip()
-        cat = str(ent.get("category", "")).strip() or "일반"
         if pid:
-            sources.append(f"[공지-{cat}] {pid}")
+            parent_ids.append(pid)
+
+    sources = notice_sources_from_parent_ids(parent_ids)
+    from ai_engine.notice_source_resolver import append_notice_links_to_answer
+
+    answer = append_notice_links_to_answer(answer, sources)
 
     meta = {
         "pipeline": "rag_pipeline_notice",
@@ -200,24 +254,41 @@ def _notice_text_only(question: str) -> Tuple[str, List[str], List[str], Dict[st
         "provider": "saifex",
         "chunk_count": len(hits),
     }
-    return answer, contexts, list(dict.fromkeys(sources)), meta
+    return answer, contexts, sources, meta
 
 
-def _rules_text_only(question: str) -> Tuple[str, List[str], List[str], Dict[str, Any]]:
+def _rules_text_only(question: str) -> Tuple[str, List[str], List[Dict[str, Any]], Dict[str, Any]]:
     """라우터 미사용: 학칙 텍스트 RAG (hoseo_rules_v1)."""
     from ai_engine.rag_pipeline_rules import generate_answer, retrieve_documents
 
     chunks = retrieve_documents(question, top_k_milvus=10, final_top_k=3)
     answer = generate_answer(question, chunks)
     contexts = [str(c.get("text", "")).strip() for c in chunks if c.get("text")]
-    sources = [str(c.get("source", "")).strip() for c in chunks if c.get("source")]
+    sources: List[Dict[str, Any]] = []
+    seen: set[str] = set()
+    for c in chunks:
+        src = str(c.get("source", "")).strip()
+        if not src or src in seen:
+            continue
+        seen.add(src)
+        pn = c.get("page_num")
+        sources.append(
+            {
+                "doc_id": str(c.get("doc_id", "")).strip(),
+                "title": src,
+                "file_url": "",
+                "category": "",
+                "page": int(pn) if pn is not None and str(pn).isdigit() else None,
+                "source_type": "rules",
+            }
+        )
     meta = {
         "pipeline": "rag_pipeline_rules",
         "use_tv_rag": False,
         "provider": "saifex",
         "chunk_count": len(chunks),
     }
-    return answer, contexts, list(dict.fromkeys(sources)), meta
+    return answer, contexts, sources, meta
 
 
 # --- API 엔드포인트 ----------------------------------------------------------
@@ -253,7 +324,15 @@ def ask(req: AskRequest):
             answer, contexts, sources, meta = _rules_text_only(q)
 
     latency_sec = round(time.time() - started, 4)
+
+    if domain == "notice" and sources:
+        from ai_engine.notice_source_resolver import append_notice_links_to_answer
+
+        answer = append_notice_links_to_answer(answer, sources)
+
     _print_ask_terminal_preview(q, route, latency_sec, answer)
+
+    source_models = [SourceItem(**s) for s in sources]
 
     return AskResponse(
         domain=domain,
@@ -262,7 +341,7 @@ def ask(req: AskRequest):
         route=route,
         latency_sec=latency_sec,
         contexts=contexts,
-        sources=sources,
+        sources=source_models,
         meta=meta,
     )
 

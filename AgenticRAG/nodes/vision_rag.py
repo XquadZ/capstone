@@ -235,21 +235,37 @@ def _build_image_contents_from_rules_chunks(chunks: list) -> Tuple[List[dict], L
     return image_contents[:MAX_VLM_IMAGES], processed_log
 
 
+def _parent_ids_from_hits(search_hits: list) -> List[str]:
+    ids: List[str] = []
+    for h in search_hits:
+        try:
+            ent = _entity_to_dict(h["entity"])
+        except Exception:
+            continue
+        pid = str(ent.get("parent_id", "")).strip()
+        if pid and pid != "unknown":
+            ids.append(pid)
+    return ids
+
+
 def _hits_to_text_context(search_hits: list) -> str:
     """첨부가 없을 때 VLM(텍스트 전용)에 넘길 검색 본문을 만듭니다."""
+    from ai_engine.notice_source_resolver import notice_context_header
+
     parts = []
     for h in search_hits:
         try:
             ent = _entity_to_dict(h["entity"])
         except Exception:
             continue
-        pid = ent.get("parent_id", "")
-        cat = ent.get("category", "") or "일반"
+        pid = str(ent.get("parent_id", "")).strip()
         year = ent.get("year", "")
         body = (ent.get("chunk_text") or "").strip()
         if not body:
             continue
-        header = f"[공지-{cat}] parent_id={pid}" + (f" ({year}년)" if year else "")
+        header = notice_context_header(pid) if pid else "공지"
+        if year:
+            header += f"\n연도: {year}년"
         parts.append(f"{header}\n{body}")
 
     if not parts:
@@ -453,9 +469,10 @@ def _call_vlm(
                 "### 지시:\n"
                 "1. 표·수치·기한·절차는 가능하면 이미지에 보이는 그대로 인용하세요.\n"
                 "2. 확실하지 않은 내용은 추측하지 마세요.\n"
-                "3. 답변 끝에 '📚 [분석 근거]' 섹션을 두고, 사용한 파일·페이지(또는 본문 출처)를 나열하세요.\n"
-                "4. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
-                "5. 답변에 마크다운 강조(**)를 사용하지 마세요.\n\n"
+                "3. 근거 공지를 언급할 때 제목과 함께 본문에 있는 원문 URL을 답변에 적으세요.\n"
+                "4. 공지번호(schIdx)만 단독으로 나열하지 마세요.\n"
+                "5. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
+                "6. 답변에 마크다운 강조(**)를 사용하지 마세요.\n\n"
                 f"[첨부 상태] {attachment_status}\n\n"
                 f"[검색된 공지 본문]\n{text_context}\n\n"
                 f"사용자 질문: {question}"
@@ -585,19 +602,16 @@ def vision_rag_node(state: AgentState) -> dict:
 
     try:
         generation = _call_vlm(question, image_contents, text_context, attachment_status, domain=domain)
-        trace_title = (
-            "TV-RAG Traceability (Notice Vision):\n"
-            if domain != "rules" and image_contents
-            else "TV-RAG Traceability (Rules Vision):\n"
-            if domain == "rules" and image_contents
-            else "TV-RAG (텍스트 전용 폴백):\n"
-        )
-        source_footer = f"\n\n📍 {trace_title}"
-        if processed_pages_log:
-            source_footer += "\n".join(f"- {log}" for log in processed_pages_log)
-        else:
-            source_footer += "- (이미지 로그 없음 — 본문 기반 응답)"
-        generation += source_footer
+        if domain != "rules":
+            from ai_engine.notice_source_resolver import (
+                append_notice_links_to_answer,
+                notice_sources_from_parent_ids,
+            )
+
+            generation = append_notice_links_to_answer(
+                generation,
+                notice_sources_from_parent_ids(_parent_ids_from_hits(search_hits)),
+            )
 
         elapsed = time.time() - start_time
         print(f"✅ [Vision] 완료 (소요 {elapsed:.1f}초)")
@@ -609,9 +623,33 @@ def vision_rag_node(state: AgentState) -> dict:
             f"(검색 본문 일부: {text_context[:500]}...)" if len(text_context) > 500 else f"(검색 본문: {text_context})"
         )
 
-    ctx_out = processed_pages_log if processed_pages_log else [attachment_status]
+    sources_structured: list = []
+    if domain == "rules":
+        seen_rules: set[str] = set()
+        for c in rules_chunks:
+            src = str(c.get("source", "")).strip()
+            if not src or src in seen_rules:
+                continue
+            seen_rules.add(src)
+            pn = c.get("page_num")
+            sources_structured.append(
+                {
+                    "doc_id": str(c.get("doc_id", "")).strip(),
+                    "title": src,
+                    "file_url": "",
+                    "category": "",
+                    "page": int(pn) if pn is not None and str(pn).isdigit() else None,
+                    "source_type": "rules",
+                }
+            )
+    else:
+        from ai_engine.notice_source_resolver import notice_sources_from_parent_ids
+
+        sources_structured = notice_sources_from_parent_ids(_parent_ids_from_hits(search_hits))
+
     return {
         "generation": generation,
-        "context": ctx_out,
+        "context": [],
+        "sources_structured": sources_structured,
         "retrieved_chunk_texts": retrieved_chunk_texts,
     }

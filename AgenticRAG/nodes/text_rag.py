@@ -18,14 +18,22 @@ def _entity_to_dict(ent):
 
 
 def _notice_hits_as_docs(hits):
+    from ai_engine.notice_source_resolver import notice_context_header
+
     docs = []
     for h in hits:
         ent = _entity_to_dict(h["entity"])
-        pid = ent.get("parent_id", "unknown")
-        cat = ent.get("category", "") or "일반"
+        pid = str(ent.get("parent_id", "unknown")).strip()
         txt = ent.get("chunk_text", "") or ""
-        label = f"[공지-{cat}] {pid}"
-        docs.append({"source": label, "text": txt, "page_content": txt})
+        label = notice_context_header(pid) if pid and pid != "unknown" else "공지"
+        docs.append(
+            {
+                "parent_id": pid,
+                "source": label,
+                "text": txt,
+                "page_content": txt,
+            }
+        )
     return docs
 
 
@@ -97,7 +105,7 @@ def _text_rag_rules(question: str) -> dict:
                         "### 답변 규칙 ###\n"
                         "1. 문서에 없는 내용은 추측하지 마세요.\n"
                         "2. 근거가 된 문서명·페이지를 명시하세요.\n"
-                        "3. 마지막에 '📚 [참고 규정]'으로 사용한 출처를 나열하세요.\n"
+                        "3. 답변 끝에 출처 목록을 붙이지 마세요(앱에서 규정명·페이지를 링크로 표시합니다).\n"
                         "4. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
                         "5. 답변에 마크다운 강조(**)를 사용하지 마세요."
                     ),
@@ -113,9 +121,29 @@ def _text_rag_rules(question: str) -> dict:
         print(f"❌ [Text RAG·Rules] API 호출 실패: {e}")
         generation = "AI 분석 서버와의 통신 중 오류가 발생했습니다."
 
+    rules_sources = []
+    seen_rules: set[str] = set()
+    for doc in search_results:
+        src = str(doc.get("source", "")).strip()
+        if not src or src in seen_rules:
+            continue
+        seen_rules.add(src)
+        pn = doc.get("page_num")
+        rules_sources.append(
+            {
+                "doc_id": "",
+                "title": src,
+                "file_url": "",
+                "category": "",
+                "page": int(pn) if pn is not None and str(pn).isdigit() else None,
+                "source_type": "rules",
+            }
+        )
+
     return {
         "generation": generation,
-        "context": [f"Text Sources (Rules): {', '.join(sources_used)}"],
+        "context": [],
+        "sources_structured": rules_sources,
         "retrieved_chunk_texts": retrieved_chunk_texts,
     }
 
@@ -159,15 +187,23 @@ def text_rag_node(state: AgentState) -> dict:
         if (d.get("page_content") or d.get("text") or "").strip()
     ]
 
+    from ai_engine.notice_source_resolver import (
+        append_notice_links_to_answer,
+        notice_sources_from_parent_ids,
+    )
+
     context_text = ""
-    sources_used = []
+    parent_ids: list[str] = []
 
     for i, doc in enumerate(search_results):
-        metadata = doc
-        source = metadata.get("source", "unknown")
-        sources_used.append(source)
-        content = metadata.get("page_content", metadata.get("text", ""))
-        context_text += f"\n### 문서 조각 {i+1} [출처: {source}] ###\n{content}\n"
+        source = doc.get("source", "unknown")
+        pid = str(doc.get("parent_id", "")).strip()
+        if pid and pid != "unknown":
+            parent_ids.append(pid)
+        content = doc.get("page_content", doc.get("text", ""))
+        context_text += f"\n### 문서 조각 {i+1}\n{source}\n---\n{content}\n"
+
+    sources_structured = notice_sources_from_parent_ids(parent_ids)
 
     print(f"📄 [Text RAG] {len(search_results)}개의 공지 청크를 확보했습니다.")
 
@@ -182,10 +218,11 @@ def text_rag_node(state: AgentState) -> dict:
                         "당신은 호서대학교 행정·학사 공지 안내 전문가입니다. 제공된 공지사항 발췌만을 바탕으로 답변하세요.\n\n"
                         "### 답변 원칙 ###\n"
                         "1. 근거가 되는 연도·부서·분류 등 메타 정보와 본문 요지를 명확히 드러내세요.\n"
-                        "2. 답변 마지막에 반드시 '📚 [참고 문헌 및 근거 자료]' 섹션을 두고, 사용한 출처 라벨을 중복 없이 나열하세요.\n"
-                        "3. 문서에 없는 내용은 추측하지 말고 '제공된 공지에서 확인이 어렵습니다'라고 답하세요.\n"
-                        "4. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
-                        "5. 답변에 마크다운 강조(**)를 사용하지 마세요."
+                        "2. 답변 본문에 공지번호(schIdx)·parent_id만 단독으로 나열하지 마세요.\n"
+                        "3. 근거 공지를 언급할 때는 제목과 함께 컨텍스트에 있는 원문 URL을 답변에 반드시 적으세요.\n"
+                        "4. 문서에 없는 내용은 추측하지 말고 '제공된 공지에서 확인이 어렵습니다'라고 답하세요.\n"
+                        "5. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
+                        "6. 답변에 마크다운 강조(**)를 사용하지 마세요."
                     ),
                 },
                 {
@@ -197,13 +234,10 @@ def text_rag_node(state: AgentState) -> dict:
             temperature=0.0,
         )
 
-        generation = response.choices[0].message.content
-
-        if "📚" not in generation:
-            source_footer = "\n\n📚 [참고 문헌 및 근거 자료]\n"
-            source_footer += "\n".join([f"- {s}" for s in set(sources_used)])
-            generation += source_footer
-
+        generation = append_notice_links_to_answer(
+            response.choices[0].message.content or "",
+            sources_structured,
+        )
         print("✅ [Text RAG] 텍스트 기반 답변 생성 완료!")
 
     except Exception as e:
@@ -212,6 +246,7 @@ def text_rag_node(state: AgentState) -> dict:
 
     return {
         "generation": generation,
-        "context": [f"Text Sources (Notice): {', '.join(set(sources_used))}"],
+        "context": [],
+        "sources_structured": sources_structured,
         "retrieved_chunk_texts": retrieved_chunk_texts,
     }
