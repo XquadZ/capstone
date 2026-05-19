@@ -469,10 +469,11 @@ def _call_vlm(
                 "### 지시:\n"
                 "1. 표·수치·기한·절차는 가능하면 이미지에 보이는 그대로 인용하세요.\n"
                 "2. 확실하지 않은 내용은 추측하지 마세요.\n"
-                "3. 근거 공지를 언급할 때 제목과 함께 본문에 있는 원문 URL을 답변에 적으세요.\n"
-                "4. 공지번호(schIdx)만 단독으로 나열하지 마세요.\n"
-                "5. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
-                "6. 답변에 마크다운 강조(**)를 사용하지 마세요.\n\n"
+                "3. 답변에 실제로 활용한 공지마다 제목과 원문 URL을 반드시 적으세요.\n"
+                "4. 답변 끝에 공지 목록을 길게 붙이지 마세요. 관련 공지는 시스템이 최대 3건만 추가합니다.\n"
+                "5. 공지번호(schIdx)만 단독으로 나열하지 마세요.\n"
+                "6. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
+                "7. 답변에 마크다운 강조(**)를 사용하지 마세요.\n\n"
                 f"[첨부 상태] {attachment_status}\n\n"
                 f"[검색된 공지 본문]\n{text_context}\n\n"
                 f"사용자 질문: {question}"
@@ -605,12 +606,15 @@ def vision_rag_node(state: AgentState) -> dict:
         if domain != "rules":
             from ai_engine.notice_source_resolver import (
                 append_notice_links_to_answer,
+                limit_notice_sources,
                 notice_sources_from_parent_ids,
             )
 
             generation = append_notice_links_to_answer(
                 generation,
-                notice_sources_from_parent_ids(_parent_ids_from_hits(search_hits)),
+                limit_notice_sources(
+                    notice_sources_from_parent_ids(_parent_ids_from_hits(search_hits))
+                ),
             )
 
         elapsed = time.time() - start_time
@@ -643,9 +647,14 @@ def vision_rag_node(state: AgentState) -> dict:
                 }
             )
     else:
-        from ai_engine.notice_source_resolver import notice_sources_from_parent_ids
+        from ai_engine.notice_source_resolver import (
+            limit_notice_sources,
+            notice_sources_from_parent_ids,
+        )
 
-        sources_structured = notice_sources_from_parent_ids(_parent_ids_from_hits(search_hits))
+        sources_structured = limit_notice_sources(
+            notice_sources_from_parent_ids(_parent_ids_from_hits(search_hits))
+        )
 
     return {
         "generation": generation,

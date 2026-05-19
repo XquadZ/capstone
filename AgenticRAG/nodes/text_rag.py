@@ -189,6 +189,7 @@ def text_rag_node(state: AgentState) -> dict:
 
     from ai_engine.notice_source_resolver import (
         append_notice_links_to_answer,
+        limit_notice_sources,
         notice_sources_from_parent_ids,
     )
 
@@ -203,7 +204,9 @@ def text_rag_node(state: AgentState) -> dict:
         content = doc.get("page_content", doc.get("text", ""))
         context_text += f"\n### 문서 조각 {i+1}\n{source}\n---\n{content}\n"
 
-    sources_structured = notice_sources_from_parent_ids(parent_ids)
+    sources_structured = limit_notice_sources(
+        notice_sources_from_parent_ids(parent_ids)
+    )
 
     print(f"📄 [Text RAG] {len(search_results)}개의 공지 청크를 확보했습니다.")
 
@@ -219,10 +222,11 @@ def text_rag_node(state: AgentState) -> dict:
                         "### 답변 원칙 ###\n"
                         "1. 근거가 되는 연도·부서·분류 등 메타 정보와 본문 요지를 명확히 드러내세요.\n"
                         "2. 답변 본문에 공지번호(schIdx)·parent_id만 단독으로 나열하지 마세요.\n"
-                        "3. 근거 공지를 언급할 때는 제목과 함께 컨텍스트에 있는 원문 URL을 답변에 반드시 적으세요.\n"
-                        "4. 문서에 없는 내용은 추측하지 말고 '제공된 공지에서 확인이 어렵습니다'라고 답하세요.\n"
-                        "5. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
-                        "6. 답변에 마크다운 강조(**)를 사용하지 마세요."
+                        "3. 답변에 실제로 활용한 공지마다 제목과 원문 URL을 반드시 적으세요 (컨텍스트의 URL만 사용).\n"
+                        "4. 답변 끝에 공지 목록·링크 블록을 길게 붙이지 마세요. 관련 공지 링크는 시스템이 최대 3건만 추가합니다.\n"
+                        "5. 문서에 없는 내용은 추측하지 말고 '제공된 공지에서 확인이 어렵습니다'라고 답하세요.\n"
+                        "6. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
+                        "7. 답변에 마크다운 강조(**)를 사용하지 마세요."
                     ),
                 },
                 {

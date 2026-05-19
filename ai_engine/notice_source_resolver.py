@@ -97,30 +97,62 @@ def notice_context_header(parent_id: str) -> str:
     return "\n".join(lines)
 
 
-def format_notice_sources_footer(sources: List[Dict[str, Any]]) -> str:
-    """사용자에게 보여 줄 공지 링크 블록 (답변 하단)."""
+RELATED_NOTICE_SECTION_TITLE = "관련된 공지"
+MAX_RELATED_NOTICES_IN_FOOTER = 3
+MAX_NOTICE_SOURCES_IN_API = 3
+
+
+def limit_notice_sources(
+    sources: List[Dict[str, Any]], max_items: int = MAX_NOTICE_SOURCES_IN_API
+) -> List[Dict[str, Any]]:
+    """API·하단 목록용 — 검색 순서 유지, 중복 URL 제거 후 상한."""
+    out: List[Dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in sources:
+        if len(out) >= max_items:
+            break
+        url = str(item.get("file_url") or item.get("url") or "").strip()
+        key = url or str(item.get("doc_id") or "")
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        out.append(item)
+    return out
+
+
+def format_related_notices_footer(
+    sources: List[Dict[str, Any]],
+    answer: str = "",
+    max_items: int = MAX_RELATED_NOTICES_IN_FOOTER,
+) -> str:
+    """답변 하단 '관련된 공지' — 본문에 이미 나온 URL 제외, 최대 max_items건."""
+    body = answer or ""
     lines: List[str] = []
     seen_urls: set[str] = set()
-    for item in sources:
+    for item in limit_notice_sources(sources, max_items=len(sources)):
+        if len(lines) >= max_items:
+            break
         url = str(item.get("file_url") or item.get("url") or "").strip()
         title = str(item.get("title") or "공지").strip()
-        if not url or url in seen_urls:
+        if not url or url in seen_urls or url in body:
             continue
         seen_urls.add(url)
         lines.append(f"- {title}\n  {url}")
     if not lines:
         return ""
-    return "📎 공지 원문 링크\n" + "\n".join(lines)
+    return RELATED_NOTICE_SECTION_TITLE + "\n" + "\n".join(lines)
 
 
 def append_notice_links_to_answer(
-    answer: str, sources: List[Dict[str, Any]]
+    answer: str,
+    sources: List[Dict[str, Any]],
+    max_related: int = MAX_RELATED_NOTICES_IN_FOOTER,
 ) -> str:
-    """답변 본문 하단에 공지 URL 목록을 붙입니다 (중복 방지)."""
-    footer = format_notice_sources_footer(sources)
-    if not footer:
-        return answer or ""
+    """답변 본문 하단에 관련 공지 링크를 붙입니다 (최대 max_related건)."""
     body = (answer or "").strip()
-    if "📎 공지 원문 링크" in body:
+    if RELATED_NOTICE_SECTION_TITLE in body or "📎 공지 원문 링크" in body:
+        return body
+    footer = format_related_notices_footer(sources, answer=body, max_items=max_related)
+    if not footer:
         return body
     return body + "\n\n" + footer

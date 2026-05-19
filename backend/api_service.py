@@ -213,6 +213,10 @@ def _tv_rag_answer_and_meta(
         contexts = _safe_list_str(node_result.get("context", []))
 
     sources = _dedupe_sources(_sources_from_node(node_result))
+    if domain == "notice" and sources:
+        from ai_engine.notice_source_resolver import limit_notice_sources
+
+        sources = limit_notice_sources(sources)
 
     meta = {
         "pipeline": "agentic_tv_rag",
@@ -243,9 +247,12 @@ def _notice_text_only(question: str) -> Tuple[str, List[str], List[Dict[str, Any
         if pid:
             parent_ids.append(pid)
 
-    sources = notice_sources_from_parent_ids(parent_ids)
-    from ai_engine.notice_source_resolver import append_notice_links_to_answer
+    from ai_engine.notice_source_resolver import (
+        append_notice_links_to_answer,
+        limit_notice_sources,
+    )
 
+    sources = limit_notice_sources(notice_sources_from_parent_ids(parent_ids))
     answer = append_notice_links_to_answer(answer, sources)
 
     meta = {
@@ -326,8 +333,12 @@ def ask(req: AskRequest):
     latency_sec = round(time.time() - started, 4)
 
     if domain == "notice" and sources:
-        from ai_engine.notice_source_resolver import append_notice_links_to_answer
+        from ai_engine.notice_source_resolver import (
+            append_notice_links_to_answer,
+            limit_notice_sources,
+        )
 
+        sources = limit_notice_sources(sources)
         answer = append_notice_links_to_answer(answer, sources)
 
     _print_ask_terminal_preview(q, route, latency_sec, answer)
