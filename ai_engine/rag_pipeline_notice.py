@@ -6,6 +6,9 @@ from openai import OpenAI
 from pymilvus import connections, Collection, AnnSearchRequest, RRFRanker
 from FlagEmbedding import BGEM3FlagModel, FlagReranker
 
+from ai_engine.rag_prompt_rules import DEFAULT_YEAR_CONTEXT_RULE
+from ai_engine.query_temporal import DEFAULT_YEAR_SUFFIX, prepare_notice_search_query
+
 class HoseoRAGPipeline:
     def __init__(self, collection_name="hoseo_notices"):
         # Ahoseo(SAIFEX) 게이트웨이 설정
@@ -33,8 +36,19 @@ class HoseoRAGPipeline:
 
     def search_and_rerank(self, query_text, retrieve_k=50, final_k=5):
         """1차 50개 넓은 검색 후 -> 2차 리랭커로 정밀 상위 5개 압축"""
+        prep = prepare_notice_search_query(query_text)
+        effective_query = prep.search_query
+        if effective_query != prep.original:
+            print(
+                f"📅 [질의 보강] 연도 미명시 → 검색 쿼리에 '{DEFAULT_YEAR_SUFFIX}' 반영"
+            )
+        elif prep.has_explicit_year:
+            print("📅 [질의 보강] 연도 명시됨 → 원문 질의로 검색")
+
         # 1. 쿼리 임베딩
-        query_embeddings = self.embed_model.encode([query_text], return_dense=True, return_sparse=True)
+        query_embeddings = self.embed_model.encode(
+            [effective_query], return_dense=True, return_sparse=True
+        )
         
         dense_req = AnnSearchRequest(
             data=[query_embeddings['dense_vecs'][0].astype(np.float32)],
@@ -63,7 +77,7 @@ class HoseoRAGPipeline:
         # 3. 리랭커 정밀 채점 (Cross-Encoder)
         candidates = initial_results[0]
         passages = [hit.entity.get('chunk_text') for hit in candidates]
-        query_passage_pairs = [[query_text, p] for p in passages]
+        query_passage_pairs = [[effective_query, p] for p in passages]
         
         rerank_scores = self.reranker.compute_score(query_passage_pairs)
         
@@ -104,7 +118,7 @@ class HoseoRAGPipeline:
         context_block = "\n\n" + "="*40 + "\n\n".join(ranked_contexts) + "\n\n" + "="*40
 
         # 3. 📝 RAG 시스템 프롬프트
-        system_prompt = """당신은 호서대학교 학생들의 질문에 정확히 답변하는 최고 수준의 AI 조교입니다.
+        system_prompt = f"""당신은 호서대학교 학생들의 질문에 정확히 답변하는 최고 수준의 AI 조교입니다.
 아래 제공된 [검색된 공지사항 문서]들을 분석하여 사용자의 질문에 답변하세요.
 
 [절대 준수 원칙]
@@ -113,7 +127,7 @@ class HoseoRAGPipeline:
 3. 출처 명시: 텍스트를 요약할 때, 가급적 '[0000년 OO부서 공지 기준]'과 같이 출처 맥락을 덧붙여 신뢰도를 높이세요.
 4. 중요도 우선 반영: 문서는 중요도 역순(1위 문서가 가장 마지막에 위치)으로 제공됩니다. 충돌하는 정보가 있다면 최신 연도와 상위 중요도(1위 쪽에 가까운) 문서를 우선하여 답변하세요.
 5. 가독성: 읽기 쉽게 줄바꿈과 글머리 기호를 사용하고, 마크다운 강조(**)는 사용하지 마세요.
-6. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요."""
+6. {DEFAULT_YEAR_CONTEXT_RULE}"""
 
         user_prompt = f"""[검색된 공지사항 문서]
 {context_block}

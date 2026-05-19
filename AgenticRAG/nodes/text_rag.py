@@ -1,6 +1,7 @@
 import os
 from openai import OpenAI
 from AgenticRAG.graph.state import AgentState
+from ai_engine.rag_prompt_rules import DEFAULT_YEAR_CONTEXT_RULE
 
 try:
     from ai_engine.rag_pipeline_notice import get_shared_notice_pipeline
@@ -106,7 +107,7 @@ def _text_rag_rules(question: str) -> dict:
                         "1. 문서에 없는 내용은 추측하지 마세요.\n"
                         "2. 근거가 된 문서명·페이지를 명시하세요.\n"
                         "3. 답변 끝에 출처 목록을 붙이지 마세요(앱에서 규정명·페이지를 링크로 표시합니다).\n"
-                        "4. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
+                        f"4. {DEFAULT_YEAR_CONTEXT_RULE}\n"
                         "5. 답변에 마크다운 강조(**)를 사용하지 마세요."
                     ),
                 },
@@ -225,7 +226,7 @@ def text_rag_node(state: AgentState) -> dict:
                         "3. 답변에 실제로 활용한 공지마다 제목과 원문 URL을 반드시 적으세요 (컨텍스트의 URL만 사용).\n"
                         "4. 답변 끝에 공지 목록·링크 블록을 길게 붙이지 마세요. 관련 공지 링크는 시스템이 최대 3건만 추가합니다.\n"
                         "5. 문서에 없는 내용은 추측하지 말고 '제공된 공지에서 확인이 어렵습니다'라고 답하세요.\n"
-                        "6. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
+                        f"6. {DEFAULT_YEAR_CONTEXT_RULE}\n"
                         "7. 답변에 마크다운 강조(**)를 사용하지 마세요."
                     ),
                 },

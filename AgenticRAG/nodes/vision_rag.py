@@ -7,6 +7,7 @@ from typing import List, Optional, Tuple
 from openai import OpenAI
 from pdf2image import convert_from_path
 from AgenticRAG.graph.state import AgentState
+from ai_engine.rag_prompt_rules import DEFAULT_YEAR_CONTEXT_RULE
 
 try:
     from PIL import Image
@@ -456,7 +457,7 @@ def _call_vlm(
                 "1. 조문·표의 숫자·기한은 가능하면 이미지에 보이는 그대로 인용하세요.\n"
                 "2. 확실하지 않은 내용은 추측하지 마세요.\n"
                 "3. 답변 끝에 '📚 [분석 근거]'에 규정 파일명·페이지를 나열하세요.\n"
-                "4. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
+                f"4. {DEFAULT_YEAR_CONTEXT_RULE}\n"
                 "5. 답변에 마크다운 강조(**)를 사용하지 마세요.\n\n"
                 f"[첨부 상태] {attachment_status}\n\n"
                 f"[검색된 규정 본문]\n{text_context}\n\n"
@@ -472,7 +473,7 @@ def _call_vlm(
                 "3. 답변에 실제로 활용한 공지마다 제목과 원문 URL을 반드시 적으세요.\n"
                 "4. 답변 끝에 공지 목록을 길게 붙이지 마세요. 관련 공지는 시스템이 최대 3건만 추가합니다.\n"
                 "5. 공지번호(schIdx)만 단독으로 나열하지 마세요.\n"
-                "6. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
+                f"6. {DEFAULT_YEAR_CONTEXT_RULE}\n"
                 "7. 답변에 마크다운 강조(**)를 사용하지 마세요.\n\n"
                 f"[첨부 상태] {attachment_status}\n\n"
                 f"[검색된 공지 본문]\n{text_context}\n\n"
@@ -487,7 +488,7 @@ def _call_vlm(
                 "### 지시:\n"
                 "1. 제공된 본문만 근거로 하세요.\n"
                 "2. 답변 끝에 '📚 [분석 근거]'에 규정 출처(파일명·페이지)를 적으세요.\n"
-                "3. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
+                f"3. {DEFAULT_YEAR_CONTEXT_RULE}\n"
                 "4. 답변에 마크다운 강조(**)를 사용하지 마세요.\n\n"
                 f"[첨부 상태] {attachment_status}\n\n"
                 f"[검색된 규정 본문]\n{text_context}\n\n"
@@ -499,9 +500,10 @@ def _call_vlm(
                 "첨부 PDF/이미지는 없거나 열 수 없어, 아래 [검색된 공지 본문]만 근거로 답하세요.\n\n"
                 "### 지시:\n"
                 "1. 본문에 근거해 답하세요. 없는 내용은 지어내지 마세요.\n"
-                "2. 답변 끝에 '📚 [분석 근거]'에 인용한 공지 출처(parent_id·분류)를 요약해 적으세요.\n"
-                "3. 사용자 질문에 명시적인 연도/날짜 표현이 없으면 2026년 기준으로 해석해 답변하세요.\n"
-                "4. 답변에 마크다운 강조(**)를 사용하지 마세요.\n\n"
+                "2. 답변에 실제로 활용한 공지마다 제목과 원문 URL을 반드시 적으세요.\n"
+                "3. 답변 끝에 공지 목록을 길게 붙이지 마세요. 관련 공지는 시스템이 최대 3건만 추가합니다.\n"
+                f"4. {DEFAULT_YEAR_CONTEXT_RULE}\n"
+                "5. 답변에 마크다운 강조(**)를 사용하지 마세요.\n\n"
                 f"[첨부 상태] {attachment_status}\n\n"
                 f"[검색된 공지 본문]\n{text_context}\n\n"
                 f"사용자 질문: {question}"

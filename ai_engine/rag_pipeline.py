@@ -6,6 +6,8 @@ from openai import OpenAI
 from pymilvus import connections, Collection, AnnSearchRequest, RRFRanker
 from FlagEmbedding import BGEM3FlagModel, FlagReranker
 
+from ai_engine.rag_prompt_rules import DEFAULT_YEAR_CONTEXT_RULE
+
 # ==========================================
 # 🛡️ 0. 윈도우 터미널 인코딩 에러(ascii) 방지
 # ==========================================
@@ -126,13 +128,15 @@ def generate_answer(query, retrieved_chunks):
         context_text += f"- 출처: {chunk['source']} (페이지: {chunk['page_num']})\n"
         context_text += f"- 내용: {chunk['text']}\n\n"
 
-    system_prompt = """당신은 호서대학교 학칙 및 규정을 안내하는 전문 AI 어시스턴트입니다.
+    system_prompt = f"""당신은 호서대학교 학칙 및 규정을 안내하는 전문 AI 어시스턴트입니다.
 아래 제공된 [참고 문서]만을 바탕으로 사용자의 질문에 정확하고 명확하게 답변하세요.
 
 [답변 규칙]
 1. 문서에 없는 내용은 절대 지어내지 마세요. 판단할 수 없는 경우 "제공된 규정에서는 해당 내용을 찾을 수 없습니다."라고 답변하세요.
 2. 답변 시 반드시 근거가 된 [참고 문서]의 출처(파일명)와 조항 번호를 명시하세요.
-3. 사용자가 읽기 쉽도록 줄바꿈과 글머리 기호를 적절히 사용하세요."""
+3. 사용자가 읽기 쉽도록 줄바꿈과 글머리 기호를 적절히 사용하세요.
+4. {DEFAULT_YEAR_CONTEXT_RULE}
+5. 답변에 마크다운 강조(**)를 사용하지 마세요."""
 
     user_prompt = f"{context_text}\n\n[사용자 질문]\n{query}"
 
