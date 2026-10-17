@@ -351,12 +351,15 @@ def run_pipeline_for_batch(
                 }
                 if "ngrok" in (webhook_url or "").lower():
                     headers["ngrok-skip-browser-warning"] = "true"
+                from ai_engine.notice_alert_store import to_spring_notice_item
+
+                spring_items = [to_spring_notice_item(it) for it in event_items]
                 now_iso = datetime.now().isoformat(timespec="seconds")
                 payload = {
                     "source": "crawler",
                     "generated_at": now_iso,
-                    "count": len(event_items),
-                    "items": event_items,
+                    "count": len(spring_items),
+                    "items": spring_items,
                 }
                 res = requests.post(webhook_url, headers=headers, json=payload, timeout=30)
                 if res.status_code in (200, 201):

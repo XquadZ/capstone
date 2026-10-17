@@ -223,16 +223,22 @@ class IncrementalNoticeUpdater:
             def _m(key: str) -> str:
                 return str(meta.get(key) or refined.get(key) or "")
 
-            item = {
-                "notice_id": notice_id,
-                "title": str(refined.get("title") or raw_info.get("title") or ""),
-                "date": str(refined.get("date") or raw_info.get("date") or ""),
-                "url": str(refined.get("url") or raw_info.get("url") or ""),
-                "category": _m("category"),
-                "major_category": _m("major_category"),
-                "target": _m("target"),
-                "entity": _m("entity"),
-            }
+            title = str(refined.get("title") or raw_info.get("title") or "")
+            from ai_engine.notice_alert_store import normalize_alert_item
+
+            # 알림/웹훅: category·display 는 대분류로 강제 (세부값은 sub_category)
+            item = normalize_alert_item(
+                {
+                    "notice_id": notice_id,
+                    "title": title,
+                    "date": str(refined.get("date") or raw_info.get("date") or ""),
+                    "url": str(refined.get("url") or raw_info.get("url") or ""),
+                    "category": _m("category"),
+                    "major_category": _m("major_category"),
+                    "target": _m("target"),
+                    "entity": _m("entity"),
+                }
+            )
             items.append(item)
         return items
 
@@ -468,16 +474,41 @@ class IncrementalNoticeUpdater:
         
         _log(f"🚀 {len(targets)}개의 새로운 공지사항이 Milvus에 업데이트되었습니다.")
 
+        # 터미널 + 로컬 저장 + AI API 토스트 SSE 브로드캐스트
+        try:
+            from ai_engine.notice_alert_store import save_new_notice_alerts
+
+            saved = save_new_notice_alerts(event_items)
+            _log(f"🔔 신규 공지 알림 {saved.get('count', 0)}건 저장 → data/notice_alerts/latest.json")
+            for it in event_items:
+                _log(f"   · {it.get('display') or it.get('title')}")
+        except Exception as e:
+            _log(f"⚠️ 로컬 알림 저장 실패: {e}")
+
+        publish_url = os.getenv(
+            "NOTICE_ALERT_PUBLISH_URL", "http://127.0.0.1:8000/notices/alerts/publish"
+        )
+        try:
+            pub_headers = {"Content-Type": "application/json"}
+            pub_res = requests.post(
+                publish_url,
+                headers=pub_headers,
+                json={"items": event_items},
+                timeout=10,
+            )
+            _log(f"📣 토스트 SSE publish: HTTP {pub_res.status_code} {pub_res.text[:200]}")
+        except Exception as e:
+            _log(f"⚠️ 토스트 SSE publish 실패(AI API 켜져 있는지 확인): {e}")
+
         # ==========================================================
         # 🔥 2. 백엔드(Spring) 서버로 웹훅 알림 쏘기
         # POST /api/notices/new · snake_case 바디 · X-API-Key
-        # 로컬 Spring: NOTICE_EVENT_WEBHOOK_URL=http://localhost:8080/api/notices/new
-        # ngrok 주소는 바뀔 수 있음 → 환경변수로 덮어쓰기 권장
+        # Hoseo LENS: NOTICE_EVENT_WEBHOOK_URL=https://...ngrok.../api/notices/new
         # ==========================================================
-        default_webhook = "http://101.79.20.120/api/notices/new"
+        default_webhook = "https://wrecker-motivator-overall.ngrok-free.dev/api/notices/new"
         webhook_url = os.getenv("NOTICE_EVENT_WEBHOOK_URL", default_webhook)
         api_key = os.getenv("NOTICE_EVENT_API_KEY", "hoseo-lens-secret-key")
-        _log(f"🔗 웹훅 URL: {webhook_url}")
+        _log(f"🔗 Spring 웹훅 URL: {webhook_url}")
 
         try:
             headers = {
@@ -488,12 +519,16 @@ class IncrementalNoticeUpdater:
             if "ngrok" in (webhook_url or "").lower():
                 headers["ngrok-skip-browser-warning"] = "true"
 
+            from ai_engine.notice_alert_store import to_spring_notice_item
+
+            # Spring: category 만 대분류(정확 일치). major 중복 결합 방지.
+            spring_items = [to_spring_notice_item(it) for it in event_items]
             now_iso = datetime.now().isoformat(timespec="seconds")
             payload = {
                 "source": "crawler",
                 "generated_at": now_iso,
-                "count": len(event_items),
-                "items": event_items,
+                "count": len(spring_items),
+                "items": spring_items,
             }
 
             res = requests.post(webhook_url, headers=headers, json=payload, timeout=30)

@@ -12,7 +12,12 @@ import time
 from typing import Any, Dict, List, Optional, Tuple
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, Query
+import asyncio
+import json
+
+from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 # ---------------------------------------------------------------------------
@@ -101,23 +106,39 @@ async def lifespan(app: FastAPI):
     
     # 1. 텍스트 RAG 파이프라인 (임베딩 & 리랭커 모델) VRAM 적재
     try:
-        print("📦 [1/2] 텍스트 RAG 모델(임베딩/리랭커) 로딩 중...")
+        print("📦 [1/3] 텍스트 RAG 모델(임베딩/리랭커) 로딩 중...")
         _get_notice_pipeline()
     except Exception as e:
         print(f"❌ 텍스트 RAG 로딩 에러: {e}")
 
     # 2. SLM 라우터 노드 로딩 및 '더미(Dummy) 질문' 던지기
     try:
-        print("🧠 [2/2] SLM 라우터 모델(LoRA) 로딩 및 엔진 예열 중...")
+        print("🧠 [2/3] SLM 라우터 모델(LoRA) 로딩 및 엔진 예열 중...")
         from AgenticRAG.nodes.router import slm_router_node
         # 깡통 질문을 던져서 모델이 실제로 추론을 1회 돌게 만듭니다. (진짜 워밍업)
         dummy_state = {"question": "시스템 워밍업용 더미 질문입니다.", "domain": "notice", "retry_count": 0}
         slm_router_node(dummy_state)
     except Exception as e:
         print(f"❌ 라우터 워밍업 에러: {e}")
+
+    # 3. 로컬 VLM (TEXT/VISION 공통 생성기)
+    try:
+        print("[3/3] Local VLM (Qwen3-VL-2B) loading...")
+        from ai_engine.local_vlm import warm_local_vlm
+
+        warm_local_vlm()
+    except Exception as e:
+        print(f"❌ 로컬 VLM 워밍업 에러: {e}")
         
     print(f"✅ [부팅 완료] 모든 AI 모델 GPU 적재 끝! (소요시간: {time.time() - start_time:.2f}초)")
     print("="*60 + "\n")
+
+    try:
+        from ai_engine.notice_alert_bus import bind_loop
+
+        bind_loop(asyncio.get_running_loop())
+    except Exception as e:
+        print(f"⚠️ notice alert bus bind 실패: {e}")
     
     yield # 서버가 돌아가는 동안 대기
     
@@ -132,6 +153,15 @@ app = FastAPI(
     version="0.2.0",
     description="notice / rules 공통 TV-RAG · Spring·ngrok 연동용",
     lifespan=lifespan  # 👈 여기에 lifespan이 연결됩니다!
+)
+
+# Spring test.html(다른 도메인)에서 토스트 SSE 구독 허용
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -354,6 +384,71 @@ def ask(req: AskRequest):
         contexts=contexts,
         sources=source_models,
         meta=meta,
+    )
+
+
+class NoticeAlertPublishRequest(BaseModel):
+    items: List[Dict[str, Any]] = Field(default_factory=list)
+
+
+@app.get("/notices/alerts")
+def notices_alerts():
+    """증분 크롤로 들어온 최근 신규 공지 JSON ([카테고리] 제목 포함)."""
+    from ai_engine.notice_alert_store import load_alerts
+
+    return load_alerts()
+
+
+@app.post("/notices/alerts/publish")
+async def notices_alerts_publish(req: NoticeAlertPublishRequest):
+    """크롤 프로세스가 신규 공지 토스트를 SSE 구독자에게 브로드캐스트."""
+    from ai_engine.notice_alert_bus import publish
+    from ai_engine.notice_alert_store import normalize_alert_item, save_new_notice_alerts
+
+    items = []
+    for it in req.items or []:
+        if not isinstance(it, dict):
+            continue
+        # category / display 는 대분류(MAJOR_CATEGORIES)로 강제
+        items.append(normalize_alert_item(it))
+    if not items:
+        return {"status": "empty", "subscribers": 0}
+
+    save_new_notice_alerts(items)
+    n = publish(items)
+    print(f"[Toast] publish {len(items)} item(s) → subscribers={n}", flush=True)
+    return {"status": "ok", "count": len(items), "subscribers": n}
+
+
+@app.get("/notices/alerts/stream")
+async def notices_alerts_stream(request: Request):
+    """브라우저 토스트용 SSE. 신규 크롤 공지만 푸시."""
+    from ai_engine.notice_alert_bus import subscribe, unsubscribe
+
+    queue = subscribe()
+
+    async def event_gen():
+        try:
+            yield "event: ready\ndata: {\"ok\":true}\n\n"
+            while True:
+                if await request.is_disconnected():
+                    break
+                try:
+                    raw = await asyncio.wait_for(queue.get(), timeout=15.0)
+                    yield f"event: notice\ndata: {raw}\n\n"
+                except asyncio.TimeoutError:
+                    yield ": ping\n\n"
+        finally:
+            unsubscribe(queue)
+
+    return StreamingResponse(
+        event_gen(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
     )
 
 

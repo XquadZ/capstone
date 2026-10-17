@@ -1,7 +1,6 @@
-import os
-from openai import OpenAI
 from AgenticRAG.graph.state import AgentState
 from ai_engine.rag_prompt_rules import DEFAULT_YEAR_CONTEXT_RULE
+from ai_engine.local_vlm import generate_text as local_vlm_generate_text
 
 try:
     from ai_engine.rag_pipeline_notice import get_shared_notice_pipeline
@@ -36,9 +35,6 @@ def _notice_hits_as_docs(hits):
             }
         )
     return docs
-
-
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 
 def _text_rag_rules(question: str) -> dict:
@@ -95,31 +91,24 @@ def _text_rag_rules(question: str) -> dict:
     print(f"📄 [Text RAG·Rules] {len(search_results)}개의 학칙 청크를 확보했습니다.")
 
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "당신은 호서대학교 학칙 및 규정을 안내하는 전문 AI 어시스턴트입니다.\n"
-                        "아래 [참고 문서]만을 근거로 답변하세요.\n\n"
-                        "### 답변 규칙 ###\n"
-                        "1. 문서에 없는 내용은 추측하지 마세요.\n"
-                        "2. 근거가 된 문서명·페이지를 명시하세요.\n"
-                        "3. 답변 끝에 출처 목록을 붙이지 마세요(앱에서 규정명·페이지를 링크로 표시합니다).\n"
-                        f"4. {DEFAULT_YEAR_CONTEXT_RULE}\n"
-                        "5. 답변에 마크다운 강조(**)를 사용하지 마세요."
-                    ),
-                },
-                {"role": "user", "content": f"사용자 질문: {question}\n\n[참고 문서]\n{context_text}"},
-            ],
-            max_tokens=1500,
-            temperature=0.0,
+        print("🚀 [Text RAG·Rules] 로컬 VLM(Qwen3-VL-2B) 호출 중...")
+        generation = local_vlm_generate_text(
+            system_prompt=(
+                "당신은 호서대학교 학칙 및 규정을 안내하는 전문 AI 어시스턴트입니다.\n"
+                "아래 [참고 문서]만을 근거로 답변하세요.\n\n"
+                "### 답변 규칙 ###\n"
+                "1. 문서에 없는 내용은 추측하지 마세요.\n"
+                "2. 근거가 된 문서명·페이지를 명시하세요.\n"
+                "3. 답변 끝에 출처 목록을 붙이지 마세요(앱에서 규정명·페이지를 링크로 표시합니다).\n"
+                f"4. {DEFAULT_YEAR_CONTEXT_RULE}\n"
+                "5. 답변에 마크다운 강조(**)를 사용하지 마세요."
+            ),
+            user_text=f"사용자 질문: {question}\n\n[참고 문서]\n{context_text}",
+            max_new_tokens=1500,
         )
-        generation = response.choices[0].message.content
-        print("✅ [Text RAG·Rules] 텍스트 기반 답변 생성 완료!")
+        print("✅ [Text RAG·Rules] 로컬 VLM 답변 생성 완료!")
     except Exception as e:
-        print(f"❌ [Text RAG·Rules] API 호출 실패: {e}")
+        print(f"❌ [Text RAG·Rules] 로컬 VLM 호출 실패: {e}")
         generation = "AI 분석 서버와의 통신 중 오류가 발생했습니다."
 
     rules_sources = []
@@ -153,10 +142,10 @@ def text_rag_node(state: AgentState) -> dict:
     question = state["question"]
     domain = str(state.get("domain", "notice") or "notice").strip().lower()
     if domain == "rules":
-        print(f"\n--- [NODE: Text RAG] 학칙·규정 텍스트 RAG (gpt-4o-mini) domain=rules ---")
+        print(f"\n--- [NODE: Text RAG] 학칙·규정 텍스트 RAG (Local VLM) domain=rules ---")
         return _text_rag_rules(question)
 
-    print(f"\n--- [NODE: Text RAG] 공지사항 텍스트 RAG (Model: gpt-4o-mini, OpenAI) ---")
+    print(f"\n--- [NODE: Text RAG] 공지사항 텍스트 RAG (Local VLM: Qwen3-VL-2B) ---")
 
     if get_shared_notice_pipeline is None:
         return {
@@ -211,42 +200,28 @@ def text_rag_node(state: AgentState) -> dict:
 
     print(f"📄 [Text RAG] {len(search_results)}개의 공지 청크를 확보했습니다.")
 
-    print("🚀 [Text RAG] gpt-4o-mini (OpenAI) 호출 중...")
+    print("🚀 [Text RAG] 로컬 VLM(Qwen3-VL-2B) 호출 중...")
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "당신은 호서대학교 행정·학사 공지 안내 전문가입니다. 제공된 공지사항 발췌만을 바탕으로 답변하세요.\n\n"
-                        "### 답변 원칙 ###\n"
-                        "1. 근거가 되는 연도·부서·분류 등 메타 정보와 본문 요지를 명확히 드러내세요.\n"
-                        "2. 답변 본문에 공지번호(schIdx)·parent_id만 단독으로 나열하지 마세요.\n"
-                        "3. 답변에 실제로 활용한 공지마다 제목과 원문 URL을 반드시 적으세요 (컨텍스트의 URL만 사용).\n"
-                        "4. 답변 끝에 공지 목록·링크 블록을 길게 붙이지 마세요. 관련 공지 링크는 시스템이 최대 3건만 추가합니다.\n"
-                        "5. 문서에 없는 내용은 추측하지 말고 '제공된 공지에서 확인이 어렵습니다'라고 답하세요.\n"
-                        f"6. {DEFAULT_YEAR_CONTEXT_RULE}\n"
-                        "7. 답변에 마크다운 강조(**)를 사용하지 마세요."
-                    ),
-                },
-                {
-                    "role": "user",
-                    "content": f"사용자 질문: {question}\n\n[제공된 공지사항 컨텍스트]\n{context_text}",
-                },
-            ],
-            max_tokens=1500,
-            temperature=0.0,
+        raw = local_vlm_generate_text(
+            system_prompt=(
+                "당신은 호서대학교 행정·학사 공지 안내 전문가입니다. 제공된 공지사항 발췌만을 바탕으로 답변하세요.\n\n"
+                "### 답변 원칙 ###\n"
+                "1. 근거가 되는 연도·부서·분류 등 메타 정보와 본문 요지를 명확히 드러내세요.\n"
+                "2. 답변 본문에 공지번호(schIdx)·parent_id만 단독으로 나열하지 마세요.\n"
+                "3. 답변에 실제로 활용한 공지마다 제목과 원문 URL을 반드시 적으세요 (컨텍스트의 URL만 사용).\n"
+                "4. 답변 끝에 공지 목록·링크 블록을 길게 붙이지 마세요. 관련 공지 링크는 시스템이 최대 3건만 추가합니다.\n"
+                "5. 문서에 없는 내용은 추측하지 말고 '제공된 공지에서 확인이 어렵습니다'라고 답하세요.\n"
+                f"6. {DEFAULT_YEAR_CONTEXT_RULE}\n"
+                "7. 답변에 마크다운 강조(**)를 사용하지 마세요."
+            ),
+            user_text=f"사용자 질문: {question}\n\n[제공된 공지사항 컨텍스트]\n{context_text}",
+            max_new_tokens=1500,
         )
-
-        generation = append_notice_links_to_answer(
-            response.choices[0].message.content or "",
-            sources_structured,
-        )
-        print("✅ [Text RAG] 텍스트 기반 답변 생성 완료!")
+        generation = append_notice_links_to_answer(raw or "", sources_structured)
+        print("✅ [Text RAG] 로컬 VLM 답변 생성 완료!")
 
     except Exception as e:
-        print(f"❌ [Text RAG] API 호출 실패: {e}")
+        print(f"❌ [Text RAG] 로컬 VLM 호출 실패: {e}")
         generation = "AI 분석 서버와의 통신 중 오류가 발생했습니다."
 
     return {

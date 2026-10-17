@@ -4,10 +4,10 @@ import io
 import time
 from typing import List, Optional, Tuple
 
-from openai import OpenAI
 from pdf2image import convert_from_path
 from AgenticRAG.graph.state import AgentState
 from ai_engine.rag_prompt_rules import DEFAULT_YEAR_CONTEXT_RULE
+from ai_engine.local_vlm import generate_vision as local_vlm_generate_vision
 
 try:
     from PIL import Image
@@ -23,12 +23,10 @@ except ImportError:
     get_shared_notice_pipeline = None  # type: ignore
 
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
 POPPLER_PATH = None
 
-# TPM 절감: VLM 요청당 이미지 상한(기본 10) + OpenAI vision low-detail
-MAX_VLM_IMAGES = int(os.environ.get("VLM_MAX_IMAGES", "10"))
+# 로컬 VLM 요청당 이미지 상한 (VRAM 보호)
+MAX_VLM_IMAGES = int(os.environ.get("VLM_MAX_IMAGES", "4"))
 VLM_IMAGE_DETAIL = os.environ.get("VLM_IMAGE_DETAIL", "low").strip().lower()
 if VLM_IMAGE_DETAIL not in ("low", "high", "auto"):
     VLM_IMAGE_DETAIL = "low"
@@ -510,13 +508,15 @@ def _call_vlm(
             )
         user_content = [{"type": "text", "text": intro}]
 
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": user_content}],
-        max_tokens=2500,
-        temperature=0.0,
+    # user_content: [text, image_url..., ] 또는 [text]
+    text_parts = [p.get("text", "") for p in user_content if p.get("type") == "text"]
+    image_parts = [p for p in user_content if p.get("type") == "image_url"]
+    return local_vlm_generate_vision(
+        system_prompt="당신은 호서대학교 문서·공지 분석 전문가입니다. 제공된 근거만으로 답하세요.",
+        user_text="\n".join(t for t in text_parts if t),
+        image_contents=image_parts,
+        max_new_tokens=2500,
     )
-    return response.choices[0].message.content
 
 
 def vision_rag_node(state: AgentState) -> dict:
@@ -524,7 +524,7 @@ def vision_rag_node(state: AgentState) -> dict:
     domain = str(state.get("domain", "notice") or "notice").strip().lower()
     start_time = time.time()
     label = "학칙·규정" if domain == "rules" else "공지·첨부"
-    print(f"\n--- [NODE: Vision RAG] {label} 시각 분석 (gpt-4o-mini) domain={domain} ---")
+    print(f"\n--- [NODE: Vision RAG] {label} 시각 분석 (Local VLM: Qwen3-VL-2B) domain={domain} ---")
 
     search_hits: list = []
     rules_chunks: list = []
@@ -597,11 +597,11 @@ def vision_rag_node(state: AgentState) -> dict:
     if image_contents:
         attachment_status = f"첨부 미디어 {len(image_contents)}건 로드됨"
         print(
-            f"🚀 [VLM] 이미지 {len(image_contents)}장 (상한 {MAX_VLM_IMAGES}, detail={VLM_IMAGE_DETAIL}) + 본문 → OpenAI"
+            f"🚀 [VLM] 이미지 {len(image_contents)}장 (상한 {MAX_VLM_IMAGES}) + 본문 → Local VLM"
         )
     else:
         attachment_status = "첨부파일 없음 (또는 열 수 없음) — 검색된 본문만 사용"
-        print("ℹ️ [Vision] 첨부 PDF/이미지 없음 → 검색 텍스트만으로 VLM에 질의합니다.")
+        print("ℹ️ [Vision] 첨부 PDF/이미지 없음 → 검색 텍스트만으로 로컬 VLM에 질의합니다.")
 
     try:
         generation = _call_vlm(question, image_contents, text_context, attachment_status, domain=domain)
